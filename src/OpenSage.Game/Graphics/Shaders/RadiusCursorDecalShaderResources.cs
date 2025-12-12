@@ -5,14 +5,14 @@ namespace OpenSage.Graphics.Shaders;
 
 internal sealed class RadiusCursorDecalShaderResources : DisposableBase
 {
-    private readonly GraphicsDevice _graphicsDevice;
+    private readonly Veldrid.GraphicsDevice _graphicsDevice;
 
     private readonly Sampler _aniso4xClampSampler;
 
     public readonly ResourceLayout RadiusCursorDecalsResourceLayout;
 
     public RadiusCursorDecalShaderResources(
-        GraphicsDevice graphicsDevice,
+        Veldrid.GraphicsDevice graphicsDevice,
         Sampler aniso4xClampSampler)
     {
         _graphicsDevice = graphicsDevice;

@@ -5,6 +5,7 @@ using System.Numerics;
 using OpenSage.Input;
 using OpenSage.Input.Cursors;
 using OpenSage.Mathematics;
+using Veldrid;
 
 namespace OpenSage.Graphics.Cameras;
 

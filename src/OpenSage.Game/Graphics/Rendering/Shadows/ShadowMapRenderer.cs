@@ -22,7 +22,7 @@ internal sealed class ShadowMapRenderer : DisposableBase
 
     public ConstantBuffer<GlobalShaderResources.ShadowConstantsPS> ShadowConstantsPSBuffer => _shadowConstantsPSBuffer;
 
-    public ShadowMapRenderer(GraphicsDevice graphicsDevice)
+    public ShadowMapRenderer(Veldrid.GraphicsDevice graphicsDevice)
     {
         _shadowFrustumCalculator = new ShadowFrustumCalculator();
         _lightFrustum = new BoundingFrustum(Matrix4x4.Identity);
@@ -34,7 +34,7 @@ internal sealed class ShadowMapRenderer : DisposableBase
 
     public void RenderShadowMap(
         IScene3D scene,
-        GraphicsDevice graphicsDevice,
+        Veldrid.GraphicsDevice graphicsDevice,
         CommandList commandList,
         Action<Framebuffer, BoundingFrustum> drawSceneCallback)
     {

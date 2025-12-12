@@ -12,7 +12,7 @@ namespace OpenSage.Terrain;
 
 internal sealed class RadiusCursorDecals : DisposableBase
 {
-    private readonly GraphicsDevice _graphicsDevice;
+    private readonly Veldrid.GraphicsDevice _graphicsDevice;
 
     private readonly ConstantBuffer<RadiusCursorDecalShaderResources.RadiusCursorDecalConstants> _decalConstantBuffer;
 
@@ -36,7 +36,7 @@ internal sealed class RadiusCursorDecals : DisposableBase
 
     public readonly Texture TextureArray;
 
-    public RadiusCursorDecals(GraphicsDevice graphicsDevice)
+    public RadiusCursorDecals(Veldrid.GraphicsDevice graphicsDevice)
     {
         _graphicsDevice = graphicsDevice;
 

@@ -12,6 +12,7 @@
     <PackageReference Include="Veldrid" />
     <PackageReference Include="Veldrid.StartupUtilities" />
     <PackageReference Include="Veldrid.SPIRV" />
+    <PackageReference Include="NUnit" />
   </ItemGroup>
 
   <ItemGroup>

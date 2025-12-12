@@ -20,7 +20,8 @@ internal static class GraphicsDeviceUtility
             SyncToVerticalBlank = true,
             ResourceBindingModel = ResourceBindingModel.Improved,
             PreferStandardClipSpaceYDirection = true,
-            PreferDepthRangeZeroToOne = true
+            PreferDepthRangeZeroToOne = true,
+            SwapchainDepthFormat = PixelFormat.D32_Float_S8_UInt
         };
 
         var backend = preferredBackend ?? VeldridStartup.GetPlatformDefaultBackend();

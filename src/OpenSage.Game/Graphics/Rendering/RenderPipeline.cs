@@ -77,7 +77,7 @@ internal sealed class RenderPipeline : DisposableBase
             game.Panel.OutputDescription));
     }
 
-    private void EnsureIntermediateFramebuffer(GraphicsDevice graphicsDevice, Framebuffer target)
+    private void EnsureIntermediateFramebuffer(Veldrid.GraphicsDevice graphicsDevice, Framebuffer target)
     {
         if (_intermediateDepthBuffer != null && _intermediateDepthBuffer.Width == target.Width && _intermediateDepthBuffer.Height == target.Height)
         {

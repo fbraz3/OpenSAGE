@@ -9,7 +9,7 @@ internal sealed class RenderTarget : DisposableBase
         null,
         new OutputAttachmentDescription(PixelFormat.B8_G8_R8_A8_UNorm));
 
-    private readonly GraphicsDevice _graphicsDevice;
+    private readonly Veldrid.GraphicsDevice _graphicsDevice;
 
     private Size _size;
     private Texture _colorTarget;
@@ -18,7 +18,7 @@ internal sealed class RenderTarget : DisposableBase
     public Texture ColorTarget => _colorTarget;
     public Framebuffer Framebuffer => _framebuffer;
 
-    public RenderTarget(GraphicsDevice graphicsDevice)
+    public RenderTarget(Veldrid.GraphicsDevice graphicsDevice)
     {
         _graphicsDevice = graphicsDevice;
     }

@@ -59,6 +59,27 @@ public readonly struct BufferDescription
 }
 
 /// <summary>
+/// Specifies the type of texture.
+/// </summary>
+public enum TextureType
+{
+    /// <summary>
+    /// 1D texture.
+    /// </summary>
+    Texture1D,
+
+    /// <summary>
+    /// 2D texture (most common).
+    /// </summary>
+    Texture2D,
+
+    /// <summary>
+    /// 3D volume texture.
+    /// </summary>
+    Texture3D,
+}
+
+/// <summary>
 /// Specifies pixel format for textures and render targets.
 /// </summary>
 public enum PixelFormat

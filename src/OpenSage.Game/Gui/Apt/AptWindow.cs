@@ -72,7 +72,7 @@ public sealed class AptWindow : DisposableBase
         _resolver = new AptCallbackResolver(game);
     }
 
-    internal void Layout(GraphicsDevice gd, in Size windowSize)
+    internal void Layout(Veldrid.GraphicsDevice gd, in Size windowSize)
     {
         _destinationSize = new Vector2(windowSize.Width, windowSize.Height);
     }
@@ -82,7 +82,7 @@ public sealed class AptWindow : DisposableBase
         return Root.HandleInput(mousePos, mouseDown);
     }
 
-    internal void Update(TimeInterval gt, GraphicsDevice gd)
+    internal void Update(TimeInterval gt, Veldrid.GraphicsDevice gd)
     {
         _context.Avm.UpdateIntervals(gt);
         Root.Update(gt);

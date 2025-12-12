@@ -20,13 +20,13 @@ public class VeldridGraphicsDevice : DisposableBase, IGraphicsDevice
 {
     private readonly VeldridLib.GraphicsDevice _device;
     private readonly VeldridLib.CommandList _cmdList;
-    
+
     // Resource pools with generation-based validation
     private readonly ResourcePool<VeldridLib.DeviceBuffer> _bufferPool;
     private readonly ResourcePool<VeldridLib.Texture> _texturePool;
     private readonly ResourcePool<VeldridLib.Sampler> _samplerPool;
     private readonly ResourcePool<VeldridLib.Framebuffer> _framebufferPool;
-    
+
     private readonly Dictionary<uint, object> _shaders = new();
     private readonly Dictionary<uint, object> _pipelines = new();
 
@@ -42,18 +42,18 @@ public class VeldridGraphicsDevice : DisposableBase, IGraphicsDevice
         _device = device;
         _cmdList = device.ResourceFactory.CreateCommandList();
         AddDisposable(_cmdList);
-        
+
         // Initialize resource pools with adequate initial capacity
         _bufferPool = new ResourcePool<VeldridLib.DeviceBuffer>(256);
         _texturePool = new ResourcePool<VeldridLib.Texture>(128);
         _samplerPool = new ResourcePool<VeldridLib.Sampler>(64);
         _framebufferPool = new ResourcePool<VeldridLib.Framebuffer>(32);
-        
+
         AddDisposable(_bufferPool);
         AddDisposable(_texturePool);
         AddDisposable(_samplerPool);
         AddDisposable(_framebufferPool);
-        
+
         InitCapabilities();
         IsReady = true;
     }
@@ -117,7 +117,7 @@ public class VeldridGraphicsDevice : DisposableBase, IGraphicsDevice
 
         // Allocate from pool with generation validation
         var poolHandle = _bufferPool.Allocate(buf);
-        
+
         // Convert PoolHandle to Handle<IBuffer> using index as ID
         return new Handle<IBuffer>(poolHandle.Index, poolHandle.Generation);
     }
@@ -161,7 +161,7 @@ public class VeldridGraphicsDevice : DisposableBase, IGraphicsDevice
 
         // Allocate from pool with generation validation
         var poolHandle = _texturePool.Allocate(tex);
-        
+
         // Convert PoolHandle to Handle<ITexture> using index as ID
         return new Handle<ITexture>(poolHandle.Index, poolHandle.Generation);
     }
@@ -199,7 +199,7 @@ public class VeldridGraphicsDevice : DisposableBase, IGraphicsDevice
 
         // Allocate from pool with generation validation
         var poolHandle = _samplerPool.Allocate(samp);
-        
+
         // Convert PoolHandle to Handle<ISampler> using index as ID
         return new Handle<ISampler>(poolHandle.Index, poolHandle.Generation);
     }
@@ -224,10 +224,10 @@ public class VeldridGraphicsDevice : DisposableBase, IGraphicsDevice
     {
         // Placeholder implementation - Week 9 will implement full framebuffer support
         var fb = _device.SwapchainFramebuffer;
-        
+
         // Allocate from pool with generation validation
         var poolHandle = _framebufferPool.Allocate(fb);
-        
+
         // Convert PoolHandle to Handle<IFramebuffer> using index as ID
         return new Handle<IFramebuffer>(poolHandle.Index, poolHandle.Generation);
     }

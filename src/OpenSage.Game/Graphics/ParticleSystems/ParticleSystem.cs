@@ -196,7 +196,7 @@ public sealed class ParticleSystem : RenderObject, IPersistableObject
         State = ParticleSystemState.Finished;
     }
 
-    private static DeviceBuffer CreateIndexBuffer(GraphicsDevice graphicsDevice, int maxParticles, out uint numIndices)
+    private static DeviceBuffer CreateIndexBuffer(Veldrid.GraphicsDevice graphicsDevice, int maxParticles, out uint numIndices)
     {
         numIndices = (uint)maxParticles * 2 * 3; // Two triangles per particle.
         var indices = new ushort[numIndices];

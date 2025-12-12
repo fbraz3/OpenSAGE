@@ -116,7 +116,7 @@ internal sealed class AptGeometryView : DiagnosticView
             _renderingContext = new AptRenderingContext(null, contentManager, graphicsLoadContext, _context);
         }
 
-        public void Update(GraphicsDevice gd, in Size windowSize)
+        public void Update(Veldrid.GraphicsDevice gd, in Size windowSize)
         {
             var shapeBoundingBox = _shape.BoundingBox;
 

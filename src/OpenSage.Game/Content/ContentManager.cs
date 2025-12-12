@@ -16,7 +16,7 @@ public sealed class ContentManager : DisposableBase
 
     public SubsystemLoader SubsystemLoader { get; }
 
-    public GraphicsDevice GraphicsDevice { get; }
+    public Veldrid.GraphicsDevice GraphicsDevice { get; }
 
     public SageGame SageGame { get; }
 
@@ -36,7 +36,7 @@ public sealed class ContentManager : DisposableBase
     public ContentManager(
         IGame game,
         FileSystem fileSystem,
-        GraphicsDevice graphicsDevice,
+        Veldrid.GraphicsDevice graphicsDevice,
         SageGame sageGame)
     {
         using (GameTrace.TraceDurationEvent("ContentManager()"))

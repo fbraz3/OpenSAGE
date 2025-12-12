@@ -95,6 +95,13 @@ public sealed class GameWindow : DisposableBase
     public GraphicsDevice CreateGraphicsDevice(GraphicsDeviceOptions options, GraphicsBackend backend)
     {
         var graphicsDevice = VeldridStartup.CreateGraphicsDevice(_window, options, backend);
+
+#if DEBUG
+        var depthAttachment = graphicsDevice.MainSwapchain.Framebuffer.OutputDescription.DepthAttachment;
+        var depthFormatText = depthAttachment?.Format.ToString() ?? "<none>";
+        Console.WriteLine($"[OpenSage] MainSwapchain depth format: {depthFormatText}");
+#endif
+
         Swapchain = graphicsDevice.MainSwapchain;
         return graphicsDevice;
     }

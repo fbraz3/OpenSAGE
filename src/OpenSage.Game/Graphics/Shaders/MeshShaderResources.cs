@@ -9,12 +9,12 @@ namespace OpenSage.Graphics.Shaders;
 
 internal sealed class MeshShaderResources : DisposableBase
 {
-    private readonly GraphicsDevice _graphicsDevice;
+    private readonly Veldrid.GraphicsDevice _graphicsDevice;
     private readonly Dictionary<MeshConstantsKey, ConstantBuffer<MeshConstants>> _meshConstantsBuffers = new();
 
     public readonly ResourceLayout RenderItemConstantsResourceLayout;
 
-    public MeshShaderResources(GraphicsDevice graphicsDevice)
+    public MeshShaderResources(Veldrid.GraphicsDevice graphicsDevice)
     {
         _graphicsDevice = graphicsDevice;
 

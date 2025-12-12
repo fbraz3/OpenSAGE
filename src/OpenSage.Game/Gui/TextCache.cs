@@ -93,7 +93,7 @@ internal sealed class TextCache : DisposableBase
         }
     }
 
-    private readonly GraphicsDevice _graphicsDevice;
+    private readonly Veldrid.GraphicsDevice _graphicsDevice;
     private readonly Dictionary<TextKey, TextCacheEntry> _cache;
 
     private struct ImageKey
@@ -104,7 +104,7 @@ internal sealed class TextCache : DisposableBase
 
     private readonly ResourcePool<Image<Bgra32>, ImageKey> _textImagePool;
 
-    public TextCache(GraphicsDevice graphicsDevice)
+    public TextCache(Veldrid.GraphicsDevice graphicsDevice)
     {
         _graphicsDevice = graphicsDevice;
 

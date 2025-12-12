@@ -10,10 +10,10 @@ public sealed class ShaderSetStore : DisposableBase
 
     private byte _nextId;
 
-    public readonly GraphicsDevice GraphicsDevice;
+    public readonly Veldrid.GraphicsDevice GraphicsDevice;
     public readonly OutputDescription OutputDescription;
 
-    public ShaderSetStore(GraphicsDevice graphicsDevice, OutputDescription outputDescription)
+    public ShaderSetStore(Veldrid.GraphicsDevice graphicsDevice, OutputDescription outputDescription)
     {
         GraphicsDevice = graphicsDevice;
         OutputDescription = outputDescription;

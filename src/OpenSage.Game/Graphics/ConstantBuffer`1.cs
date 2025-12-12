@@ -9,7 +9,7 @@ public sealed class ConstantBuffer<T> : DisposableBase
 
     public T Value;
 
-    public unsafe ConstantBuffer(GraphicsDevice graphicsDevice, string name = null)
+    public unsafe ConstantBuffer(Veldrid.GraphicsDevice graphicsDevice, string name = null)
     {
         Buffer = AddDisposable(graphicsDevice.ResourceFactory.CreateBuffer(
             new BufferDescription(
@@ -27,7 +27,7 @@ public sealed class ConstantBuffer<T> : DisposableBase
         commandList.UpdateBuffer(Buffer, 0, ref Value);
     }
 
-    public void Update(GraphicsDevice graphicsDevice)
+    public void Update(Veldrid.GraphicsDevice graphicsDevice)
     {
         graphicsDevice.UpdateBuffer(Buffer, 0, ref Value);
     }

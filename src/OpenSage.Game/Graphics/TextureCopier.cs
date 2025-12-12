@@ -5,7 +5,7 @@ namespace OpenSage.Graphics;
 
 public sealed class TextureCopier : DisposableBase
 {
-    private readonly GraphicsDevice _graphicsDevice;
+    private readonly Veldrid.GraphicsDevice _graphicsDevice;
     private readonly CommandList _commandList;
     private readonly SpriteBatch _intermediateSpriteBatch;
 

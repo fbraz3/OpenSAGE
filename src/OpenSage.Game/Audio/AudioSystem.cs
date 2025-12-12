@@ -14,33 +14,49 @@ public sealed class AudioSystem : GameSystem
 {
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-    private readonly List<AudioSource> _sources;
-    private readonly Dictionary<string, AudioBuffer> _cached;
-    private readonly AudioEngine _engine;
-    private readonly AudioSettings _settings;
-    private readonly Audio3DEngine _3dengine;
-    private readonly Dictionary<AudioVolumeSlider, Submixer> _mixers;
+    private List<AudioSource> _sources;
+    private Dictionary<string, AudioBuffer> _cached;
+    private AudioEngine _engine;
+    private AudioSettings _settings;
+    private Audio3DEngine _3dengine;
+    private Dictionary<AudioVolumeSlider, Submixer> _mixers;
 
-    private readonly Random _random;
+    private Random _random;
 
     private readonly Dictionary<string, int> _musicTrackFinishedCounts = new Dictionary<string, int>();
 
     private string _currentTrackName;
     private SoundStream _currentTrack;
 
+    private bool _audioEnabled;
+
     public AudioSystem(IGame game) : base(game)
     {
-        _engine = AddDisposable(AudioEngine.CreateDefault());
-        _3dengine = _engine.Create3DEngine();
         _sources = new List<AudioSource>();
         _cached = new Dictionary<string, AudioBuffer>();
         _mixers = new Dictionary<AudioVolumeSlider, Submixer>();
-        _settings = game.AssetStore.AudioSettings.Current;
-
-        CreateSubmixers();
-
-        // TODO: Sync RNG seed from replay?
         _random = new Random();
+
+        var engine = AudioEngine.CreateDefault();
+        if (engine == null)
+        {
+            Logger.Warn("Audio engine unavailable, audio system will stay disabled on this platform.");
+            return;
+        }
+
+        _engine = AddDisposable(engine);
+
+        var engine3d = _engine.Create3DEngine();
+        if (engine3d == null)
+        {
+            Logger.Warn("Audio 3D engine unavailable, audio system will stay disabled on this platform.");
+            return;
+        }
+
+        _3dengine = engine3d;
+        _settings = game.AssetStore.AudioSettings.Current;
+        CreateSubmixers();
+        _audioEnabled = true;
     }
 
     internal override void OnSceneChanged()
@@ -67,6 +83,11 @@ public sealed class AudioSystem : GameSystem
 
     private void CreateSubmixers()
     {
+        if (!_audioEnabled)
+        {
+            return;
+        }
+
         // Create all available mixers
         _mixers[AudioVolumeSlider.SoundFX] = _engine.CreateSubmixer();
         _mixers[AudioVolumeSlider.SoundFX].Volume = (float)_settings.DefaultSoundVolume;
@@ -98,6 +119,11 @@ public sealed class AudioSystem : GameSystem
     public AudioSource GetSound(FileSystemEntry entry,
         AudioVolumeSlider? vslider = AudioVolumeSlider.None, bool loop = false)
     {
+        if (!_audioEnabled)
+        {
+            return null;
+        }
+
         AudioBuffer buffer;
 
         if (!_cached.ContainsKey(entry.FilePath))
@@ -149,6 +175,11 @@ public sealed class AudioSystem : GameSystem
     /// </summary>
     public SoundStream GetStream(FileSystemEntry entry)
     {
+        if (!_audioEnabled)
+        {
+            return null;
+        }
+
         // TODO: Use submixer (currently not possible)
         return AddDisposable(new SoundStream(entry.Open(), _engine));
     }
@@ -182,7 +213,7 @@ public sealed class AudioSystem : GameSystem
 
     private AudioSource PlayAudioEventBase(BaseAudioEventInfo baseAudioEvent, bool looping = false)
     {
-        if (baseAudioEvent is not BaseSingleSound audioEvent)
+        if (!_audioEnabled || baseAudioEvent is not BaseSingleSound audioEvent)
         {
             return null;
         }
@@ -207,6 +238,11 @@ public sealed class AudioSystem : GameSystem
 
     private void UpdateListener(Camera camera)
     {
+        if (!_audioEnabled)
+        {
+            return;
+        }
+
         _3dengine.SetListenerPosition(camera.Position);
         var front = Vector3.Normalize(camera.Target - camera.Position);
         _3dengine.SetListenerOrientation(camera.Up, front);
@@ -253,11 +289,21 @@ public sealed class AudioSystem : GameSystem
 
     public void PlayMusicTrack(MusicTrack musicTrack, bool fadeIn, bool fadeOut)
     {
+        if (!_audioEnabled)
+        {
+            return;
+        }
+
         // TODO: fading
         StopCurrentMusicTrack(fadeOut);
 
         _currentTrackName = musicTrack.Name;
         _currentTrack = GetStream(musicTrack.File.Value.Entry);
+        if (_currentTrack == null)
+        {
+            return;
+        }
+
         _currentTrack.Volume = (float)musicTrack.Volume;
         _currentTrack.Play();
     }

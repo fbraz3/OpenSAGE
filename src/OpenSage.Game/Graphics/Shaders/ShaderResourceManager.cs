@@ -23,7 +23,7 @@ internal sealed class ShaderResourceManager : DisposableBase
     public readonly WaterShaderResources Water;
 
     public ShaderResourceManager(
-        GraphicsDevice graphicsDevice,
+        Veldrid.GraphicsDevice graphicsDevice,
         StandardGraphicsResources standardGraphicsResources,
         ShaderSetStore shaderSetStore)
     {

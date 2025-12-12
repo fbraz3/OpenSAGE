@@ -13,7 +13,7 @@ namespace OpenSage.Graphics;
 
 public sealed class ModelInstance : DisposableBase
 {
-    private readonly GraphicsDevice _graphicsDevice;
+    private readonly Veldrid.GraphicsDevice _graphicsDevice;
 
     internal readonly ModelMeshInstance[] MeshInstances;
 

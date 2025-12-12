@@ -6,6 +6,7 @@ using OpenSage.Client;
 using OpenSage.Content;
 using OpenSage.Data.Sav;
 using OpenSage.Graphics;
+using OpenSage.Graphics.Abstractions;
 using OpenSage.Gui;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.Wnd.Controls;
@@ -45,6 +46,7 @@ public abstract class MockedGameTest : IDisposable
         public AssetStore AssetStore { get; }
         public ContentManager ContentManager { get; }
         public GraphicsDevice GraphicsDevice { get; }
+        public IGraphicsDevice AbstractGraphicsDevice { get; }
         public InputMessageBuffer InputMessageBuffer { get; }
         public SkirmishManager SkirmishManager { get; set; }
         public LobbyManager LobbyManager { get; }

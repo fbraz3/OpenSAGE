@@ -12,9 +12,9 @@ internal sealed class TerrainPatchIndexBufferCache : DisposableBase
         public ushort[] Indices;
     }
 
-    private readonly GraphicsDevice _graphicsDevice;
+    private readonly Veldrid.GraphicsDevice _graphicsDevice;
     private readonly Dictionary<TerrainPatchSize, CacheEntry> _cachedIndexBuffers;
-    public TerrainPatchIndexBufferCache(GraphicsDevice graphicsDevice)
+    public TerrainPatchIndexBufferCache(Veldrid.GraphicsDevice graphicsDevice)
     {
         _graphicsDevice = graphicsDevice;
         _cachedIndexBuffers = new Dictionary<TerrainPatchSize, CacheEntry>();

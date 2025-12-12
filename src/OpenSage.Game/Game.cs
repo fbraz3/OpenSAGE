@@ -14,6 +14,9 @@ using OpenSage.Data.Sav;
 using OpenSage.Data.Wnd;
 using OpenSage.Diagnostics;
 using OpenSage.Graphics;
+using OpenSage.Graphics.Abstractions;
+using OpenSage.Graphics.Core;
+using OpenSage.Graphics.Factory;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Gui;
@@ -50,7 +53,16 @@ public sealed class Game : DisposableBase, IGame
 
     public ContentManager ContentManager { get; }
 
-    public GraphicsDevice GraphicsDevice { get; }
+    // Primary public API - Veldrid graphics device (compatibility)
+    public Veldrid.GraphicsDevice GraphicsDevice { get; private set; }
+
+    // Abstraction layer - for future multi-backend support
+    private IGraphicsDevice _abstractGraphicsDevice;
+    public IGraphicsDevice AbstractGraphicsDevice
+    {
+        get => _abstractGraphicsDevice;
+        private set => _abstractGraphicsDevice = value;
+    }
 
     public InputMessageBuffer InputMessageBuffer { get; }
 
@@ -395,7 +407,7 @@ public sealed class Game : DisposableBase, IGame
 
     public Game(
         GameInstallation installation,
-        GraphicsBackend? preferredBackend,
+        Veldrid.GraphicsBackend? preferredBackend,
         Configuration config,
         GameWindow window)
     {
@@ -413,6 +425,7 @@ public sealed class Game : DisposableBase, IGame
             // TODO: Read game version from assembly metadata or .git folder
             // TODO: Set window icon.
             GraphicsDevice = AddDisposable(GraphicsDeviceUtility.CreateGraphicsDevice(preferredBackend, window));
+            AbstractGraphicsDevice = AddDisposable(GraphicsDeviceFactory.CreateDevice(OpenSage.Graphics.Core.GraphicsBackend.Veldrid, GraphicsDevice));
 
             Panel = AddDisposable(new GamePanel(GraphicsDevice));
 

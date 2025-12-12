@@ -7,7 +7,7 @@ namespace OpenSage.Graphics.Shaders;
 
 internal sealed class ShaderMaterialResourceSetBuilder : DisposableBase
 {
-    private readonly GraphicsDevice _graphicsDevice;
+    private readonly Veldrid.GraphicsDevice _graphicsDevice;
     private readonly ShaderMaterialShaderResources _shaderResources;
     private readonly Dictionary<string, ResourceBinding> _resourceBindings;
     private readonly ResourceType _resourceType;
@@ -16,7 +16,7 @@ internal sealed class ShaderMaterialResourceSetBuilder : DisposableBase
     private readonly BindableResource[] _resources;
 
     public ShaderMaterialResourceSetBuilder(
-        GraphicsDevice graphicsDevice,
+        Veldrid.GraphicsDevice graphicsDevice,
         ShaderMaterialShaderResources shaderResources)
     {
         _graphicsDevice = graphicsDevice;

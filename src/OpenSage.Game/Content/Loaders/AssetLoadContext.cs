@@ -10,7 +10,7 @@ internal sealed class AssetLoadContext
 {
     public FileSystem FileSystem { get; }
     public string Language { get; }
-    public GraphicsDevice GraphicsDevice { get; }
+    public Veldrid.GraphicsDevice GraphicsDevice { get; }
     public StandardGraphicsResources StandardGraphicsResources { get; }
     public ShaderResourceManager ShaderResources { get; }
     public ShaderSetStore ShaderSetStore { get; }
@@ -19,7 +19,7 @@ internal sealed class AssetLoadContext
     public AssetLoadContext(
         FileSystem fileSystem,
         string language,
-        GraphicsDevice graphicsDevice,
+        Veldrid.GraphicsDevice graphicsDevice,
         StandardGraphicsResources standardGraphicsResources,
         ShaderResourceManager shaderResources,
         ShaderSetStore shaderSetStore,

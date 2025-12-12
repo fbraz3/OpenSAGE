@@ -19,7 +19,7 @@ public sealed class GamePanel : DisposableBase
 
     public Rectangle ClientBounds => new Rectangle(0, 0, Frame.Width, Frame.Height);
 
-    internal GamePanel(GraphicsDevice graphicsDevice)
+    internal GamePanel(Veldrid.GraphicsDevice graphicsDevice)
     {
         _renderTarget = AddDisposable(new RenderTarget(graphicsDevice));
     }

@@ -6,6 +6,7 @@ using OpenSage.Client;
 using OpenSage.Content;
 using OpenSage.Data.Sav;
 using OpenSage.Graphics;
+using OpenSage.Graphics.Abstractions;
 using OpenSage.Gui;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.Wnd.Controls;
@@ -15,6 +16,7 @@ using OpenSage.IO;
 using OpenSage.Logic;
 using OpenSage.Mathematics;
 using OpenSage.Network;
+using OpenSage.Rendering;
 using OpenSage.Scripting;
 using Veldrid;
 
@@ -26,7 +28,12 @@ public interface IGame
     internal GraphicsLoadContext GraphicsLoadContext { get; }
     AssetStore AssetStore { get; }
     ContentManager ContentManager { get; }
-    GraphicsDevice GraphicsDevice { get; }
+    
+    // Primary graphics device (Veldrid for compatibility)
+    Veldrid.GraphicsDevice GraphicsDevice { get; }
+    
+    // Abstraction layer for multi-backend support
+    IGraphicsDevice AbstractGraphicsDevice { get; }
     InputMessageBuffer InputMessageBuffer { get; }
     SkirmishManager SkirmishManager { get; set; }
     LobbyManager LobbyManager { get; }
@@ -110,13 +117,13 @@ public interface IGame
     string UserDataFolder { get; }
     string UserAppDataFolder { get; }
     GamePanel Panel { get; }
-    Viewport Viewport { get; }
+    Veldrid.Viewport Viewport { get; }
     Scene2D Scene2D { get; }
     IScene3D Scene3D { get; set; }
 
     NetworkMessageBuffer NetworkMessageBuffer { get; set; }
 
-    Texture LauncherImage { get; }
+    Veldrid.Texture LauncherImage { get; }
     internal GameLogic GameLogic { get; }
     internal GameClient GameClient { get; }
     PlayerManager PlayerManager { get; }

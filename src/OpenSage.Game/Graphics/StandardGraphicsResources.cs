@@ -19,7 +19,7 @@ internal sealed class StandardGraphicsResources : DisposableBase
     public Texture SolidBlackTexture { get; }
     public Texture PlaceholderTexture { get; }
 
-    public StandardGraphicsResources(GraphicsDevice graphicsDevice)
+    public StandardGraphicsResources(Veldrid.GraphicsDevice graphicsDevice)
     {
         _graphicsDevice = graphicsDevice;
 

@@ -14,7 +14,7 @@ public sealed class SpriteBatch : DisposableBase
 {
     private readonly SpriteShaderResources _spriteShaderResources;
     private readonly Texture _solidWhiteTexture;
-    private readonly GraphicsDevice _graphicsDevice;
+    private readonly Veldrid.GraphicsDevice _graphicsDevice;
     private readonly Pipeline _pipeline;
     private readonly ConstantBuffer<SpriteShaderResources.MaterialConstantsVS> _materialConstantsVSBuffer;
     private readonly ConstantBuffer<SpriteShaderResources.SpriteConstantsPS> _spriteConstantsPSBuffer;

@@ -51,7 +51,7 @@ internal sealed class WaterMapRenderer : DisposableBase
     public WaterMapRenderer(
         AssetStore assetStore,
         GraphicsLoadContext graphicsLoadContext,
-        GraphicsDevice graphicsDevice,
+        Veldrid.GraphicsDevice graphicsDevice,
         GlobalShaderResources globalShaderResources)
     {
         _waterShaderResources = graphicsLoadContext.ShaderResources.Water;

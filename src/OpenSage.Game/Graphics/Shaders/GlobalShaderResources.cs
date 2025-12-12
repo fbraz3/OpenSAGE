@@ -17,7 +17,7 @@ internal sealed class GlobalShaderResources : DisposableBase
 
     internal readonly Terrain.RadiusCursorDecals RadiusCursorDecals;
 
-    public GlobalShaderResources(GraphicsDevice graphicsDevice)
+    public GlobalShaderResources(Veldrid.GraphicsDevice graphicsDevice)
     {
         GlobalConstantsResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
             new ResourceLayoutDescription(

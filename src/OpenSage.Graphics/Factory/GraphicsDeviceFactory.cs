@@ -46,6 +46,6 @@ public static class GraphicsDeviceFactory
                 "Veldrid GraphicsDevice is required for Veldrid backend.");
         }
 
-        return new Veldrid.VeldridGraphicsDevice(device);
+        return new Adapters.VeldridGraphicsDeviceAdapter(device);
     }
 }

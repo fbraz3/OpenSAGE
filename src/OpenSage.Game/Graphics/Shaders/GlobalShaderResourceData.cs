@@ -8,7 +8,7 @@ namespace OpenSage.Graphics.Shaders;
 
 internal sealed class GlobalShaderResourceData : DisposableBase
 {
-    private readonly GraphicsDevice _graphicsDevice;
+    private readonly Veldrid.GraphicsDevice _graphicsDevice;
     private readonly GlobalShaderResources _globalShaderResources;
     private readonly StandardGraphicsResources _standardGraphicsResources;
 
@@ -26,7 +26,7 @@ internal sealed class GlobalShaderResourceData : DisposableBase
     private TimeOfDay? _cachedTimeOfDay;
 
     public GlobalShaderResourceData(
-        GraphicsDevice graphicsDevice,
+        Veldrid.GraphicsDevice graphicsDevice,
         GlobalShaderResources globalShaderResources,
         StandardGraphicsResources standardGraphicsResources)
     {
@@ -78,7 +78,7 @@ internal sealed class GlobalShaderResourceData : DisposableBase
         return _forwardPassResourceSet;
     }
 
-    private void SetGlobalLightingBufferVS(GraphicsDevice graphicsDevice)
+    private void SetGlobalLightingBufferVS(Veldrid.GraphicsDevice graphicsDevice)
     {
         var cloudShadowView = Matrix4x4.CreateLookAt(
             Vector3.Zero,
