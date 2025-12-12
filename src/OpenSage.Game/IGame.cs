@@ -28,10 +28,10 @@ public interface IGame
     internal GraphicsLoadContext GraphicsLoadContext { get; }
     AssetStore AssetStore { get; }
     ContentManager ContentManager { get; }
-    
+
     // Primary graphics device (Veldrid for compatibility)
     Veldrid.GraphicsDevice GraphicsDevice { get; }
-    
+
     // Abstraction layer for multi-backend support
     IGraphicsDevice AbstractGraphicsDevice { get; }
     InputMessageBuffer InputMessageBuffer { get; }

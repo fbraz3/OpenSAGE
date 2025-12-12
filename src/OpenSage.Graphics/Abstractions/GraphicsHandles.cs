@@ -36,15 +36,26 @@ public interface IGraphicsResource
 public readonly struct Handle<T> : IEquatable<Handle<T>>
     where T : IGraphicsResource
 {
-    /// <summary>
-    /// Gets a value indicating whether this is a valid handle.
-    /// </summary>
-    public bool IsValid => _id != InvalidId;
-
     private const uint InvalidId = uint.MaxValue;
 
     private readonly uint _id;
     private readonly uint _generation;
+
+    /// <summary>
+    /// Gets the unique identifier of this handle.
+    /// </summary>
+    public uint Id => _id;
+
+    /// <summary>
+    /// Gets the generation number of this handle.
+    /// Used to validate that a resource hasn't been reallocated.
+    /// </summary>
+    public uint Generation => _generation;
+
+    /// <summary>
+    /// Gets a value indicating whether this is a valid handle.
+    /// </summary>
+    public bool IsValid => _id != InvalidId;
 
     /// <summary>
     /// Gets an invalid/null handle.
