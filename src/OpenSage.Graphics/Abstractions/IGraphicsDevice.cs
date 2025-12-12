@@ -135,10 +135,11 @@ public interface IGraphicsDevice : IDisposable
     /// Creates a shader program from SPIR-V bytecode.
     /// </summary>
     /// <param name="name">The shader name/identifier.</param>
+    /// <param name="stage">The shader stage (Vertex, Fragment, Compute, etc.).</param>
     /// <param name="spirvData">The SPIR-V bytecode.</param>
     /// <param name="entryPoint">The shader entry point function name.</param>
     /// <returns>A handle to the created shader program.</returns>
-    Handle<IShaderProgram> CreateShader(string name, ReadOnlySpan<byte> spirvData, string entryPoint = "main");
+    Handle<IShaderProgram> CreateShader(string name, Veldrid.ShaderStages stage, ReadOnlySpan<byte> spirvData, string entryPoint = "main");
 
     /// <summary>
     /// Destroys a shader program.

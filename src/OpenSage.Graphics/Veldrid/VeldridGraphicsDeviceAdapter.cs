@@ -8,6 +8,7 @@ using OpenSage.Graphics.Pooling;
 using OpenSage.Graphics.Resources;
 using OpenSage.Graphics.State;
 using VeldridLib = Veldrid;
+using Veldrid.SPIRV;
 
 namespace OpenSage.Graphics.Adapters;
 
@@ -38,6 +39,10 @@ public sealed class VeldridGraphicsDeviceAdapter : DisposableBase, IGraphicsDevi
     private readonly Dictionary<uint, ResourcePool<VeldridLib.Sampler>.PoolHandle> _samplerHandles;
     private readonly Dictionary<uint, ResourcePool<VeldridLib.Framebuffer>.PoolHandle> _framebufferHandles;
 
+    // Shader and pipeline storage (not pooled, stored directly)
+    private readonly Dictionary<uint, VeldridShaderProgram> _shaders;
+    private readonly Dictionary<uint, VeldridLib.Pipeline> _pipelines;
+
     // Current rendering state tracking
     private VeldridLib.Framebuffer? _currentFramebuffer;
     private VeldridLib.Pipeline? _currentPipeline;
@@ -66,6 +71,10 @@ public sealed class VeldridGraphicsDeviceAdapter : DisposableBase, IGraphicsDevi
         _textureHandles = new Dictionary<uint, ResourcePool<VeldridLib.Texture>.PoolHandle>();
         _samplerHandles = new Dictionary<uint, ResourcePool<VeldridLib.Sampler>.PoolHandle>();
         _framebufferHandles = new Dictionary<uint, ResourcePool<VeldridLib.Framebuffer>.PoolHandle>();
+
+        // Initialize shader and pipeline storage
+        _shaders = new Dictionary<uint, VeldridShaderProgram>();
+        _pipelines = new Dictionary<uint, VeldridLib.Pipeline>();
 
         // Initialize capabilities based on Veldrid device
         Capabilities = new GraphicsCapabilities(
@@ -332,25 +341,50 @@ public sealed class VeldridGraphicsDeviceAdapter : DisposableBase, IGraphicsDevi
 
     // ===== Shader Operations =====
 
-    public Handle<IShaderProgram> CreateShader(string name, ReadOnlySpan<byte> spirvData, string entryPoint = "main")
+    public Handle<IShaderProgram> CreateShader(string name, VeldridLib.ShaderStages stage, ReadOnlySpan<byte> spirvData, string entryPoint = "main")
     {
-        // TODO: Implement shader creation from SPIR-V
-        // This requires cross-compiling SPIR-V to the target backend (HLSL, MSL, GLSL)
-        // For now, return a placeholder handle with proper ID tracking
-        var handleId = _nextHandleId++;
-        return new Handle<IShaderProgram>(handleId, 1);
+        try
+        {
+            // Create shader description for the given stage
+            var shaderDescription = new VeldridLib.ShaderDescription(stage, spirvData.ToArray(), entryPoint);
+            
+            // Create cross-compile options for the current backend
+            // Using default options which work for most cases
+            var options = new CrossCompileOptions();
+            
+            // Compile SPIR-V to backend-specific shader format via Veldrid.SPIRV
+            // Note: Single ShaderDescription returns a single Shader (not an array)
+            var shader = _device.ResourceFactory.CreateFromSpirv(shaderDescription, options);
+            
+            shader.Name = name;
+            
+            // Create wrapper and store it
+            var handleId = _nextHandleId++;
+            var wrapper = new VeldridShaderProgram(name, shader, entryPoint, handleId, 1);
+            
+            // Store wrapper in dictionary for GetShader() calls
+            _shaders[handleId] = wrapper;
+            
+            return new Handle<IShaderProgram>(handleId, 1);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"Failed to create shader '{name}': {ex.Message}", ex);
+        }
     }
 
     public void DestroyShader(Handle<IShaderProgram> shader)
     {
-        // TODO: Implement shader cleanup
-        // Once shader creation is implemented, need to track and cleanup shader resources
+        if (_shaders.TryGetValue(shader.Id, out var shaderProgram))
+        {
+            shaderProgram.Dispose();
+            _shaders.Remove(shader.Id);
+        }
     }
 
     public IShaderProgram? GetShader(Handle<IShaderProgram> shader)
     {
-        // TODO: Implement shader retrieval
-        return null;
+        return _shaders.TryGetValue(shader.Id, out var shaderProgram) ? shaderProgram : null;
     }
 
     // ===== Pipeline Operations =====
@@ -363,24 +397,75 @@ public sealed class VeldridGraphicsDeviceAdapter : DisposableBase, IGraphicsDevi
         State.BlendState blendState = default,
         State.StencilState stencilState = default)
     {
-        // TODO: Implement pipeline creation
-        // This requires:
-        // 1. Shader compilation/cross-compilation from SPIR-V
-        // 2. Pipeline layout and state configuration
-        // 3. Resource set layout for uniforms and textures
-        // For now, return a placeholder handle with proper ID tracking
-        var handleId = _nextHandleId++;
-        return new Handle<IPipeline>(handleId, 1);
+        try
+        {
+            // Retrieve shader programs from handles
+            var vsProgram = GetShader(vertexShader);
+            var fsProgram = GetShader(fragmentShader);
+            
+            if (vsProgram == null)
+                throw new InvalidOperationException($"Vertex shader handle {vertexShader.Id} is invalid");
+            if (fsProgram == null)
+                throw new InvalidOperationException($"Fragment shader handle {fragmentShader.Id} is invalid");
+            
+            // Cast to Veldrid implementation
+            var vsVeldrid = (VeldridShaderProgram)vsProgram;
+            var fsVeldrid = (VeldridShaderProgram)fsProgram;
+            
+            // Get Veldrid shaders
+            var vs = vsVeldrid.VeldridShader;
+            var fs = fsVeldrid.VeldridShader;
+            
+            // Create shader set description (minimal for now - empty vertex layout)
+            // TODO: Accept vertex layout description as parameter
+            var shaderSet = new VeldridLib.ShaderSetDescription(
+                Array.Empty<VeldridLib.VertexLayoutDescription>(),
+                new[] { vs, fs });
+            
+            // Convert OpenSAGE state to Veldrid state
+            var rasterizerState = MapRasterState(rasterState);
+            var depthStencilState = MapDepthStencilState(depthState, stencilState);
+            var blendStateDesc = MapBlendState(blendState);
+            
+            // Create graphics pipeline description
+            var pipelineDesc = new VeldridLib.GraphicsPipelineDescription
+            {
+                BlendState = blendStateDesc,
+                DepthStencilState = depthStencilState,
+                RasterizerState = rasterizerState,
+                PrimitiveTopology = VeldridLib.PrimitiveTopology.TriangleList,
+                ShaderSet = shaderSet,
+                ResourceLayouts = Array.Empty<VeldridLib.ResourceLayout>(), // TODO: Add resource layouts
+                Outputs = _device.SwapchainFramebuffer.OutputDescription
+            };
+            
+            // Create the pipeline
+            var pipeline = _device.ResourceFactory.CreateGraphicsPipeline(ref pipelineDesc);
+            
+            // Store in dictionary
+            var handleId = _nextHandleId++;
+            _pipelines[handleId] = pipeline;
+            
+            return new Handle<IPipeline>(handleId, 1);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"Failed to create pipeline: {ex.Message}", ex);
+        }
     }
 
     public void DestroyPipeline(Handle<IPipeline> pipeline)
     {
-        // TODO: Implement pipeline cleanup
+        if (_pipelines.TryGetValue(pipeline.Id, out var veldridPipeline))
+        {
+            veldridPipeline?.Dispose();
+            _pipelines.Remove(pipeline.Id);
+        }
     }
 
     public IPipeline? GetPipeline(Handle<IPipeline> pipeline)
     {
-        // TODO: Implement pipeline retrieval
+        // TODO: Implement IPipeline wrapper for Veldrid.Pipeline
         return null;
     }
 
@@ -431,8 +516,15 @@ public sealed class VeldridGraphicsDeviceAdapter : DisposableBase, IGraphicsDevi
 
     public void SetPipeline(Handle<IPipeline> pipeline)
     {
-        // TODO: Implement pipeline lookup and setting
-        // Requires CreatePipeline to be fully implemented first
+        if (!pipeline.IsValid)
+            return;
+
+        // Lookup the Veldrid pipeline
+        if (_pipelines.TryGetValue(pipeline.Id, out var veldridPipeline))
+        {
+            _currentPipeline = veldridPipeline;
+            _commandList.SetPipeline(veldridPipeline);
+        }
     }
 
     public void SetViewport(float x, float y, float width, float height, float minDepth = 0.0f, float maxDepth = 1.0f)
@@ -600,6 +692,69 @@ public sealed class VeldridGraphicsDeviceAdapter : DisposableBase, IGraphicsDevi
             SamplerAddressMode.Clamp => VeldridLib.SamplerAddressMode.Clamp,
             SamplerAddressMode.Border => VeldridLib.SamplerAddressMode.Border,
             _ => VeldridLib.SamplerAddressMode.Wrap,
+        };
+    }
+
+    // ===== Graphics State Mapping =====
+
+    private VeldridLib.RasterizerStateDescription MapRasterState(State.RasterState state)
+    {
+        return new VeldridLib.RasterizerStateDescription
+        {
+            FillMode = state.FillMode == State.FillMode.Solid
+                ? VeldridLib.PolygonFillMode.Solid
+                : VeldridLib.PolygonFillMode.Wireframe,
+            CullMode = state.CullMode switch
+            {
+                State.CullMode.None => VeldridLib.FaceCullMode.None,
+                State.CullMode.Front => VeldridLib.FaceCullMode.Front,
+                State.CullMode.Back => VeldridLib.FaceCullMode.Back,
+                _ => VeldridLib.FaceCullMode.Back,
+            },
+            FrontFace = state.FrontFace == State.FrontFace.CounterClockwise
+                ? VeldridLib.FrontFace.CounterClockwise
+                : VeldridLib.FrontFace.Clockwise,
+            DepthClipEnabled = !state.DepthClamp,
+            ScissorTestEnabled = state.ScissorTest,
+        };
+    }
+
+    private VeldridLib.DepthStencilStateDescription MapDepthStencilState(State.DepthState depthState, State.StencilState stencilState)
+    {
+        return new VeldridLib.DepthStencilStateDescription
+        {
+            DepthTestEnabled = depthState.TestEnabled,
+            DepthWriteEnabled = depthState.WriteEnabled,
+            DepthComparison = MapCompareFunction(depthState.CompareFunction),
+            StencilTestEnabled = false, // TODO: Implement stencil state mapping
+            StencilReadMask = 0xFF,
+            StencilWriteMask = 0xFF,
+        };
+    }
+
+    private VeldridLib.BlendStateDescription MapBlendState(State.BlendState state)
+    {
+        if (!state.Enabled)
+        {
+            return VeldridLib.BlendStateDescription.SingleDisabled;
+        }
+
+        return VeldridLib.BlendStateDescription.SingleAlphaBlend;
+    }
+
+    private VeldridLib.ComparisonKind MapCompareFunction(State.CompareFunction func)
+    {
+        return func switch
+        {
+            State.CompareFunction.Never => VeldridLib.ComparisonKind.Never,
+            State.CompareFunction.Less => VeldridLib.ComparisonKind.Less,
+            State.CompareFunction.Equal => VeldridLib.ComparisonKind.Equal,
+            State.CompareFunction.LessEqual => VeldridLib.ComparisonKind.LessEqual,
+            State.CompareFunction.Greater => VeldridLib.ComparisonKind.Greater,
+            State.CompareFunction.NotEqual => VeldridLib.ComparisonKind.NotEqual,
+            State.CompareFunction.GreaterEqual => VeldridLib.ComparisonKind.GreaterEqual,
+            State.CompareFunction.Always => VeldridLib.ComparisonKind.Always,
+            _ => VeldridLib.ComparisonKind.Less,
         };
     }
 
