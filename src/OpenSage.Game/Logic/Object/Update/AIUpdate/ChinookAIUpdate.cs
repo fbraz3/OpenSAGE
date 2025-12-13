@@ -19,7 +19,12 @@ public class ChinookAIUpdate : SupplyTruckAIUpdate
         ModuleData = moduleData;
     }
 
-    private protected override ChinookAIUpdateStateMachine CreateStateMachine() => new(GameObject, GameEngine, this);
+    private protected override ChinookAIUpdateStateMachine CreateStateMachine()
+    {
+        var stateMachine = new ChinookAIUpdateStateMachine(GameObject, GameEngine, this);
+        stateMachine.InitializeDefaultState();
+        return stateMachine;
+    }
 
     protected override int GetAdditionalValuePerSupplyBox(ScopedAssetCollection<UpgradeTemplate> upgrades)
     {

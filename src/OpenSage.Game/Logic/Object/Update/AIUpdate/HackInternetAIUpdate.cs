@@ -18,7 +18,12 @@ public class HackInternetAIUpdate : AIUpdate
         ModuleData = moduleData;
     }
 
-    private protected override HackInternetAIUpdateStateMachine CreateStateMachine() => new(GameObject, GameEngine, this);
+    private protected override HackInternetAIUpdateStateMachine CreateStateMachine()
+    {
+        var stateMachine = new HackInternetAIUpdateStateMachine(GameObject, GameEngine, this);
+        stateMachine.InitializeDefaultState();
+        return stateMachine;
+    }
 
     public override UpdateSleepTime Update()
     {

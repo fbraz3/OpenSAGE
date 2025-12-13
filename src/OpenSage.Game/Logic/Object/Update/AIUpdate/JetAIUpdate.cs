@@ -63,7 +63,12 @@ public sealed class JetAIUpdate : AIUpdate
         CurrentJetAIState = JetAIState.Parked;
     }
 
-    private protected override JetAIUpdateStateMachine CreateStateMachine() => new(GameObject, GameEngine, this);
+    private protected override JetAIUpdateStateMachine CreateStateMachine()
+    {
+        var stateMachine = new JetAIUpdateStateMachine(GameObject, GameEngine, this);
+        stateMachine.InitializeDefaultState();
+        return stateMachine;
+    }
 
     internal override void Load(StatePersister reader)
     {
