@@ -1,0 +1,26 @@
+# BGFX Native Libraries
+# These are large binary files that may be added to Git LFS in the future
+# For now, they are ignored to keep the repository small during development
+
+# macOS libraries
+macos/arm64/*.dylib
+macos/x86_64/*.dylib
+macos/*/*.a
+macos/*/*.so
+
+# Windows libraries
+windows/x64/*.dll
+windows/x64/*.lib
+windows/x64/*.pdb
+
+# Linux libraries
+linux/x64/*.so
+linux/x64/*.a
+linux/x64/*.o
+
+# Temporary build artifacts
+**/.DS_Store
+**/Thumbs.db
+
+# NOTE: When BGFX libraries are acquired, they should be committed to Git LFS
+# Configuration: git lfs install && git lfs track "lib/bgfx/**/*.dylib" "lib/bgfx/**/*.dll" "lib/bgfx/**/*.so"
