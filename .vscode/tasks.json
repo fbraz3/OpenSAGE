@@ -9,7 +9,18 @@
                 "build",
                 "${workspaceFolder}/src/OpenSage.Launcher/OpenSage.Launcher.csproj"
             ],
-            "problemMatcher": "$tsc"
+            "problemMatcher": "$tsc",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "silent",
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": true,
+                "focus": false
+            }
         },
         {
             "label": "publish",
@@ -19,7 +30,15 @@
                 "publish",
                 "${workspaceFolder}/src/OpenSage.Launcher/OpenSage.Launcher.csproj"
             ],
-            "problemMatcher": "$tsc"
+            "problemMatcher": "$tsc",
+            "group": "none",
+            "presentation": {
+                "reveal": "silent",
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": true,
+                "focus": false
+            }
         },
         {
             "label": "watch",
@@ -30,7 +49,15 @@
                 "run",
                 "${workspaceFolder}/src/OpenSage.Launcher/OpenSage.Launcher.csproj"
             ],
-            "problemMatcher": "$tsc"
+            "problemMatcher": "$tsc",
+            "group": "test",
+            "presentation": {
+                "reveal": "silent",
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": true,
+                "focus": false
+            }
         }
     ]
 }

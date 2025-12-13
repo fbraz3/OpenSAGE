@@ -30,17 +30,50 @@ public sealed class AudioSystem : GameSystem
 
     public AudioSystem(IGame game) : base(game)
     {
-        _engine = AddDisposable(AudioEngine.CreateDefault());
-        _3dengine = _engine.Create3DEngine();
-        _sources = new List<AudioSource>();
-        _cached = new Dictionary<string, AudioBuffer>();
-        _mixers = new Dictionary<AudioVolumeSlider, Submixer>();
-        _settings = game.AssetStore.AudioSettings.Current;
+        try
+        {
+            Logger.Info("AudioSystem: Creating AudioEngine...");
+            _engine = AddDisposable(AudioEngine.CreateDefault());
+            
+            Logger.Info("AudioSystem: Creating 3D Engine...");
+            _3dengine = _engine?.Create3DEngine();
+            
+            _sources = new List<AudioSource>();
+            _cached = new Dictionary<string, AudioBuffer>();
+            _mixers = new Dictionary<AudioVolumeSlider, Submixer>();
+            
+            Logger.Info("AudioSystem: Loading AudioSettings...");
+            // If audio settings are not loaded, skip audio system initialization
+            _settings = game.AssetStore?.AudioSettings?.Current;
+            if (_settings == null)
+            {
+                Logger.Warn("AudioSettings not loaded. Audio system will be disabled.");
+                _random = new Random();
+                return;
+            }
 
-        CreateSubmixers();
+            if (_engine == null)
+            {
+                Logger.Warn("AudioEngine is null. Audio system will be disabled.");
+                _random = new Random();
+                return;
+            }
 
-        // TODO: Sync RNG seed from replay?
-        _random = new Random();
+            Logger.Info("AudioSystem: Creating submixers...");
+            CreateSubmixers();
+
+            // TODO: Sync RNG seed from replay?
+            _random = new Random();
+            Logger.Info("AudioSystem: Initialized successfully.");
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex, "Failed to initialize AudioSystem. Audio will be disabled.");
+            _sources = new List<AudioSource>();
+            _cached = new Dictionary<string, AudioBuffer>();
+            _mixers = new Dictionary<AudioVolumeSlider, Submixer>();
+            _random = new Random();
+        }
     }
 
     internal override void OnSceneChanged()
@@ -50,6 +83,11 @@ public sealed class AudioSystem : GameSystem
 
     public void Update(Camera camera)
     {
+        if (_3dengine == null || _engine == null)
+        {
+            return;
+        }
+
         if (camera != null)
         {
             UpdateListener(camera);
@@ -67,6 +105,11 @@ public sealed class AudioSystem : GameSystem
 
     private void CreateSubmixers()
     {
+        if (_settings == null)
+        {
+            return;
+        }
+
         // Create all available mixers
         _mixers[AudioVolumeSlider.SoundFX] = _engine.CreateSubmixer();
         _mixers[AudioVolumeSlider.SoundFX].Volume = (float)_settings.DefaultSoundVolume;
@@ -98,6 +141,11 @@ public sealed class AudioSystem : GameSystem
     public AudioSource GetSound(FileSystemEntry entry,
         AudioVolumeSlider? vslider = AudioVolumeSlider.None, bool loop = false)
     {
+        if (_engine == null)
+        {
+            return null;
+        }
+
         AudioBuffer buffer;
 
         if (!_cached.ContainsKey(entry.FilePath))
@@ -149,6 +197,11 @@ public sealed class AudioSystem : GameSystem
     /// </summary>
     public SoundStream GetStream(FileSystemEntry entry)
     {
+        if (_engine == null)
+        {
+            return null;
+        }
+
         // TODO: Use submixer (currently not possible)
         return AddDisposable(new SoundStream(entry.Open(), _engine));
     }
@@ -253,13 +306,21 @@ public sealed class AudioSystem : GameSystem
 
     public void PlayMusicTrack(MusicTrack musicTrack, bool fadeIn, bool fadeOut)
     {
+        if (_engine == null)
+        {
+            return;
+        }
+
         // TODO: fading
         StopCurrentMusicTrack(fadeOut);
 
         _currentTrackName = musicTrack.Name;
         _currentTrack = GetStream(musicTrack.File.Value.Entry);
-        _currentTrack.Volume = (float)musicTrack.Volume;
-        _currentTrack.Play();
+        if (_currentTrack != null)
+        {
+            _currentTrack.Volume = (float)musicTrack.Volume;
+            _currentTrack.Play();
+        }
     }
 
     public void StopCurrentMusicTrack(bool fadeOut = false)

@@ -21,7 +21,7 @@ internal sealed class RenderPipeline : DisposableBase
     private static readonly RgbaFloat ClearColor = new RgbaFloat(105, 105, 105, 255);
 
     public static readonly OutputDescription GameOutputDescription = new OutputDescription(
-        new OutputAttachmentDescription(PixelFormat.D24_UNorm_S8_UInt),
+        new OutputAttachmentDescription(PixelFormat.D32_Float_S8_UInt),
         new OutputAttachmentDescription(PixelFormat.B8_G8_R8_A8_UNorm));
 
     private readonly RenderList _renderList;
@@ -89,7 +89,7 @@ internal sealed class RenderPipeline : DisposableBase
         RemoveAndDispose(ref _intermediateFramebuffer);
 
         _intermediateDepthBuffer = AddDisposable(graphicsDevice.ResourceFactory.CreateTexture(
-            TextureDescription.Texture2D(target.Width, target.Height, 1, 1, PixelFormat.D24_UNorm_S8_UInt, TextureUsage.DepthStencil)));
+            TextureDescription.Texture2D(target.Width, target.Height, 1, 1, PixelFormat.D32_Float_S8_UInt, TextureUsage.DepthStencil)));
 
         _intermediateTexture = AddDisposable(graphicsDevice.ResourceFactory.CreateTexture(
             TextureDescription.Texture2D(target.Width, target.Height, 1, 1, target.ColorTargets[0].Target.Format, TextureUsage.RenderTarget | TextureUsage.Sampled)));
@@ -159,6 +159,9 @@ internal sealed class RenderPipeline : DisposableBase
 
         context.GraphicsDevice.SubmitCommands(_commandList);
 
+        _globalShaderResourceData.CleanupOldResourceSets();
+        _waterMapRenderer.CleanupOldResourceSets();
+
         _textureCopier.Execute(
             _intermediateTexture,
             context.RenderTarget);
@@ -209,10 +212,12 @@ internal sealed class RenderPipeline : DisposableBase
 
         commandList.PushDebugGroup("Forward pass");
 
+        var shadowMap = _shadowMapRenderer.ShadowMap ?? _loadContext.StandardGraphicsResources.SolidWhiteTexture;
+
         var forwardPassResourceSet = _globalShaderResourceData.GetForwardPassResourceSet(
             cloudTexture,
             _shadowMapRenderer.ShadowConstantsPSBuffer,
-            _shadowMapRenderer.ShadowMap);
+            shadowMap);
 
         commandList.SetFramebuffer(_intermediateFramebuffer);
 
@@ -377,23 +382,41 @@ internal sealed class RenderPipeline : DisposableBase
                 CalculateWaterShaderMap(context.Scene3D, context, commandList, renderItem, forwardPassResourceSet);
 
                 SetGlobalResources(commandList, passResourceSet);
-                commandList.SetGraphicsResourceSet(2, _waterMapRenderer.ResourceSetForRendering);
+                if (_waterMapRenderer.ResourceSetForRendering != null)
+                {
+                    commandList.SetGraphicsResourceSet(2, _waterMapRenderer.ResourceSetForRendering);
+                }
             }
 
-            renderItem.BeforeRenderCallback.Invoke(commandList, renderItem);
+            renderItem.BeforeRenderCallback?.Invoke(commandList, renderItem);
 
             if (renderItem.Material.MaterialResourceSet != null)
             {
                 commandList.SetGraphicsResourceSet(2, renderItem.Material.MaterialResourceSet);
             }
 
+            if (renderItem.IndexBuffer == null)
+            {
+                // Skip rendering if index buffer is null
+                commandList.PopDebugGroup();
+                continue;
+            }
+
             commandList.SetIndexBuffer(renderItem.IndexBuffer, IndexFormat.UInt16);
-            commandList.DrawIndexed(
-                renderItem.IndexCount,
-                1,
-                renderItem.StartIndex,
-                0,
-                0);
+            try
+            {
+                commandList.DrawIndexed(
+                    renderItem.IndexCount,
+                    1,
+                    renderItem.StartIndex,
+                    0,
+                    0);
+            }
+            catch (NullReferenceException)
+            {
+                // Ignore ResourceSet-related NullReferenceExceptions from Metal backend
+                // This occurs when Graphics resources are released before GPU finishes processing
+            }
 
             lastRenderItemIndex = i;
 
@@ -405,7 +428,10 @@ internal sealed class RenderPipeline : DisposableBase
 
     private void SetGlobalResources(CommandList commandList, ResourceSet passResourceSet)
     {
-        commandList.SetGraphicsResourceSet(0, _globalShaderResourceData.GlobalConstantsResourceSet);
+        if (_globalShaderResourceData.GlobalConstantsResourceSet != null)
+        {
+            commandList.SetGraphicsResourceSet(0, _globalShaderResourceData.GlobalConstantsResourceSet);
+        }
 
         if (passResourceSet != null)
         {

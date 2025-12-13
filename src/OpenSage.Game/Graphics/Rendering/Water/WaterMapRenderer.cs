@@ -13,6 +13,11 @@ internal sealed class WaterMapRenderer : DisposableBase
 {
     private ResourceSet _resourceSet;
     private WaterData _waterData;
+    
+    // Triple buffering: Keep data from previous 2 frames alive to avoid use-after-free in Metal
+    private readonly Queue<ResourceSet> _deferredCleanupResourceSets = new Queue<ResourceSet>();
+    private readonly Queue<WaterData> _deferredCleanupData = new Queue<WaterData>();
+    private const int DeferredCleanupFrames = 2;
 
     public Texture ReflectionMap => _waterData?.ReflectionMap;
     public Texture ReflectionDepthMap => _waterData?.ReflectionDepthMap;
@@ -157,8 +162,21 @@ internal sealed class WaterMapRenderer : DisposableBase
             && (_waterData.ReflectionMapSize != reflectionMapSize
             || _waterData.RefractionMapSize != refractionMapSize))
         {
-            RemoveAndDispose(ref _waterData);
-            RemoveAndDispose(ref _resourceSet);
+            // Defer cleanup of old WaterData and ResourceSet
+            if (_waterData != null)
+            {
+                _deferredCleanupData.Enqueue(_waterData);
+                RemoveToDispose(_waterData);
+            }
+            
+            if (_resourceSet != null)
+            {
+                _deferredCleanupResourceSets.Enqueue(_resourceSet);
+                RemoveToDispose(_resourceSet);
+            }
+            
+            _waterData = null;
+            _resourceSet = null;
             _deltaTimer.Reset();
         }
 
@@ -202,6 +220,22 @@ internal sealed class WaterMapRenderer : DisposableBase
         else
         {
             drawSceneCallback(ReflectionFramebuffer, RefractionFramebuffer);
+        }
+    }
+
+    public void CleanupOldResourceSets()
+    {
+        // Clean up ResourceSets and WaterData that were deferred - GPU should be idle by now
+        while (_deferredCleanupResourceSets.Count > 0)
+        {
+            var rs = _deferredCleanupResourceSets.Dequeue();
+            rs.Dispose();
+        }
+        
+        while (_deferredCleanupData.Count > 0)
+        {
+            var wd = _deferredCleanupData.Dequeue();
+            wd.Dispose();
         }
     }
 }

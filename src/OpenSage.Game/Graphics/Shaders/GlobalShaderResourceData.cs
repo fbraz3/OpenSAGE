@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Mathematics;
@@ -22,6 +24,10 @@ internal sealed class GlobalShaderResourceData : DisposableBase
     private ResourceSet _forwardPassResourceSet;
     private Texture _cachedCloudTexture;
     private Texture _cachedShadowMap;
+    
+    // Triple buffering: Keep ResourceSets from previous 2 frames alive to avoid use-after-free in Metal
+    private readonly Queue<ResourceSet> _deferredCleanup = new Queue<ResourceSet>();
+    private const int DeferredCleanupFrames = 2;
 
     private TimeOfDay? _cachedTimeOfDay;
 
@@ -54,9 +60,15 @@ internal sealed class GlobalShaderResourceData : DisposableBase
     {
         if (_cachedCloudTexture != cloudTexture || shadowMap != _cachedShadowMap)
         {
-            RemoveAndDispose(ref _forwardPassResourceSet);
             _cachedCloudTexture = cloudTexture;
             _cachedShadowMap = shadowMap;
+
+            // Remove old ResourceSet from managed disposal and queue for deferred cleanup
+            if (_forwardPassResourceSet != null)
+            {
+                _deferredCleanup.Enqueue(_forwardPassResourceSet);
+                RemoveToDispose(_forwardPassResourceSet);
+            }
 
             _forwardPassResourceSet = AddDisposable(
                 _graphicsDevice.ResourceFactory.CreateResourceSet(
@@ -76,6 +88,16 @@ internal sealed class GlobalShaderResourceData : DisposableBase
         }
 
         return _forwardPassResourceSet;
+    }
+
+    public void CleanupOldResourceSets()
+    {
+        // Clean up ResourceSets that were deferred - GPU should be idle by now
+        while (_deferredCleanup.Count > 0)
+        {
+            var rs = _deferredCleanup.Dequeue();
+            rs.Dispose();
+        }
     }
 
     private void SetGlobalLightingBufferVS(GraphicsDevice graphicsDevice)
