@@ -8,7 +8,7 @@ namespace OpenSage.Tests.Graphics;
 /// <summary>
 /// Visual comparison utility for regression detection
 /// Compares baseline and current frame images to detect visual regressions
-/// 
+///
 /// Week 24: Regression Testing Framework
 /// </summary>
 public sealed class VisualComparisonEngine

@@ -11,7 +11,7 @@ namespace OpenSage.Tests.Graphics;
 /// <summary>
 /// Baseline capture utility for establishing reference images and performance metrics
 /// Used by Week 24 regression testing framework
-/// 
+///
 /// Captures:
 /// - Visual baselines (render target screenshots)
 /// - Performance metrics (frame timing, memory usage)
@@ -119,7 +119,7 @@ public sealed class BaselineCapture : IDisposable
             _timer.Restart();
             _renderHelper.RenderTestPattern();
             _timer.Stop();
-            
+
             frameTimes.Add(_timer.ElapsedMilliseconds);
         }
 

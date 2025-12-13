@@ -27,7 +27,7 @@ namespace OpenSage.Tests.Graphics;
 /// </summary>
 public class Week24RegressionTests : IDisposable
 {
-    private static readonly string BaselineImageDirectory = 
+    private static readonly string BaselineImageDirectory =
         Path.Combine(Path.GetTempPath(), "opensage-regression-baselines");
 
     private GraphicsDevice _graphicsDevice;
@@ -58,7 +58,7 @@ public class Week24RegressionTests : IDisposable
     public void GraphicsDevice_Initialization_Succeeds()
     {
         // ARRANGE - No window needed for headless device creation
-        
+
         try
         {
             // ACT - Create headless graphics device
@@ -96,7 +96,7 @@ public class Week24RegressionTests : IDisposable
         // ARRANGE
         uint width = 1920, height = 1080;
         var captureFormat = PixelFormat.R8_G8_B8_A8_UNorm;
-        
+
         // Create staging texture for GPU→CPU transfer
         var stagingDescription = TextureDescription.Texture2D(
             width, height, 1, 1,
@@ -124,7 +124,7 @@ public class Week24RegressionTests : IDisposable
                 width, height, 1, 1
             );
             copyCL.End();
-            
+
             _graphicsDevice.SubmitCommands(copyCL);
             _graphicsDevice.WaitForIdle();
 
@@ -148,17 +148,17 @@ public class Week24RegressionTests : IDisposable
     {
         // ARRANGE
         int frameCount = 100;
-        
+
         try
         {
             // ACT
             for (int i = 0; i < frameCount; i++)
             {
                 _performanceMonitor.StartFrame();
-                
+
                 // Simulate frame work (would be actual rendering in real test)
                 System.Threading.Thread.Sleep(1);
-                
+
                 _performanceMonitor.EndFrame();
             }
 
@@ -167,7 +167,7 @@ public class Week24RegressionTests : IDisposable
             // ASSERT - Frame timing should be reasonable
             Assert.True(metrics.AverageFrameTime > 0, "Average frame time must be positive");
             Assert.True(metrics.FramesPerSecond > 0, "FPS must be positive");
-            
+
             // Document baseline
             System.Diagnostics.Debug.WriteLine($"Performance Baseline:");
             System.Diagnostics.Debug.WriteLine($"  Average Frame Time: {metrics.AverageFrameTime:F2}ms");
@@ -193,13 +193,13 @@ public class Week24RegressionTests : IDisposable
     {
         // ARRANGE
         // Would require full Game initialization with graphics device
-        
+
         // ACT
         // Test rendering operations through IGraphicsDevice interface
-        
+
         // ASSERT
         // Verify output matches expected visual
-        
+
         Assert.True(true);  // Placeholder for Week 24 implementation
     }
 
@@ -216,7 +216,7 @@ public class Week24RegressionTests : IDisposable
         // ACT
         bool dirExists = Directory.Exists(baselineDir);
         bool canCreateFiles = true;
-        
+
         try
         {
             var testFile = Path.Combine(baselineDir, "test_write.txt");
@@ -231,7 +231,7 @@ public class Week24RegressionTests : IDisposable
         // ASSERT
         Assert.True(dirExists, "Baseline directory should exist");
         Assert.True(canCreateFiles, "Should have write permissions");
-        
+
         // Framework is ready
         System.Diagnostics.Debug.WriteLine($"Regression testing framework ready at: {baselineDir}");
     }
