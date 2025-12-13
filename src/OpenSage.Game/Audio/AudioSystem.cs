@@ -254,6 +254,11 @@ public sealed class AudioSystem : GameSystem
         }
 
         var source = GetSound(entry, audioEvent.SubmixSlider, looping || audioEvent.Control.HasFlag(AudioControlFlags.Loop));
+        if (source == null)
+        {
+            return null;
+        }
+
         source.Volume = (float)audioEvent.Volume;
         return source;
     }
