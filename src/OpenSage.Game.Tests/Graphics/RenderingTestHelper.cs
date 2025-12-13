@@ -110,13 +110,13 @@ public sealed class RenderingTestHelper : IDisposable
         ThrowIfDisposed();
         _commandList.End();
         _graphicsDevice.SubmitCommands(_commandList);
-        
+
         // Only swap buffers if we have a swapchain (not headless rendering)
         if (_graphicsDevice.MainSwapchain != null)
         {
             _graphicsDevice.SwapBuffers(_graphicsDevice.MainSwapchain);
         }
-        
+
         RenderCount++;
     }
 

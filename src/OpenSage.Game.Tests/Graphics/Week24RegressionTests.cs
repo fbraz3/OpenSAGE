@@ -391,16 +391,16 @@ public class Week24RegressionTests : IDisposable
             // ACT - Capture baseline
             renderHelper.RenderTestPattern();
             byte[] baselinePixels = renderHelper.CaptureRenderTarget();
-            
+
             // Create a slightly modified version (add noise to simulate regression)
             byte[] modifiedPixels = new byte[baselinePixels.Length];
             Array.Copy(baselinePixels, modifiedPixels, baselinePixels.Length);
-            
+
             // Introduce 5% pixel modifications
             var random = new Random(42);  // Deterministic seed
             int pixelCount = (int)(baselinePixels.Length / 4);
             int modifiedCount = pixelCount / 20;  // 5%
-            
+
             for (int i = 0; i < modifiedCount; i++)
             {
                 int pixelIdx = random.Next(pixelCount);
