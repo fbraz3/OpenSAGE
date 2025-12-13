@@ -4,10 +4,15 @@
 
 Phase 4 integrates all components developed in Phase 3 into the complete OpenSAGE engine, performs extensive testing, optimizes performance, and prepares for release.
 
-**STATUS UPDATE - December 18, 2025**:
+**STATUS UPDATE - December 2025**:
 - ✅ Phase 2 Architectural Design: COMPLETE
 - ✅ Phase 3 Core Implementation: FRAMEWORK COMPLETE (Veldrid adapter ~50% complete, core stubs in place)
-- ✅ Phase 4 Planning: COMPLETE (comprehensive analysis below)
+- ✅ Phase 4 Planning: PIVOT TO BGFX BACKEND (see BGFX_MIGRATION_ROADMAP.md)
+- ⚠️ **CRITICAL UPDATE**: Veldrid has macOS Tahoe/Apple Silicon compatibility issues
+  - Metal backend fails on latest macOS with Apple Silicon
+  - Cannot profile or optimize on development machine
+  - **Decision**: Complete migration to BGFX backend (production-ready, excellent Metal support)
+  - See: [BGFX_MIGRATION_ROADMAP.md](BGFX_MIGRATION_ROADMAP.md) for detailed 8-10 week implementation plan
 - ✅ **PHASE 4 WEEK 20: GRAPHICS ABSTRACTION LAYER INTEGRATION COMPLETE**
   - Engine initializes with dual-path graphics device architecture
   - Veldrid backend operational (internal, for existing infrastructure)
