@@ -101,9 +101,18 @@ public sealed class AudioSystem : GameSystem
 
     private void LogAudioInitializationFailure()
     {
+        var platform = GetPlatformName();
         Logger.Warn("Audio engine initialization failed. The audio system will operate in disabled mode.");
-        Logger.Warn("On macOS: This typically requires OpenAL: brew install openal-soft");
-        Logger.Warn("On Linux: This typically requires PulseAudio or ALSA to be installed");
+        
+        if (platform == "macOS")
+        {
+            Logger.Warn("On macOS: Install OpenAL via Homebrew: brew install openal-soft");
+        }
+        else if (platform == "Linux")
+        {
+            Logger.Warn("On Linux: Install PulseAudio development libraries");
+        }
+        
         Logger.Warn("Games will continue to work without audio output.");
     }
 
