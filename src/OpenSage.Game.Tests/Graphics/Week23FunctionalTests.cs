@@ -137,7 +137,7 @@ public class Week23FunctionalTests : MockedGameTest
         // Note: ZeroHour is defined in MockedGameTest base class but requires
         // access to property which is marked private protected in MockedGameTest
         // This test demonstrates the test structure for future integration tests
-        
+
         // ASSERT
         Assert.True(true);
     }
@@ -176,7 +176,7 @@ public class Week23FunctionalTests : MockedGameTest
         // - Create regression tests with actual rendering
         // - Compare visual output against reference images
         // - Profile performance metrics
-        
+
         Assert.True(true);
     }
 }
