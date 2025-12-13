@@ -347,24 +347,24 @@ public sealed class VeldridGraphicsDeviceAdapter : DisposableBase, IGraphicsDevi
         {
             // Create shader description for the given stage
             var shaderDescription = new VeldridLib.ShaderDescription(stage, spirvData.ToArray(), entryPoint);
-            
+
             // Create cross-compile options for the current backend
             // Using default options which work for most cases
             var options = new CrossCompileOptions();
-            
+
             // Compile SPIR-V to backend-specific shader format via Veldrid.SPIRV
             // Note: Single ShaderDescription returns a single Shader (not an array)
             var shader = _device.ResourceFactory.CreateFromSpirv(shaderDescription, options);
-            
+
             shader.Name = name;
-            
+
             // Create wrapper and store it
             var handleId = _nextHandleId++;
             var wrapper = new VeldridShaderProgram(name, shader, entryPoint, handleId, 1);
-            
+
             // Store wrapper in dictionary for GetShader() calls
             _shaders[handleId] = wrapper;
-            
+
             return new Handle<IShaderProgram>(handleId, 1);
         }
         catch (Exception ex)
@@ -402,31 +402,31 @@ public sealed class VeldridGraphicsDeviceAdapter : DisposableBase, IGraphicsDevi
             // Retrieve shader programs from handles
             var vsProgram = GetShader(vertexShader);
             var fsProgram = GetShader(fragmentShader);
-            
+
             if (vsProgram == null)
                 throw new InvalidOperationException($"Vertex shader handle {vertexShader.Id} is invalid");
             if (fsProgram == null)
                 throw new InvalidOperationException($"Fragment shader handle {fragmentShader.Id} is invalid");
-            
+
             // Cast to Veldrid implementation
             var vsVeldrid = (VeldridShaderProgram)vsProgram;
             var fsVeldrid = (VeldridShaderProgram)fsProgram;
-            
+
             // Get Veldrid shaders
             var vs = vsVeldrid.VeldridShader;
             var fs = fsVeldrid.VeldridShader;
-            
+
             // Create shader set description (minimal for now - empty vertex layout)
             // TODO: Accept vertex layout description as parameter
             var shaderSet = new VeldridLib.ShaderSetDescription(
                 Array.Empty<VeldridLib.VertexLayoutDescription>(),
                 new[] { vs, fs });
-            
+
             // Convert OpenSAGE state to Veldrid state
             var rasterizerState = MapRasterState(rasterState);
             var depthStencilState = MapDepthStencilState(depthState, stencilState);
             var blendStateDesc = MapBlendState(blendState);
-            
+
             // Create graphics pipeline description
             var pipelineDesc = new VeldridLib.GraphicsPipelineDescription
             {
@@ -438,14 +438,14 @@ public sealed class VeldridGraphicsDeviceAdapter : DisposableBase, IGraphicsDevi
                 ResourceLayouts = Array.Empty<VeldridLib.ResourceLayout>(), // TODO: Add resource layouts
                 Outputs = _device.SwapchainFramebuffer.OutputDescription
             };
-            
+
             // Create the pipeline
             var pipeline = _device.ResourceFactory.CreateGraphicsPipeline(ref pipelineDesc);
-            
+
             // Store in dictionary
             var handleId = _nextHandleId++;
             _pipelines[handleId] = pipeline;
-            
+
             return new Handle<IPipeline>(handleId, 1);
         }
         catch (Exception ex)
