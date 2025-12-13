@@ -20,6 +20,7 @@ public sealed class AudioSystem : GameSystem
     private readonly AudioSettings _settings;
     private readonly Audio3DEngine _3dengine;
     private readonly Dictionary<AudioVolumeSlider, Submixer> _mixers;
+    private readonly bool _isAudioInitialized;
 
     private readonly Random _random;
 
@@ -30,50 +31,80 @@ public sealed class AudioSystem : GameSystem
 
     public AudioSystem(IGame game) : base(game)
     {
+        _sources = new List<AudioSource>();
+        _cached = new Dictionary<string, AudioBuffer>();
+        _mixers = new Dictionary<AudioVolumeSlider, Submixer>();
+        _random = new Random();
+        _isAudioInitialized = false;
+
         try
         {
-            Logger.Info("AudioSystem: Creating AudioEngine...");
-            _engine = AddDisposable(AudioEngine.CreateDefault());
-            
-            Logger.Info("AudioSystem: Creating 3D Engine...");
-            _3dengine = _engine?.Create3DEngine();
-            
-            _sources = new List<AudioSource>();
-            _cached = new Dictionary<string, AudioBuffer>();
-            _mixers = new Dictionary<AudioVolumeSlider, Submixer>();
-            
+            // Load audio settings first
             Logger.Info("AudioSystem: Loading AudioSettings...");
-            // If audio settings are not loaded, skip audio system initialization
             _settings = game.AssetStore?.AudioSettings?.Current;
             if (_settings == null)
             {
-                Logger.Warn("AudioSettings not loaded. Audio system will be disabled.");
-                _random = new Random();
+                Logger.Warn("AudioSettings not found. Audio system will be disabled.");
                 return;
             }
+
+            // Attempt to initialize audio engine
+            Logger.Info("AudioSystem: Attempting to initialize audio engine (platform: {0})...", 
+                GetPlatformName());
+            _engine = AddDisposable(AudioEngine.CreateDefault());
 
             if (_engine == null)
             {
-                Logger.Warn("AudioEngine is null. Audio system will be disabled.");
-                _random = new Random();
+                // This is a known issue on macOS and some Linux systems where SharpAudio
+                // cannot initialize the platform audio backend (OpenAL/PulseAudio missing)
+                LogAudioInitializationFailure();
                 return;
             }
 
-            Logger.Info("AudioSystem: Creating submixers...");
+            // Initialize 3D audio engine
+            Logger.Info("AudioSystem: Creating 3D audio engine...");
+            _3dengine = _engine.Create3DEngine();
+
+            // Create audio submixers for volume control
+            Logger.Info("AudioSystem: Creating audio submixers...");
             CreateSubmixers();
 
-            // TODO: Sync RNG seed from replay?
-            _random = new Random();
+            _isAudioInitialized = true;
             Logger.Info("AudioSystem: Initialized successfully.");
         }
         catch (Exception ex)
         {
-            Logger.Error(ex, "Failed to initialize AudioSystem. Audio will be disabled.");
-            _sources = new List<AudioSource>();
-            _cached = new Dictionary<string, AudioBuffer>();
-            _mixers = new Dictionary<AudioVolumeSlider, Submixer>();
-            _random = new Random();
+            LogAudioInitializationFailure();
+            Logger.Debug(ex, "Exception details during audio initialization");
         }
+    }
+
+    private static string GetPlatformName()
+    {
+        if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(
+            System.Runtime.InteropServices.OSPlatform.Windows))
+        {
+            return "Windows";
+        }
+        if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(
+            System.Runtime.InteropServices.OSPlatform.OSX))
+        {
+            return "macOS";
+        }
+        if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(
+            System.Runtime.InteropServices.OSPlatform.Linux))
+        {
+            return "Linux";
+        }
+        return "Unknown";
+    }
+
+    private void LogAudioInitializationFailure()
+    {
+        Logger.Warn("Audio engine initialization failed. The audio system will operate in disabled mode.");
+        Logger.Warn("On macOS: This typically requires OpenAL: brew install openal-soft");
+        Logger.Warn("On Linux: This typically requires PulseAudio or ALSA to be installed");
+        Logger.Warn("Games will continue to work without audio output.");
     }
 
     internal override void OnSceneChanged()
@@ -83,7 +114,7 @@ public sealed class AudioSystem : GameSystem
 
     public void Update(Camera camera)
     {
-        if (_3dengine == null || _engine == null)
+        if (!_isAudioInitialized)
         {
             return;
         }
@@ -141,7 +172,7 @@ public sealed class AudioSystem : GameSystem
     public AudioSource GetSound(FileSystemEntry entry,
         AudioVolumeSlider? vslider = AudioVolumeSlider.None, bool loop = false)
     {
-        if (_engine == null)
+        if (!_isAudioInitialized)
         {
             return null;
         }
@@ -193,11 +224,11 @@ public sealed class AudioSystem : GameSystem
     }
 
     /// <summary>
-    /// Open a a music/audio file that gets streamed.
+    /// Open a music/audio file that gets streamed.
     /// </summary>
     public SoundStream GetStream(FileSystemEntry entry)
     {
-        if (_engine == null)
+        if (!_isAudioInitialized)
         {
             return null;
         }
@@ -311,7 +342,7 @@ public sealed class AudioSystem : GameSystem
 
     public void PlayMusicTrack(MusicTrack musicTrack, bool fadeIn, bool fadeOut)
     {
-        if (_engine == null)
+        if (!_isAudioInitialized)
         {
             return;
         }

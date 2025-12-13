@@ -24,7 +24,7 @@ internal sealed class GlobalShaderResourceData : DisposableBase
     private ResourceSet _forwardPassResourceSet;
     private Texture _cachedCloudTexture;
     private Texture _cachedShadowMap;
-    
+
     // Triple buffering: Keep ResourceSets from previous 2 frames alive to avoid use-after-free in Metal
     private readonly Queue<ResourceSet> _deferredCleanup = new Queue<ResourceSet>();
     private const int DeferredCleanupFrames = 2;
