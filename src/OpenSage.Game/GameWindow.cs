@@ -20,6 +20,11 @@ public sealed class GameWindow : DisposableBase
     private int _lastMouseX;
     private int _lastMouseY;
 
+    /// <summary>
+    /// Gets the underlying SDL2 window. Used by graphics backends like BGFX.
+    /// </summary>
+    public Sdl2Window SdlWindow => _window;
+
     private void RaiseClientSizeChanged()
     {
         ClientSizeChanged?.Invoke(this, EventArgs.Empty);

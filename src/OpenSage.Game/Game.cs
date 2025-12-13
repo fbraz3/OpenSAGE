@@ -54,7 +54,8 @@ public sealed class Game : DisposableBase, IGame
     public ContentManager ContentManager { get; }
 
     // Primary public API - Veldrid graphics device (compatibility)
-    public Veldrid.GraphicsDevice GraphicsDevice { get; private set; }
+    // Can be null when using BGFX backend
+    public Veldrid.GraphicsDevice? GraphicsDevice { get; private set; }
 
     // Abstraction layer - for future multi-backend support
     private IGraphicsDevice _abstractGraphicsDevice;
@@ -401,7 +402,7 @@ public sealed class Game : DisposableBase, IGame
     public IGameEngine GameEngine => Scene3D.GameEngine;
 
     public Game(GameInstallation installation)
-        : this(installation, null, new Configuration(), null)
+        : this(installation, null, new Configuration(), null, OpenSage.Graphics.Core.GraphicsBackend.Veldrid)
     {
     }
 
@@ -409,7 +410,8 @@ public sealed class Game : DisposableBase, IGame
         GameInstallation installation,
         Veldrid.GraphicsBackend? preferredBackend,
         Configuration config,
-        GameWindow window)
+        GameWindow window,
+        OpenSage.Graphics.Core.GraphicsBackend graphicsBackend = OpenSage.Graphics.Core.GraphicsBackend.Veldrid)
     {
         using (GameTrace.TraceDurationEvent("Game()"))
         {
@@ -424,8 +426,28 @@ public sealed class Game : DisposableBase, IGame
 
             // TODO: Read game version from assembly metadata or .git folder
             // TODO: Set window icon.
-            GraphicsDevice = AddDisposable(GraphicsDeviceUtility.CreateGraphicsDevice(preferredBackend, window));
-            AbstractGraphicsDevice = AddDisposable(GraphicsDeviceFactory.CreateDevice(OpenSage.Graphics.Core.GraphicsBackend.Veldrid, GraphicsDevice));
+            
+            // Initialize graphics device based on selected backend
+            if (graphicsBackend == OpenSage.Graphics.Core.GraphicsBackend.BGFX)
+            {
+                // For BGFX, we don't need Veldrid device, only SDL2 window
+                GraphicsDevice = null;
+                AbstractGraphicsDevice = AddDisposable(
+                    GraphicsDeviceFactory.CreateDevice(
+                        graphicsBackend,
+                        window.SdlWindow,
+                        null));
+            }
+            else
+            {
+                // For Veldrid, create Veldrid device first
+                GraphicsDevice = AddDisposable(GraphicsDeviceUtility.CreateGraphicsDevice(preferredBackend, window));
+                AbstractGraphicsDevice = AddDisposable(
+                    GraphicsDeviceFactory.CreateDevice(
+                        graphicsBackend,
+                        window.SdlWindow,
+                        GraphicsDevice));
+            }
 
             Panel = AddDisposable(new GamePanel(GraphicsDevice));
 

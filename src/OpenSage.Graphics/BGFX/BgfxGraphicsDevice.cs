@@ -1,190 +1,266 @@
 using System;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using OpenSage.Graphics.Abstractions;
 using OpenSage.Graphics.BGFX.Native;
 using OpenSage.Graphics.Core;
-using OpenSage.Graphics.Resources;
+using OpenSage.Graphics.State;
+using Veldrid;
 using Veldrid.Sdl2;
 
 namespace OpenSage.Graphics.BGFX;
 
 /// <summary>
 /// BGFX-based implementation of IGraphicsDevice.
-/// Provides cross-platform graphics rendering via the BGFX library.
+/// Phase 5A: Skeleton implementation with frame submission support.
+/// Phase 5B+: Resource management and rendering operations.
 /// </summary>
 internal sealed class BgfxGraphicsDevice : IGraphicsDevice
 {
     private GraphicsCapabilities _capabilities;
     private bool _disposed;
+    private bool _isReady;
 
     public Core.GraphicsBackend Backend => Core.GraphicsBackend.BGFX;
     public GraphicsCapabilities Capabilities => _capabilities;
+    public bool IsReady => _isReady;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="BgfxGraphicsDevice"/> class.
     /// </summary>
-    public BgfxGraphicsDevice(GraphicsDeviceOptions options)
+    public BgfxGraphicsDevice(Sdl2Window window)
     {
-        Initialize(options);
+        Initialize(window);
     }
 
-    public void Initialize(GraphicsDeviceOptions options)
+    private void Initialize(Sdl2Window window)
     {
-        var initSettings = new bgfx.InitSettings();
-        initSettings.type = bgfx.RendererType.Count; // Let BGFX choose based on platform
-
-        // Platform-specific window data
-        var platformData = BgfxPlatformData.GetPlatformData(options.Window as Sdl2Window
-            ?? throw new InvalidOperationException("BGFX backend requires SDL2 window"));
-        initSettings.platformData = platformData;
-
-        // Initialize BGFX
-        if (!bgfx.init(ref initSettings))
+        try
         {
-            throw new InvalidOperationException("Failed to initialize BGFX");
+            var initSettings = new BgfxNative.InitSettings();
+            BgfxNative.bgfx_init_ctor(ref initSettings);
+
+            // Set platform-specific window data
+            var platformData = BgfxPlatformData.GetPlatformData(window);
+            BgfxNative.bgfx_set_platform_data(ref platformData);
+
+            // Initialize BGFX
+            var result = BgfxNative.bgfx_init(ref initSettings);
+            if (result == 0)
+            {
+                throw new InvalidOperationException("Failed to initialize BGFX");
+            }
+
+            // Get capabilities
+            var capsPtr = BgfxNative.bgfx_get_caps();
+            var caps = Marshal.PtrToStructure<BgfxNative.Capabilities>(capsPtr);
+
+            _capabilities = new GraphicsCapabilities(
+                isInitialized: true,
+                backendName: GetBackendName(caps.RendererType),
+                apiVersion: "1.0",
+                vendorName: "BGFX",
+                deviceName: "BGFX Device",
+                maxTextureSize: 16384,
+                maxViewports: 16,
+                maxRenderTargets: 8,
+                supportsTextureCompressionBC: true,
+                supportsTextureCompressionASTC: true,
+                supportsComputeShaders: false,  // Phase 5B: Check caps
+                supportsIndirectRendering: false);  // Phase 5B: Check caps
+
+            _isReady = true;
+            Console.WriteLine($"[BGFX] Initialized: {GetBackendName(caps.RendererType)}");
         }
-
-        // Create capabilities from BGFX info
-        var caps = bgfx.getCaps();
-        _capabilities = new GraphicsCapabilities(
-            isInitialized: true,
-            backendName: GetBackendName(caps.rendererType),
-            apiVersion: $"{caps.homogeneousDepth}",
-            vendorName: "BGFX",
-            deviceName: "BGFX Device",
-            maxTextureSize: 16384,
-            maxViewports: 16,
-            maxRenderTargets: 8,
-            supportsTextureCompressionBC: true,
-            supportsTextureCompressionASTC: true,
-            supportsComputeShaders: (caps.supported & (ulong)bgfx.BGFX_CAPS_COMPUTE) != 0,
-            supportsIndirectRendering: (caps.supported & (ulong)bgfx.BGFX_CAPS_DRAW_INDIRECT) != 0);
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[BGFX] Initialization failed: {ex.Message}");
+            throw;
+        }
     }
 
-    public Handle<Buffer> CreateBuffer(Resources.BufferDescription description, IntPtr data = default)
-    {
-        throw new NotImplementedException("BGFX buffer creation is implemented in Phase 5B");
-    }
-
-    public void UpdateBuffer<T>(Handle<Buffer> buffer, uint offsetInBytes, ReadOnlySpan<T> source) where T : struct
-    {
-        throw new NotImplementedException("BGFX buffer updates are implemented in Phase 5B");
-    }
-
-    public void DeleteBuffer(Handle<Buffer> buffer)
-    {
-        throw new NotImplementedException("BGFX buffer deletion is implemented in Phase 5B");
-    }
-
-    public Handle<Texture> CreateTexture(Resources.TextureDescription description, Resources.TextureInitData[] initData)
-    {
-        throw new NotImplementedException("BGFX texture creation is implemented in Phase 5B");
-    }
-
-    public void UpdateTexture(Handle<Texture> texture, Resources.TextureRegion region, IntPtr data)
-    {
-        throw new NotImplementedException("BGFX texture updates are implemented in Phase 5B");
-    }
-
-    public void DeleteTexture(Handle<Texture> texture)
-    {
-        throw new NotImplementedException("BGFX texture deletion is implemented in Phase 5B");
-    }
-
-    public Handle<Sampler> CreateSampler(Resources.SamplerDescription description)
-    {
-        throw new NotImplementedException("BGFX sampler creation is implemented in Phase 5B");
-    }
-
-    public void DeleteSampler(Handle<Sampler> sampler)
-    {
-        throw new NotImplementedException("BGFX sampler deletion is implemented in Phase 5B");
-    }
-
-    public Handle<Framebuffer> CreateFramebuffer(Resources.FramebufferDescription description)
-    {
-        throw new NotImplementedException("BGFX framebuffer creation is implemented in Phase 5B");
-    }
-
-    public void DeleteFramebuffer(Handle<Framebuffer> framebuffer)
-    {
-        throw new NotImplementedException("BGFX framebuffer deletion is implemented in Phase 5B");
-    }
-
-    public Handle<Shader> CreateShader(Resources.ShaderDescription description)
-    {
-        throw new NotImplementedException("BGFX shader creation is implemented in Phase 5B");
-    }
-
-    public void DeleteShader(Handle<Shader> shader)
-    {
-        throw new NotImplementedException("BGFX shader deletion is implemented in Phase 5B");
-    }
-
-    public Handle<Pipeline> CreatePipeline(Resources.PipelineDescription description)
-    {
-        throw new NotImplementedException("BGFX pipeline creation is implemented in Phase 5B");
-    }
-
-    public void DeletePipeline(Handle<Pipeline> pipeline)
-    {
-        throw new NotImplementedException("BGFX pipeline deletion is implemented in Phase 5B");
-    }
-
+    // Phase 5A: Minimal implementations for frame submission
     public void BeginFrame()
     {
-        // BGFX does not require frame setup - rendering happens in EndFrame
+        // BGFX frame begins implicitly
     }
 
     public void EndFrame()
     {
-        // Submit frame to BGFX
-        bgfx.frame(false);
+        BgfxNative.bgfx_frame(0);
     }
 
-    public void SetRenderTarget(Handle<Framebuffer> framebuffer, bool clearColor, bool clearDepth)
+    public void WaitForIdle()
     {
-        throw new NotImplementedException("BGFX render target setup is implemented in Phase 5B");
+        // Phase 5B: Implement BGFX synchronization
     }
 
-    public void SetViewport(uint x, uint y, uint width, uint height)
+    // Phase 5B: Buffer operations (stub)
+    public Handle<IBuffer> CreateBuffer(Resources.BufferDescription description, ReadOnlySpan<byte> initialData = default)
     {
-        throw new NotImplementedException("BGFX viewport setup is implemented in Phase 5B");
+        throw new NotImplementedException("BGFX buffer creation is implemented in Phase 5B");
     }
 
-    public void SetScissor(uint x, uint y, uint width, uint height)
+    public void DestroyBuffer(Handle<IBuffer> buffer)
     {
-        throw new NotImplementedException("BGFX scissor setup is implemented in Phase 5B");
+        throw new NotImplementedException("Phase 5B");
     }
 
-    public void BindVertexBuffer(Handle<Buffer> buffer, uint instanceStartIndex = 0)
+    public IBuffer? GetBuffer(Handle<IBuffer> buffer)
     {
-        throw new NotImplementedException("BGFX vertex buffer binding is implemented in Phase 5B");
+        throw new NotImplementedException("Phase 5B");
     }
 
-    public void BindIndexBuffer(Handle<Buffer> buffer, Resources.IndexFormat indexFormat)
+    // Phase 5B: Texture operations (stub)
+    public Handle<ITexture> CreateTexture(Resources.TextureDescription description, ReadOnlySpan<byte> initialData = default)
     {
-        throw new NotImplementedException("BGFX index buffer binding is implemented in Phase 5B");
+        throw new NotImplementedException("Phase 5B");
     }
 
-    public void BindPipeline(Handle<Pipeline> pipeline)
+    public void DestroyTexture(Handle<ITexture> texture)
     {
-        throw new NotImplementedException("BGFX pipeline binding is implemented in Phase 5B");
+        throw new NotImplementedException("Phase 5B");
     }
 
-    public void BindTexture(uint slot, Handle<Texture> texture, Handle<Sampler> sampler)
+    public ITexture? GetTexture(Handle<ITexture> texture)
     {
-        throw new NotImplementedException("BGFX texture binding is implemented in Phase 5B");
+        throw new NotImplementedException("Phase 5B");
     }
 
-    public void DrawVertices(uint vertexCount, uint vertexStartIndex = 0, uint instanceCount = 1)
+    // Phase 5B: Sampler operations (stub)
+    public Handle<ISampler> CreateSampler(Resources.SamplerDescription description)
     {
-        throw new NotImplementedException("BGFX vertex drawing is implemented in Phase 5B");
+        throw new NotImplementedException("Phase 5B");
     }
 
-    public void DrawIndexed(uint indexCount, uint indexStartIndex = 0, uint vertexStartIndex = 0, uint instanceCount = 1)
+    public void DestroySampler(Handle<ISampler> sampler)
     {
-        throw new NotImplementedException("BGFX indexed drawing is implemented in Phase 5B");
+        throw new NotImplementedException("Phase 5B");
+    }
+
+    public ISampler? GetSampler(Handle<ISampler> sampler)
+    {
+        throw new NotImplementedException("Phase 5B");
+    }
+
+    // Phase 5B: Framebuffer operations (stub)
+    public Handle<IFramebuffer> CreateFramebuffer(Resources.FramebufferDescription description)
+    {
+        throw new NotImplementedException("Phase 5B");
+    }
+
+    public void DestroyFramebuffer(Handle<IFramebuffer> framebuffer)
+    {
+        throw new NotImplementedException("Phase 5B");
+    }
+
+    public IFramebuffer? GetFramebuffer(Handle<IFramebuffer> framebuffer)
+    {
+        throw new NotImplementedException("Phase 5B");
+    }
+
+    // Phase 5B: Shader operations (stub)
+    public Handle<IShaderProgram> CreateShader(string name, ShaderStages stage, ReadOnlySpan<byte> spirvData, string entryPoint = "main")
+    {
+        throw new NotImplementedException("Phase 5B");
+    }
+
+    public void DestroyShader(Handle<IShaderProgram> shader)
+    {
+        throw new NotImplementedException("Phase 5B");
+    }
+
+    public IShaderProgram? GetShader(Handle<IShaderProgram> shader)
+    {
+        throw new NotImplementedException("Phase 5B");
+    }
+
+    // Phase 5B: Pipeline operations (stub)
+    public Handle<IPipeline> CreatePipeline(
+        Handle<IShaderProgram> vertexShader,
+        Handle<IShaderProgram> fragmentShader,
+        RasterState rasterState = default,
+        DepthState depthState = default,
+        BlendState blendState = default,
+        StencilState stencilState = default)
+    {
+        throw new NotImplementedException("Phase 5B");
+    }
+
+    public void DestroyPipeline(Handle<IPipeline> pipeline)
+    {
+        throw new NotImplementedException("Phase 5B");
+    }
+
+    public IPipeline? GetPipeline(Handle<IPipeline> pipeline)
+    {
+        throw new NotImplementedException("Phase 5B");
+    }
+
+    // Phase 5B: Rendering operations (stub)
+    public void SetRenderTarget(Handle<IFramebuffer> framebuffer)
+    {
+        throw new NotImplementedException("Phase 5B");
+    }
+
+    public void ClearRenderTarget(Vector4 clearColor, float clearDepth = 1.0f, byte clearStencil = 0, bool colorMask = true, bool depthMask = true, bool stencilMask = true)
+    {
+        throw new NotImplementedException("Phase 5B");
+    }
+
+    public void SetPipeline(Handle<IPipeline> pipeline)
+    {
+        throw new NotImplementedException("Phase 5B");
+    }
+
+    public void SetViewport(float x, float y, float width, float height, float minDepth = 0.0f, float maxDepth = 1.0f)
+    {
+        throw new NotImplementedException("Phase 5B");
+    }
+
+    public void SetScissor(int x, int y, int width, int height)
+    {
+        throw new NotImplementedException("Phase 5B");
+    }
+
+    public void BindVertexBuffer(Handle<IBuffer> buffer, uint offset = 0)
+    {
+        throw new NotImplementedException("Phase 5B");
+    }
+
+    public void BindIndexBuffer(Handle<IBuffer> buffer, uint offset = 0)
+    {
+        throw new NotImplementedException("Phase 5B");
+    }
+
+    public void BindUniformBuffer(Handle<IBuffer> buffer, uint slot)
+    {
+        throw new NotImplementedException("Phase 5B");
+    }
+
+    public void BindTexture(Handle<ITexture> texture, uint slot, Handle<ISampler> sampler)
+    {
+        throw new NotImplementedException("Phase 5B");
+    }
+
+    public void DrawIndexed(uint indexCount, uint instanceCount = 1, uint startIndex = 0, int baseVertex = 0, uint startInstance = 0)
+    {
+        throw new NotImplementedException("Phase 5B");
+    }
+
+    public void DrawVertices(uint vertexCount, uint instanceCount = 1, uint startVertex = 0, uint startInstance = 0)
+    {
+        throw new NotImplementedException("Phase 5B");
+    }
+
+    public void DrawIndexedIndirect(Handle<IBuffer> buffer, uint offset, uint drawCount, uint stride)
+    {
+        throw new NotImplementedException("Phase 5B");
+    }
+
+    public void DrawVerticesIndirect(Handle<IBuffer> buffer, uint offset, uint drawCount, uint stride)
+    {
+        throw new NotImplementedException("Phase 5B");
     }
 
     public void Dispose()
@@ -192,19 +268,20 @@ internal sealed class BgfxGraphicsDevice : IGraphicsDevice
         if (_disposed)
             return;
 
-        bgfx.shutdown();
+        BgfxNative.bgfx_shutdown();
+        _isReady = false;
         _disposed = true;
     }
 
-    private static string GetBackendName(bgfx.RendererType type)
+    private static string GetBackendName(BgfxNative.RendererType type)
     {
         return type switch
         {
-            bgfx.RendererType.Metal => "Metal",
-            bgfx.RendererType.Vulkan => "Vulkan",
-            bgfx.RendererType.Direct3D11 => "Direct3D11",
-            bgfx.RendererType.OpenGL => "OpenGL",
-            bgfx.RendererType.OpenGLES => "OpenGL ES",
+            BgfxNative.RendererType.Metal => "Metal",
+            BgfxNative.RendererType.Vulkan => "Vulkan",
+            BgfxNative.RendererType.Direct3D11 => "Direct3D11",
+            BgfxNative.RendererType.OpenGL => "OpenGL",
+            BgfxNative.RendererType.OpenGLES => "OpenGL ES",
             _ => "Unknown"
         };
     }

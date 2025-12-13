@@ -8,12 +8,14 @@ using NLog.Targets;
 using OpenSage.Data;
 using OpenSage.Diagnostics;
 using OpenSage.Graphics;
+using OpenSage.Graphics.Core;
 using OpenSage.Input;
 using OpenSage.Logic;
 using OpenSage.Mathematics;
 using OpenSage.Mods.BuiltIn;
 using OpenSage.Network;
 using Veldrid;
+using GraphicsCore = OpenSage.Graphics.Core;
 
 namespace OpenSage.Launcher;
 
@@ -21,8 +23,8 @@ public static class Program
 {
     public sealed class Options
     {
-        [Option('r', "renderer", Default = null, Required = false, HelpText = "Set the renderer backend (Direct3D11,Vulkan,OpenGL,Metal,OpenGLES).")]
-        public GraphicsBackend? Renderer { get; set; }
+        [Option('r', "renderer", Default = null, Required = false, HelpText = "Set the renderer backend (bgfx, veldrid, Direct3D11, Vulkan, OpenGL, Metal, OpenGLES).")]
+        public string? Renderer { get; set; }
 
         [Option("noshellmap", Default = false, Required = false, HelpText = "Disables loading the shell map, speeding up startup time.")]
         public bool NoShellmap { get; set; }
@@ -152,12 +154,52 @@ public static class Program
 
         Logger.Debug($"Have configuration");
 
+        // Parse graphics backend selection
+        Veldrid.GraphicsBackend? veldridBackend = null;
+        GraphicsCore.GraphicsBackend graphicsBackend = GraphicsCore.GraphicsBackend.Veldrid; // Default
+        
+        if (!string.IsNullOrEmpty(opts.Renderer))
+        {
+            var rendererLower = opts.Renderer.ToLowerInvariant();
+            if (rendererLower == "bgfx")
+            {
+                graphicsBackend = GraphicsCore.GraphicsBackend.BGFX;
+                Logger.Info("[Launcher] Using BGFX graphics backend");
+            }
+            else if (rendererLower == "veldrid")
+            {
+                graphicsBackend = GraphicsCore.GraphicsBackend.Veldrid;
+                Logger.Info("[Launcher] Using Veldrid graphics backend (default)");
+            }
+            else
+            {
+                // Try to parse as Veldrid backend type
+                if (Enum.TryParse<Veldrid.GraphicsBackend>(opts.Renderer, ignoreCase: true, out var parsedBackend))
+                {
+                    veldridBackend = parsedBackend;
+                    graphicsBackend = GraphicsCore.GraphicsBackend.Veldrid;
+                    Logger.Info($"[Launcher] Using Veldrid backend: {parsedBackend}");
+                }
+                else
+                {
+                    Logger.Warn($"[Launcher] Unknown renderer '{opts.Renderer}', using default Veldrid");
+                }
+            }
+        }
+        else
+        {
+            Logger.Info("[Launcher] Using default Veldrid graphics backend");
+        }
+
         using (var window = new GameWindow($"OpenSAGE - {installation.Game.DisplayName} - master", 100, 100, 1024, 768, opts.Fullscreen))
-        using (var game = new Game(installation, opts.Renderer, config, window))
+        using (var game = new Game(installation, veldridBackend, config, window, graphicsBackend))
         using (var textureCopier = new TextureCopier(game, window.Swapchain.Framebuffer.OutputDescription))
         using (var developerModeView = new DeveloperModeView(game, window))
         {
-            game.GraphicsDevice.SyncToVerticalBlank = !opts.DisableVsync;
+            if (game.GraphicsDevice != null)
+            {
+                game.GraphicsDevice.SyncToVerticalBlank = !opts.DisableVsync;
+            }
 
             var developerModeEnabled = opts.DeveloperMode;
 
