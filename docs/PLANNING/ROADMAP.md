@@ -1,19 +1,27 @@
 # OpenSAGE Feature Completion Roadmap
 
 **Last Updated**: December 15, 2025  
-**Target Completion**: 6-8 weeks  
-**Priority Focus**: Map Rendering, Particle Systems, GUI/WND
+**Target Completion**: 12-16 weeks (3-4 months)  
+**Priority Focus**: Rendering (3 phases) + Game Logic (4 phases)
 
 ---
 
 ## Overview
 
-This roadmap tracks the completion of three major in-progress features:
-1. **Render maps loaded from `.map`** - Currently ~75% complete
-2. **Render particle systems** - Currently ~75% complete  
-3. **Render GUI loaded from `.wnd`** - Currently ~80% complete
+This comprehensive roadmap tracks completion of seven major feature phases:
 
-All features have solid architectural foundations in place. This roadmap focuses on completing remaining gaps and polish.
+**Rendering Systems (3 phases, 6-8 weeks)**:
+1. **PHASE01**: Map Rendering - Currently ~75% complete
+2. **PHASE02**: Particle Systems - Currently ~75% complete  
+3. **PHASE03**: GUI/WND - Currently ~80% complete
+
+**Game Logic Systems (4 phases, 12-16 weeks)**:
+4. **PHASE04**: Scripting Engine - Currently 0% complete
+5. **PHASE05**: APT Virtual Machine & ActionScript - Currently 40% complete
+6. **PHASE06**: Physics Engine - Currently 20% complete
+7. **PHASE07**: Combat Systems (Weapons, Locomotors, AI) - Currently 15% complete
+
+Each phase has solid architectural foundations or is ready for implementation. Focus is on completing remaining gaps and integration.
 
 ---
 
@@ -171,6 +179,7 @@ For detailed implementation plans, see:
 - [PHASE01_MAP_RENDERING.md](phases/PHASE01_MAP_RENDERING.md) - Map rendering implementation details
 - [PHASE02_PARTICLE_SYSTEMS.md](phases/PHASE02_PARTICLE_SYSTEMS.md) - Particle system implementation details
 - [PHASE03_GUI_RENDERING.md](phases/PHASE03_GUI_RENDERING.md) - GUI/WND implementation details
+- [PHASE04_SCRIPTING_ENGINE.md](phases/PHASE04_SCRIPTING_ENGINE.md) - Game scripting & logic implementation
 
 ---
 
