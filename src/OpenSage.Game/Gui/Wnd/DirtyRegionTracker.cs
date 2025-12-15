@@ -139,7 +139,7 @@ public class DirtyRegionTracker
         var top = Math.Min(a.Top, b.Top);
         var right = Math.Max(a.Right, b.Right);
         var bottom = Math.Max(a.Bottom, b.Bottom);
-        
+
         return new Rectangle(left, top, right - left, bottom - top);
     }
 

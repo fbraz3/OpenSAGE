@@ -39,7 +39,7 @@ internal sealed class ParticleShaderResources : ShaderSetBase
 
         _alphaPipeline = CreatePipeline(BlendStateDescription.SingleAlphaBlend);
         _additivePipeline = CreatePipeline(BlendStateDescriptionUtility.SingleAdditiveBlendNoAlpha);
-        
+
         // MULTIPLY blend: result = destination * source
         // This creates shadow-like particles that darken the scene
         // Formula: src=ZERO, dst=SRC_COLOR, ref: EA W3DWater.cpp TexProjectClass::Init_Multiplicative

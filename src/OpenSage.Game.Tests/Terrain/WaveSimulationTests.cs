@@ -115,7 +115,7 @@ public class WaveSimulationTests
         var waves = sim.GetActiveWaves();
         Assert.Equal(1, waves.Length);
         var wave = waves[0];
-        
+
         // Position should have moved in direction of travel
         Assert.True(wave.Position.X > initialPos.X || wave.Position.Y > initialPos.Y,
             "Wave should move from origin");
@@ -134,7 +134,7 @@ public class WaveSimulationTests
         // Assert
         var waves = sim.GetActiveWaves();
         var dir = waves[0].Direction;
-        
+
         // Direction should be normalized (magnitude = 1)
         var magnitude = (float)Math.Sqrt(dir.X * dir.X + dir.Y * dir.Y);
         Assert.Equal(1.0f, magnitude, precision: 3);

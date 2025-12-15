@@ -138,7 +138,7 @@ public sealed class WaterArea : DisposableBase
         _beforeRender = (CommandList cl, in RenderItem renderItem) =>
         {
             cl.SetVertexBuffer(0, _vertexBuffer);
-            
+
             // Bind wave animation constants if available
             if (_waveResourceSet != null)
             {
@@ -154,7 +154,7 @@ public sealed class WaterArea : DisposableBase
         CreateGeometry(loadContext, area.Points, area.FinalHeight);
         _waveAreaData = area;
         _waveSimulation = AddDisposable(new WaveSimulation());
-        
+
         // Initialize wave constants buffer for GPU sync
         // Reference: EA W3DWater.cpp - WaterRenderObjClass::ReAcquireResources()
         InitializeWaveConstantsBuffer(loadContext);
@@ -214,7 +214,7 @@ public sealed class WaterArea : DisposableBase
         if (_waveSimulation != null)
         {
             _waveSimulation.Update(deltaTime);
-            
+
             // Sync wave data to GPU
             SyncWaveConstantsToGPU();
         }
@@ -226,7 +226,7 @@ public sealed class WaterArea : DisposableBase
             return;
 
         var activeWaves = _waveSimulation.GetActiveWaves();
-        
+
         // Build wave data for GPU
         // Each wave: x, y = position, z = radius, w = alpha
         var waveData = new Vector4[32];

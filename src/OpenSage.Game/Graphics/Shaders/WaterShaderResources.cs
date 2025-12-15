@@ -51,7 +51,7 @@ internal sealed class WaterShaderResources : ShaderSetBase
         : base(store, "Water", WaterVertex.VertexDescriptor)
     {
         WaterResourceLayout = ResourceLayouts[2];
-        
+
         // Wave animation layout: uniform buffer for wave data passed to vertex shader
         WaveAnimationLayout = ResourceLayouts[1];
 

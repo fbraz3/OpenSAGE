@@ -36,7 +36,7 @@ internal struct Particle : IPersistableObject
     /// The drawable is synchronized with the particle's transform each frame.
     /// </summary>
     public object? AttachedDrawable;
-    
+
     /// <summary>
     /// Unique identifier for the attached drawable object.
     /// Used for lookups when the particle is saved/loaded.
@@ -49,7 +49,7 @@ internal struct Particle : IPersistableObject
     /// Newest position at index 0, oldest at MaxStreakVertices-1.
     /// </summary>
     public Vector3[]? StreakVertices;
-    
+
     /// <summary>
     /// Current number of vertices recorded in the streak trail (0 to MaxStreakVertices).
     /// Used to render only the valid portion of the trail.
@@ -76,7 +76,7 @@ internal struct Particle : IPersistableObject
     /// <summary>
     /// Attaches a drawable to this particle.
     /// The drawable will follow the particle's position, size, and rotation each frame.
-    /// 
+    ///
     /// Mirrors EA implementation from ParticleSys.cpp:
     /// - Drawable position synchronized with particle position
     /// - Drawable scale applied from particle size
@@ -123,12 +123,12 @@ internal struct Particle : IPersistableObject
     /// <summary>
     /// Records current particle position as a vertex in the streak trail.
     /// Implements circular buffer: shifts older vertices back in the array, adding new position at index 0.
-    /// 
+    ///
     /// Trail lifecycle:
     /// - Frame 1: StreakVertices[0] = particle pos, count = 1
     /// - Frame 2: StreakVertices[1] = old[0], StreakVertices[0] = new pos, count = 2
     /// - Frame N (N > 50): StreakVertices[0..49] are most recent positions, oldest is dropped
-    /// 
+    ///
     /// Used for rendering streak/trail particle effects with proper alpha fade.
     /// </summary>
     public void RecordStreakVertex()

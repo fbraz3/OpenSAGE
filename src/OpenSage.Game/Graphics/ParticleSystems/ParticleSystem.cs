@@ -542,13 +542,13 @@ public sealed class ParticleSystem : RenderObject, IPersistableObject
     /// <summary>
     /// Updates drawable particles with current particle transformations.
     /// Synchronizes all drawable properties with their parent particle every frame.
-    /// 
+    ///
     /// Implementation mirrors EA Generals ParticleSys.cpp Particle::update():
     /// - Position: particle.m_pos → drawable->setPosition()
     /// - Scale: particle.m_size → drawable->setInstanceScale()
     /// - Rotation: particle angles (X,Y,Z) → drawable instance matrix
     /// - Alpha: particle.m_alpha → drawable opacity
-    /// 
+    ///
     /// Called during Update() phase before rendering.
     /// </summary>
     private void UpdateDrawableParticles()
@@ -572,7 +572,7 @@ public sealed class ParticleSystem : RenderObject, IPersistableObject
             if (particle.AttachedDrawable is Drawable drawable)
             {
                 // IMPORTANT: Must update transform in this order to maintain proper hierarchy
-                
+
                 // 1. Update position (world space) via Transform
                 if (drawable.Transform != null)
                 {
@@ -588,10 +588,10 @@ public sealed class ParticleSystem : RenderObject, IPersistableObject
                 //    Mirrors EA implementation: creates rotation matrix from particle angles
                 //    For 2D particles in Generals, primarily uses AngleZ (rotation around Z-axis)
                 var rotationMatrix = Matrix4x4.CreateRotationZ(particle.AngleZ);
-                
+
                 // Combine rotation with scale for final instance matrix
                 drawable.InstanceMatrix = scaledMatrix * rotationMatrix;
-                
+
                 // 4. Update opacity/visibility based on particle alpha
                 // This connects to the drawable's color/tint system through Effect
                 // Note: Full implementation would update drawable.Opacity or similar if available
@@ -602,13 +602,13 @@ public sealed class ParticleSystem : RenderObject, IPersistableObject
     /// <summary>
     /// Updates streak particles by recording current position in trail history.
     /// Called every frame to capture the particle's motion path for ribbon rendering.
-    /// 
+    ///
     /// Streak Particle Implementation:
     /// - Each particle maintains a circular buffer of historical positions (up to 50)
     /// - RecordStreakVertex() is called each frame to add current position to trail
     /// - Trail vertices are used to render ribbons with alpha fade (newest = opaque, oldest = transparent)
     /// - Enables "tracer" or "comet tail" visual effects that follow particle motion
-    /// 
+    ///
     /// Mirrors EA Generals implementation in FX system trail particles.
     /// </summary>
     private void UpdateStreakParticles()
