@@ -1,0 +1,6 @@
+[submodule "generals_code"]
+	path = generals_code
+	url = https://github.com/electronicarts/CnC_Generals_Zero_Hour.git
+[submodule "references/generals_code"]
+	path = references/generals_code
+	url = https://github.com/electronicarts/CnC_Generals_Zero_Hour.git
