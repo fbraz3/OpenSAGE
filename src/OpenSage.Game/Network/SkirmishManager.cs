@@ -73,10 +73,32 @@ public abstract class SkirmishManager
                 _ => PlayerOwner.None
             };
 
+            // Get player color with bounds checking
+            // If color index is out of bounds, use first available color or default
+            ColorRgb playerColor;
+            if (slot.ColorIndex >= 0 && slot.ColorIndex < Game.AssetStore.MultiplayerColors.Count)
+            {
+                playerColor = Game.AssetStore.MultiplayerColors.GetByIndex(slot.ColorIndex).RgbColor;
+            }
+            else
+            {
+                // Fallback: use first color if available, otherwise use white
+                if (Game.AssetStore.MultiplayerColors.Count > 0)
+                {
+                    playerColor = Game.AssetStore.MultiplayerColors.GetByIndex(0).RgbColor;
+                    Logger.Warn($"Color index {slot.ColorIndex} out of bounds. Using first available color.");
+                }
+                else
+                {
+                    playerColor = new ColorRgb(255, 255, 255); // White
+                    Logger.Warn($"No multiplayer colors loaded. Using white as fallback.");
+                }
+            }
+
             playerSettings.Add(new PlayerSetting(
                 slot.StartPosition,
                 Game.GetPlayableSides().ElementAt(slot.FactionIndex - 1).Name,
-                Game.AssetStore.MultiplayerColors.GetByIndex(slot.ColorIndex).RgbColor,
+                playerColor,
                 slot.Team,
                 owner,
                 isLocalForMultiplayer: i == Settings.LocalSlotIndex));

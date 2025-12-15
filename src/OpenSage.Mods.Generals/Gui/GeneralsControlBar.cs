@@ -747,7 +747,7 @@ public sealed class GeneralsControlBar : IControlBar
 
             var unit = player.SelectedUnits.First();
             var percent = unit.BuildProgress * 100.0f;
-            
+
             if (_baseText == null)
             {
                 _progressText.Text = string.Empty;

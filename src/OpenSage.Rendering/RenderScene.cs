@@ -53,12 +53,17 @@ public sealed class RenderBucket
             if (forwardPass != null)
             {
                 _forwardPassList.RemoveObject(renderObject, forwardPass);
+                NLog.LogManager.GetCurrentClassLogger().Debug($"Added {renderObject.DebugName} to {Name} forward pass (total: {_forwardPassList.AllObjects.Count})");
             }
 
             if (shadowPass != null)
             {
-                _shadowPassList.RemoveObject(renderObject, shadowPass);
+                _shadowPassList.AddObject(renderObject, shadowPass);
             }
+        }
+        else
+        {
+            NLog.LogManager.GetCurrentClassLogger().Warn($"RenderBucket.AddObject: {renderObject.DebugName} has NULL MaterialPass!");
         }
     }
 

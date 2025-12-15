@@ -19,7 +19,7 @@ public sealed class LocalizedString
     public string Localize(params object[] args)
     {
         _localized ??= Original?.Translate() ?? string.Empty;
-        
+
         if (args.Length == 0)
         {
             return _localized;

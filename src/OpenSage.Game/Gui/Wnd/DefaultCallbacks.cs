@@ -7,6 +7,10 @@ internal static class DefaultCallbacks
 {
     public static void W3DNoDraw(Control control, DrawingContext2D drawingContext) { }
 
+    public static void W3DShellMenuSchemeDraw(Control control, DrawingContext2D drawingContext) { }
+
+    public static void W3DClockDraw(Control control, DrawingContext2D drawingContext) { }
+
     public static void PassSelectedButtonsToParentSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
     {
         if (message.MessageType != WndWindowMessageType.SelectedButton)
