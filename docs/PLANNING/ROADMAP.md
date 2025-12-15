@@ -1,9 +1,9 @@
 # OpenSAGE Feature Completion Roadmap
 
-**Last Updated**: December 15, 2025 (15:42 UTC)  
+**Last Updated**: December 15, 2025 (16:15 UTC)  
 **Target Completion**: 12-16 weeks (3-4 months)  
 **Priority Focus**: Rendering (3 phases) + Game Logic (4 phases)  
-**Current Progress**: 6/15 Plans Complete (40%)
+**Current Progress**: 7/15 Plans Complete (47%)
 
 ---
 
@@ -212,7 +212,7 @@ For detailed implementation plans, see:
 
 - [x] PLAN-008: MULTIPLY blending - 100% ✅ COMPLETE
 - [ ] PLAN-009: Responsive layouts - 0%
-- [ ] PLAN-010: Particle limiting - 0%
+- [x] PLAN-010: Particle limiting - 100% ✅ COMPLETE
 - [ ] PLAN-011: Tooltips - 0%
 
 ### Phase 4 Progress
