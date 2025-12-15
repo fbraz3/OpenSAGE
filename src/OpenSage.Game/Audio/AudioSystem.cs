@@ -49,7 +49,7 @@ public sealed class AudioSystem : GameSystem
             }
 
             // Attempt to initialize audio engine
-            Logger.Info("AudioSystem: Attempting to initialize audio engine (platform: {0})...", 
+            Logger.Info("AudioSystem: Attempting to initialize audio engine (platform: {0})...",
                 GetPlatformName());
             _engine = AddDisposable(AudioEngine.CreateDefault());
 
@@ -103,7 +103,7 @@ public sealed class AudioSystem : GameSystem
     {
         var platform = GetPlatformName();
         Logger.Warn("Audio engine initialization failed. The audio system will operate in disabled mode.");
-        
+
         if (platform == "macOS")
         {
             Logger.Warn("On macOS: Install OpenAL via Homebrew: brew install openal-soft");
@@ -112,7 +112,7 @@ public sealed class AudioSystem : GameSystem
         {
             Logger.Warn("On Linux: Install PulseAudio development libraries");
         }
-        
+
         Logger.Warn("Games will continue to work without audio output.");
     }
 

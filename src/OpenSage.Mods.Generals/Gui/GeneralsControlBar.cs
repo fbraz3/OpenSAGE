@@ -3,6 +3,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.InteropServices;
 using OpenSage.Content;
 using OpenSage.Content.Translation;
 using OpenSage.Gui;
@@ -746,7 +747,30 @@ public sealed class GeneralsControlBar : IControlBar
 
             var unit = player.SelectedUnits.First();
             var percent = unit.BuildProgress * 100.0f;
-            _progressText.Text = _baseText != null ? SprintfNET.StringFormatter.PrintF(_baseText, percent) : string.Empty;
+            
+            if (_baseText == null)
+            {
+                _progressText.Text = string.Empty;
+                return;
+            }
+
+            // On macOS and non-Windows platforms, SprintfNET's P/Invoke to swprintf fails.
+            // Use .NET's string.Format as a fallback for compatibility.
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                _progressText.Text = string.Format(_baseText, percent);
+                return;
+            }
+
+            try
+            {
+                _progressText.Text = SprintfNET.StringFormatter.PrintF(_baseText, percent);
+            }
+            catch (DllNotFoundException)
+            {
+                // Fallback if swprintf is unavailable on Windows
+                _progressText.Text = string.Format(_baseText, percent);
+            }
         }
     }
 }
