@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Numerics;
 using OpenSage.Content.Loaders;
 using OpenSage.Data.Map;
@@ -29,6 +30,11 @@ public sealed class WaterArea : DisposableBase
     private readonly Material _material;
     private WaveSimulation _waveSimulation;
     private StandingWaveArea _waveAreaData;
+
+    // Wave animation GPU resources
+    private DeviceBuffer _waveConstantsBuffer;
+    private ResourceSet _waveResourceSet;
+    private readonly GraphicsDevice _graphicsDevice;
 
     private readonly BeforeRenderDelegate _beforeRender;
     private Matrix4x4 _world;
@@ -118,6 +124,7 @@ public sealed class WaterArea : DisposableBase
     {
         _shaderSet = loadContext.ShaderResources.Water;
         _pipeline = loadContext.ShaderResources.Water.Pipeline;
+        _graphicsDevice = loadContext.GraphicsDevice;
 
         _material = AddDisposable(
             new Material(
@@ -131,6 +138,12 @@ public sealed class WaterArea : DisposableBase
         _beforeRender = (CommandList cl, in RenderItem renderItem) =>
         {
             cl.SetVertexBuffer(0, _vertexBuffer);
+            
+            // Bind wave animation constants if available
+            if (_waveResourceSet != null)
+            {
+                cl.SetGraphicsResourceSet(1, _waveResourceSet);
+            }
         };
     }
 
@@ -141,6 +154,10 @@ public sealed class WaterArea : DisposableBase
         CreateGeometry(loadContext, area.Points, area.FinalHeight);
         _waveAreaData = area;
         _waveSimulation = AddDisposable(new WaveSimulation());
+        
+        // Initialize wave constants buffer for GPU sync
+        // Reference: EA W3DWater.cpp - WaterRenderObjClass::ReAcquireResources()
+        InitializeWaveConstantsBuffer(loadContext);
     }
 
     private WaterArea(
@@ -163,6 +180,22 @@ public sealed class WaterArea : DisposableBase
         CreateGeometry(loadContext, triggerPoints, (uint)trigger.Points[0].Z);
     }
 
+    private void InitializeWaveConstantsBuffer(AssetLoadContext loadContext)
+    {
+        // Create uniform buffer for wave animation constants
+        // Size: 32 * Vector4 (waves) + 4 uints for metadata = 512 + 16 = 528 bytes, aligned to 256
+        _waveConstantsBuffer = AddDisposable(loadContext.GraphicsDevice.ResourceFactory.CreateBuffer(
+            new BufferDescription(
+                512, // 32 waves * 16 bytes per Vector4
+                BufferUsage.UniformBuffer)));
+
+        var waterShaderResources = (WaterShaderResources)_shaderSet;
+        _waveResourceSet = AddDisposable(loadContext.GraphicsDevice.ResourceFactory.CreateResourceSet(
+            new ResourceSetDescription(
+                waterShaderResources.WaveAnimationLayout,
+                _waveConstantsBuffer)));
+    }
+
     internal void BuildRenderList(RenderList renderList)
     {
         renderList.Water.RenderItems.Add(new RenderItem(
@@ -181,7 +214,35 @@ public sealed class WaterArea : DisposableBase
         if (_waveSimulation != null)
         {
             _waveSimulation.Update(deltaTime);
+            
+            // Sync wave data to GPU
+            SyncWaveConstantsToGPU();
         }
+    }
+
+    private void SyncWaveConstantsToGPU()
+    {
+        if (_waveConstantsBuffer == null || _waveSimulation == null)
+            return;
+
+        var activeWaves = _waveSimulation.GetActiveWaves();
+        
+        // Build wave data for GPU
+        // Each wave: x, y = position, z = radius, w = alpha
+        var waveData = new Vector4[32];
+        for (int i = 0; i < Math.Min(activeWaves.Length, 32); i++)
+        {
+            var wave = activeWaves[i];
+            waveData[i] = new Vector4(
+                wave.Position.X,
+                wave.Position.Y,
+                Math.Max(wave.CurrentWidth, wave.CurrentHeight),  // Use largest dimension as radius
+                wave.Alpha);
+        }
+
+        // Update buffer with wave data
+        // Reference: EA W3DWater.cpp - Wave vertex deformation in shader
+        _graphicsDevice.UpdateBuffer(_waveConstantsBuffer, 0, waveData);
     }
 
     internal WaveSimulation GetWaveSimulation() => _waveSimulation;
