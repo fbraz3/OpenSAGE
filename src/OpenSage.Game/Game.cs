@@ -864,7 +864,7 @@ public sealed class Game : DisposableBase, IGame
         PartitionCellManager.Update();
     }
 
-    private TimeInterval GetTimeInterval() => new(MapTime.TotalTime, TimeSpan.FromMilliseconds(GameEngine.MsPerLogicFrame));
+    private TimeInterval GetTimeInterval() => new(MapTime.TotalTime, TimeSpan.FromMilliseconds(GameEngine?.MsPerLogicFrame ?? 200));
 
     private void ToggleLogicRunning()
     {
