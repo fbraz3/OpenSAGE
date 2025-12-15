@@ -14,6 +14,8 @@ public class Window : Control
     private Matrix3x2 _rootTransform;
     private Matrix3x2 _rootTransformInverse;
 
+    private readonly DirtyRegionTracker _dirtyRegionTracker;
+
     public WindowCallback LayoutInit { get; set; }
     public WindowCallback LayoutUpdate { get; set; }
     public WindowCallback LayoutShutdown { get; set; }
@@ -51,6 +53,7 @@ public class Window : Control
     private Window(in Size creationResolution, GraphicsLoadContext loadContext)
     {
         _creationResolution = creationResolution;
+        _dirtyRegionTracker = new DirtyRegionTracker();
 
         Window = this;
 
@@ -71,6 +74,11 @@ public class Window : Control
     public override Point2D PointToClient(in Point2D point)
     {
         return Point2D.Transform(point, _rootTransformInverse);
+    }
+
+    public void InvalidateRect(Rectangle rect)
+    {
+        _dirtyRegionTracker.InvalidateRect(rect);
     }
 
     internal void Update()
@@ -94,6 +102,12 @@ public class Window : Control
                 return;
             }
 
+            // Check if control intersects with dirty region
+            if (!_dirtyRegionTracker.IntersectsDirtyRegion(control.Bounds))
+            {
+                return;
+            }
+
             drawingContext.PushTransform(Matrix3x2.CreateTranslation(control.Bounds.X, control.Bounds.Y));
 
             control.DrawCallback(control, drawingContext);
@@ -110,6 +124,9 @@ public class Window : Control
         drawControlRecursive(Root);
 
         drawingContext.PopTransform();
+
+        // Clear dirty region after rendering
+        _dirtyRegionTracker.Clear();
     }
 }
 

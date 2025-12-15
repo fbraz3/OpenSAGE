@@ -352,6 +352,11 @@ public partial class Control : DisposableBase
         _needsLayout = true;
     }
 
+    public virtual void Invalidate()
+    {
+        Window?.InvalidateRect(Bounds);
+    }
+
     public void DefaultDraw(Control control, DrawingContext2D drawingContext)
     {
         drawingContext.PushOpacity(Opacity);
