@@ -11,8 +11,8 @@
 This comprehensive roadmap tracks completion of seven major feature phases:
 
 **Rendering Systems (3 phases, 6-8 weeks)**:
-1. **PHASE01**: Map Rendering - Currently ~75% complete
-2. **PHASE02**: Particle Systems - Currently ~75% complete  
+1. **PHASE01**: Map Rendering - Currently ~90% complete ✅
+2. **PHASE02**: Particle Systems - Currently ~85% complete  
 3. **PHASE03**: GUI/WND - Currently ~80% complete
 
 **Game Logic Systems (4 phases, 12-16 weeks)**:
@@ -39,10 +39,10 @@ Each phase has solid architectural foundations or is ready for implementation. F
 **Goal**: Implement major missing systems  
 **Target Completion**: 1-2 weeks  
 
-- PLAN-004: Implement Streak Particles
-- PLAN-005: Implement Drawable Particles
-- PLAN-006: Complete Water Animation System
-- PLAN-007: Implement GUI Dirty Region Tracking
+- [x] PLAN-004: Implement Streak Particles ✅ COMPLETE
+- [x] PLAN-005: Implement Drawable Particles ✅ COMPLETE
+- [ ] PLAN-006: Complete Water Animation System
+- [ ] PLAN-007: Implement GUI Dirty Region Tracking
 
 ### Phase 3: Polish (Weeks 4-5)
 **Goal**: Advanced features and optimization  
@@ -67,6 +67,7 @@ Each phase has solid architectural foundations or is ready for implementation. F
 ## Feature Breakdown by Component
 
 ### 🗺️ Maps & Terrain
+
 - **Status**: 🟢 85-90% complete (PHASE 1 DONE)
 - **Key References**: [PHASE01_MAP_RENDERING.md](phases/PHASE01_MAP_RENDERING.md)
 - **Primary Files**:
@@ -75,14 +76,16 @@ Each phase has solid architectural foundations or is ready for implementation. F
   - `src/OpenSage.Game/Terrain/Roads/RoadCollection.cs` ✅
 
 ### 💥 Particle Systems
-- **Status**: 🟢 75% complete
+
+- **Status**: 🟢 85% complete (DRAWABLE + STREAK IMPLEMENTED)
 - **Key References**: [PHASE02_PARTICLE_SYSTEMS.md](phases/PHASE02_PARTICLE_SYSTEMS.md)
 - **Primary Files**:
-  - `src/OpenSage.Game/Graphics/ParticleSystems/ParticleSystem.cs`
+  - `src/OpenSage.Game/Graphics/ParticleSystems/ParticleSystem.cs` ✅
   - `src/OpenSage.Game/Graphics/ParticleSystems/ParticleSystemManager.cs`
-  - `src/OpenSage.Game/Graphics/ParticleSystems/Particle.cs`
+  - `src/OpenSage.Game/Graphics/ParticleSystems/Particle.cs` ✅
 
 ### 🎮 GUI/WND
+
 - **Status**: 🟢 80% complete
 - **Key References**: [PHASE03_GUI_RENDERING.md](phases/PHASE03_GUI_RENDERING.md)
 - **Primary Files**:
@@ -93,7 +96,7 @@ Each phase has solid architectural foundations or is ready for implementation. F
 
 ## Cross-Phase Dependencies
 
-```
+```yaml
 Phase 1 (Weeks 1)
 ├── PLAN-001 ✅ (Independent)
 ├── PLAN-002 ✅ (Independent)
@@ -123,6 +126,7 @@ Phase 4 (Week 6+)
 ## Success Criteria
 
 ### Maps/Terrain
+
 - [ ] Water system complete with waves and reflection
 - [ ] Road rendering with proper texture blending
 - [ ] Object placement and waypoint rendering
@@ -130,6 +134,7 @@ Phase 4 (Week 6+)
 - [ ] Performance: 60 FPS on target hardware
 
 ### Particle Systems
+
 - [ ] All emission volume types working (box, sphere, cylinder, line, point)
 - [ ] Streak particles rendering with proper trails
 - [ ] Drawable particles attaching sprites correctly
@@ -137,6 +142,7 @@ Phase 4 (Week 6+)
 - [ ] Performance: 1000+ particles at 60 FPS
 
 ### GUI/WND
+
 - [x] ListBox supporting multi-selection modes ✅ COMPLETE
 - [ ] Tooltips displaying correctly
 - [ ] Window transitions smooth
@@ -157,16 +163,19 @@ Phase 4 (Week 6+)
 ## Risk Assessment
 
 ### High Priority Risks
+
 - **Water reflection rendering complexity**: Mitigation - reference existing shadow system
 - **Particle streaming performance**: Mitigation - implement GPU sorting early
 - **UI dirty region tracking overhead**: Mitigation - profile before implementing
 
 ### Medium Priority Risks
+
 - **Cross-platform shader compatibility**: Mitigation - test Metal/Vulkan/D3D11
 - **Complex window layouts**: Mitigation - start with simple cases
 - **Particle LOD system**: Mitigation - implement basic culling first
 
 ### Low Priority Risks
+
 - **Minor visual differences from original**: Mitigation - create visual comparison tests
 - **Legacy code compatibility**: Mitigation - maintain backward compatibility
 
@@ -186,23 +195,27 @@ For detailed implementation plans, see:
 ## Progress Tracking
 
 ### Phase 1 Progress
+
 - [x] PLAN-001: Emission volumes - 100% ✅ COMPLETE
 - [x] PLAN-002: Road rendering - 100% ✅ COMPLETE
 - [x] PLAN-003: ListBox selection - 100% ✅ COMPLETE
 
 ### Phase 2 Progress
+
 - [ ] PLAN-004: Streak particles - 0%
 - [ ] PLAN-005: Drawable particles - 0%
 - [ ] PLAN-006: Water animation - 0%
 - [ ] PLAN-007: GUI dirty regions - 0%
 
 ### Phase 3 Progress
+
 - [ ] PLAN-008: MULTIPLY blending - 0%
 - [ ] PLAN-009: Responsive layouts - 0%
 - [ ] PLAN-010: Particle limiting - 0%
 - [ ] PLAN-011: Tooltips - 0%
 
 ### Phase 4 Progress
+
 - [ ] PLAN-012: GPU sorting - 0%
 - [ ] PLAN-013: Texture atlasing - 0%
 - [ ] PLAN-014: Asset streaming - 0%
