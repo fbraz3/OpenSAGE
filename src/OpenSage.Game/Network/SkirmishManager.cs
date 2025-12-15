@@ -9,6 +9,7 @@ using LiteNetLib;
 using LiteNetLib.Utils;
 using OpenSage.Content.Translation;
 using OpenSage.Logic;
+using OpenSage.Mathematics;
 using OpenSage.Network.Packets;
 
 namespace OpenSage.Network;
