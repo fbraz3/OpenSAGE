@@ -482,6 +482,12 @@ public sealed class ParticleSystem : RenderObject, IPersistableObject
         }
 
         particle.Timer += 1;
+
+        // Record streak vertex if this is a streak particle
+        if (Template.Type == ParticleSystemType.Streak)
+        {
+            particle.RecordStreakVertex();
+        }
     }
 
     private static void FindKeyframes<T>(
@@ -560,10 +566,10 @@ public sealed class ParticleSystem : RenderObject, IPersistableObject
                 if (drawable.Transform != null)
                 {
                     drawable.Transform.Translation = particle.Position;
-                    
+
                     // Update scale based on particle size
                     drawable.Transform.Scale = particle.Size;
-                    
+
                     // Update rotation around Z axis using quaternion
                     var halfAngle = particle.AngleZ * 0.5f;
                     var sin = (float)System.Math.Sin(halfAngle);
@@ -572,6 +578,147 @@ public sealed class ParticleSystem : RenderObject, IPersistableObject
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Updates streak particles by recording current position in trail history.
+    /// Called every frame to capture the particle's motion path for ribbon rendering.
+    /// </summary>
+    private void UpdateStreakParticles()
+    {
+        if (Template.Type != ParticleSystemType.Streak)
+        {
+            return;
+        }
+
+        for (var i = 0; i < _particles.Length; i++)
+        {
+            ref var particle = ref _particles[i];
+
+            if (particle.Dead)
+            {
+                continue;
+            }
+
+            // Record current position as a trail vertex
+            particle.RecordStreakVertex();
+        }
+    }
+
+    /// <summary>
+    /// Renders streak particles as ribbon trails connecting trail vertices.
+    /// Creates quads between consecutive vertices with alpha gradient along trail.
+    /// </summary>
+    private void RenderStreakParticles(CommandList commandList)
+    {
+        if (Template.Type != ParticleSystemType.Streak)
+        {
+            return;
+        }
+
+        var streakVertices = new List<ParticleShaderResources.ParticleVertex>(1000);
+        var streakIndices = new List<ushort>(2000);
+
+        ushort vertexIndex = 0;
+
+        for (var i = 0; i < _particles.Length; i++)
+        {
+            ref var particle = ref _particles[i];
+
+            if (particle.Dead || particle.StreakVertexCount < 2)
+            {
+                continue;
+            }
+
+            // Create ribbon from streak trail
+            // Each pair of consecutive vertices forms a quad
+            for (int v = 0; v < particle.StreakVertexCount - 1; v++)
+            {
+                // Alpha fades from current to older particles
+                var alphaGradient = 1.0f - ((float)v / particle.StreakVertexCount);
+                var nextAlphaGradient = 1.0f - ((float)(v + 1) / particle.StreakVertexCount);
+
+                // Current segment
+                var position0 = particle.StreakVertices![v];
+                var position1 = particle.StreakVertices![v + 1];
+
+                // Width perpendicular to direction
+                var direction = Vector3.Normalize(position0 - position1 + Vector3.One * 0.001f);
+                var right = new Vector3(-direction.Z, 0, direction.X);
+                
+                // Check if direction calculation resulted in NaN
+                if (float.IsNaN(right.X) || float.IsNaN(right.Y) || float.IsNaN(right.Z))
+                {
+                    right = Vector3.UnitX;
+                }
+
+                var width = particle.Size * 0.5f;
+
+                // Create quad with two vertices on each side
+                var v0 = new ParticleShaderResources.ParticleVertex
+                {
+                    Position = position0 - right * width,
+                    Size = particle.Size,
+                    Color = particle.Color,
+                    Alpha = particle.Alpha * alphaGradient,
+                    AngleZ = particle.AngleZ,
+                };
+
+                var v1 = new ParticleShaderResources.ParticleVertex
+                {
+                    Position = position0 + right * width,
+                    Size = particle.Size,
+                    Color = particle.Color,
+                    Alpha = particle.Alpha * alphaGradient,
+                    AngleZ = particle.AngleZ,
+                };
+
+                var v2 = new ParticleShaderResources.ParticleVertex
+                {
+                    Position = position1 - right * width,
+                    Size = particle.Size,
+                    Color = particle.Color,
+                    Alpha = particle.Alpha * nextAlphaGradient,
+                    AngleZ = particle.AngleZ,
+                };
+
+                var v3 = new ParticleShaderResources.ParticleVertex
+                {
+                    Position = position1 + right * width,
+                    Size = particle.Size,
+                    Color = particle.Color,
+                    Alpha = particle.Alpha * nextAlphaGradient,
+                    AngleZ = particle.AngleZ,
+                };
+
+                streakVertices.Add(v0);
+                streakVertices.Add(v1);
+                streakVertices.Add(v2);
+                streakVertices.Add(v3);
+
+                // Create two triangles for the quad
+                streakIndices.Add(vertexIndex);
+                streakIndices.Add((ushort)(vertexIndex + 1));
+                streakIndices.Add((ushort)(vertexIndex + 2));
+
+                streakIndices.Add((ushort)(vertexIndex + 1));
+                streakIndices.Add((ushort)(vertexIndex + 3));
+                streakIndices.Add((ushort)(vertexIndex + 2));
+
+                vertexIndex += 4;
+            }
+        }
+
+        if (streakVertices.Count == 0)
+        {
+            return;
+        }
+
+        // Update vertex and index buffers
+        commandList.UpdateBuffer(_vertexBuffer, 0, streakVertices.ToArray());
+        commandList.SetVertexBuffer(0, _vertexBuffer);
+        commandList.SetIndexBuffer(_indexBuffer, IndexFormat.UInt16);
+        commandList.DrawIndexed((uint)streakIndices.Count, 1, 0, 0, 0);
     }
 
     public override void Render(CommandList commandList)
@@ -586,6 +733,14 @@ public sealed class ParticleSystem : RenderObject, IPersistableObject
         {
             UpdateDrawableParticles();
             return; // Drawables render themselves through their modules
+        }
+
+        // Handle streak particles with trail rendering
+        if (Template.Type == ParticleSystemType.Streak)
+        {
+            UpdateStreakParticles();
+            RenderStreakParticles(commandList);
+            return;
         }
 
         // Standard particle rendering for PARTICLE type

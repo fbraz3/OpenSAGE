@@ -34,6 +34,11 @@ internal struct Particle : IPersistableObject
     public object? AttachedDrawable;
     public uint AttachedDrawableId;
 
+    // Streak particle fields - stores trail history for ribbon rendering
+    public Vector3[]? StreakVertices;
+    public int StreakVertexCount;
+    private const int MaxStreakVertices = 50;
+
     public float ColorScale;
     public Vector3 Color;
 
@@ -89,6 +94,33 @@ internal struct Particle : IPersistableObject
         AttachedDrawableId = 0;
     }
 
+    /// <summary>
+    /// Records current particle position as a vertex in the streak trail.
+    /// Shifts older vertices back in the array, adding new position at index 0.
+    /// </summary>
+    public void RecordStreakVertex()
+    {
+        if (StreakVertices == null)
+        {
+            StreakVertices = new Vector3[MaxStreakVertices];
+        }
+
+        // Shift all vertices back one position to create history
+        for (int i = MaxStreakVertices - 1; i > 0; i--)
+        {
+            StreakVertices[i] = StreakVertices[i - 1];
+        }
+
+        // Add current position as the newest vertex
+        StreakVertices[0] = Position;
+
+        // Track how many vertices have been recorded
+        if (StreakVertexCount < MaxStreakVertices)
+        {
+            StreakVertexCount++;
+        }
+    }
+
     public Particle(ParticleSystem system)
     {
         _system = system;
@@ -121,6 +153,8 @@ internal struct Particle : IPersistableObject
         UnknownInt6 = 0;
         AttachedDrawable = null;
         AttachedDrawableId = 0;
+        StreakVertices = null;
+        StreakVertexCount = 0;
     }
 
     public void Persist(StatePersister reader)
