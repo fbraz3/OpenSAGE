@@ -5,6 +5,7 @@ using System.Text;
 using OpenSage.Content;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Mathematics;
+using OpenSage.Scripting;
 using SixLabors.Fonts;
 
 namespace OpenSage.Gui.DebugUI;
@@ -15,6 +16,7 @@ public class DebugOverlay
     public bool ShowColliders { get; set; }
     public bool ShowQuadTree { get; set; }
     public bool ShowRoadMeshes { get; set; }
+    public bool ShowWaypoints { get; set; }
 
     public Point2D MousePosition { get; internal set; }
     private Vector3? _mouseWorldPosition = null;
@@ -167,6 +169,12 @@ public class DebugOverlay
             }
         }
 
+        if (ShowWaypoints)
+        {
+            var waypointDrawable = new WaypointDebugDrawable(_scene3D.Waypoints, showLabels: true, duration: null);
+            waypointDrawable.Render(context, camera);
+        }
+
         context.DrawText(_debugStringBuilder.ToString(), _debugFont, TextAlignment.Leading, ColorRgbaF.White, new RectangleF(10, 10, 400, 80));
 
         // This is done here instead of in Update so that drawables with time of 0 will be drawn at least once.
@@ -191,5 +199,15 @@ public class DebugOverlay
     public void ToggleRoadMeshes()
     {
         ShowRoadMeshes = !ShowRoadMeshes;
+    }
+
+    public void ToggleWaypoints()
+    {
+        ShowWaypoints = !ShowWaypoints;
+    }
+
+    public void AddWaypoints(WaypointCollection waypoints, bool showLabels = true, float? duration = null)
+    {
+        _debugDrawables.Add(new WaypointDebugDrawable(waypoints, showLabels, duration));
     }
 }

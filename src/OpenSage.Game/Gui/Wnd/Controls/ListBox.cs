@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Data.Wnd;
 using OpenSage.Gui.Wnd.Images;
@@ -20,6 +21,40 @@ public class ListBox : Control
     private readonly Button _thumb;
 
     private readonly ListBoxItemsArea _itemsArea;
+
+    private bool _multiSelect = false;
+    public bool MultiSelect
+    {
+        get => _multiSelect;
+        set
+        {
+            if (_multiSelect == value) return;
+
+            _multiSelect = value;
+            _itemsArea.MultiSelect = value;
+
+            // Reset selections when toggling modes
+            if (value)
+            {
+                _itemsArea.ClearSelections();
+                _itemsArea.AddSelection(0);
+            }
+            else
+            {
+                var selections = _itemsArea.GetSelections();
+                _itemsArea.ClearSelections();
+                if (selections.Length > 0)
+                {
+                    _itemsArea.SelectedIndex = selections[0];
+                }
+            }
+        }
+    }
+
+    public int[] SelectedIndices
+    {
+        get => _itemsArea.GetSelections();
+    }
 
     public bool IsScrollBarVisible
     {
@@ -272,6 +307,13 @@ internal sealed class ListBoxItemsArea : Control
 {
     public event EventHandler SelectedIndexChanged;
 
+    private bool _multiSelect = false;
+    public bool MultiSelect
+    {
+        get => _multiSelect;
+        set => _multiSelect = value;
+    }
+
     private ListBoxDataItem[] _items = Array.Empty<ListBoxDataItem>();
     public ListBoxDataItem[] Items
     {
@@ -282,14 +324,17 @@ internal sealed class ListBoxItemsArea : Control
 
             _items = value;
             _hoveredIndex = -1;
-            _selectedIndex = -1;
+            ClearSelections();
 
             foreach (var item in value)
             {
                 Controls.Add(new ListBoxItem(this, item));
             }
 
-            UpdateSelectedItem(0);
+            if (value.Length > 0)
+            {
+                AddSelection(0);
+            }
         }
     }
 
@@ -310,10 +355,89 @@ internal sealed class ListBoxItemsArea : Control
         get => _selectedIndex;
         set
         {
-            UpdateSelectedItem(value);
-            SelectedIndexChanged?.Invoke(this, EventArgs.Empty);
+            if (_multiSelect)
+            {
+                AddSelection(value);
+            }
+            else
+            {
+                UpdateSelectedItem(value);
+                SelectedIndexChanged?.Invoke(this, EventArgs.Empty);
+            }
         }
     }
+
+    private readonly List<int> _selectedIndices = new();
+
+    public int[] GetSelections() => _selectedIndices.ToArray();
+
+    public void ClearSelections()
+    {
+        foreach (var index in _selectedIndices)
+        {
+            if (index >= 0 && index < Controls.Count)
+            {
+                var item = Controls[index] as ListBoxItem;
+                item.BackgroundImage = null;
+            }
+        }
+        _selectedIndices.Clear();
+        _selectedIndex = -1;
+    }
+
+    public void AddSelection(int index)
+    {
+        if (index < 0 || index >= Controls.Count) return;
+
+        if (_multiSelect)
+        {
+            if (_selectedIndices.Contains(index)) return; // Already selected
+
+            _selectedIndices.Add(index);
+            var item = Controls[index] as ListBoxItem;
+            item.BackgroundImage = SelectedItemBackgroundImage;
+            _selectedIndex = index;
+        }
+        else
+        {
+            // Single select mode
+            ClearSelections();
+            _selectedIndices.Add(index);
+            UpdateSelectedItem(index);
+        }
+
+        SelectedIndexChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void RemoveSelection(int index)
+    {
+        if (!_multiSelect || !_selectedIndices.Contains(index)) return;
+
+        _selectedIndices.Remove(index);
+        if (index >= 0 && index < Controls.Count)
+        {
+            var item = Controls[index] as ListBoxItem;
+            item.BackgroundImage = null;
+        }
+
+        SelectedIndexChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void ToggleSelection(int index)
+    {
+        if (!_multiSelect) return;
+
+        if (_selectedIndices.Contains(index))
+        {
+            RemoveSelection(index);
+        }
+        else
+        {
+            AddSelection(index);
+        }
+    }
+
+    public bool IsItemSelected(int index) => _selectedIndices.Contains(index);
 
     private int _hoveredIndex = -1;
     public int HoveredIndex
@@ -358,11 +482,34 @@ internal sealed class ListBoxItemsArea : Control
         if (_hoveredIndex >= 0)
         {
             var previousItem = Controls[_hoveredIndex] as ListBoxItem;
-            previousItem.BackgroundImage = _hoveredIndex == _selectedIndex ? SelectedItemBackgroundImage : null;
+            // In multi-select, keep the background if it's selected; otherwise clear it
+            if (_multiSelect && _selectedIndices.Contains(_hoveredIndex))
+            {
+                previousItem.BackgroundImage = SelectedItemBackgroundImage;
+            }
+            else if (!_multiSelect && _hoveredIndex == _selectedIndex)
+            {
+                previousItem.BackgroundImage = SelectedItemBackgroundImage;
+            }
+            else
+            {
+                previousItem.BackgroundImage = null;
+            }
         }
 
         var nextItem = Controls[nextIndex] as ListBoxItem;
-        nextItem.BackgroundImage = nextIndex == _selectedIndex ? SelectedItemHoverBackgroundImage : HoverBackgroundImage;
+        if (_multiSelect && _selectedIndices.Contains(nextIndex))
+        {
+            nextItem.BackgroundImage = SelectedItemHoverBackgroundImage;
+        }
+        else if (!_multiSelect && nextIndex == _selectedIndex)
+        {
+            nextItem.BackgroundImage = SelectedItemHoverBackgroundImage;
+        }
+        else
+        {
+            nextItem.BackgroundImage = HoverBackgroundImage;
+        }
 
         _hoveredIndex = nextIndex;
     }
@@ -509,7 +656,17 @@ internal sealed class ListBoxItem : Control
         switch (message.MessageType)
         {
             case WndWindowMessageType.MouseUp:
-                _parent.SelectedIndex = _parent.Controls.IndexOf(this);
+                var itemIndex = _parent.Controls.IndexOf(this);
+                if (_parent.MultiSelect)
+                {
+                    // Toggle selection on click in multi-select mode
+                    _parent.ToggleSelection(itemIndex);
+                }
+                else
+                {
+                    // Single select on click
+                    _parent.SelectedIndex = itemIndex;
+                }
                 break;
             case WndWindowMessageType.MouseEnter:
                 _parent.HoveredIndex = _parent.Controls.IndexOf(this);

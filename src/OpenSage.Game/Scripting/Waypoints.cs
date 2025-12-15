@@ -79,6 +79,14 @@ public sealed class WaypointCollection
         // However we already use 1-based indices for both, so we don't need to adjust here.
         return TryGetByName($"Player_{playerIndex}_Start", out waypoint);
     }
+
+    /// <summary>
+    /// Gets all waypoints in this collection.
+    /// </summary>
+    public IEnumerable<Waypoint> GetAllWaypoints()
+    {
+        return _waypointsByID.Values;
+    }
 }
 
 

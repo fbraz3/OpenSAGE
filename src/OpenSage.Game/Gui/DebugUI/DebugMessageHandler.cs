@@ -36,6 +36,9 @@ public class DebugMessageHandler : InputMessageHandler
                     case Key.F5:
                         _overlay.ToggleQuadTree();
                         return InputMessageResult.Handled;
+                    case Key.F8:
+                        _overlay.ToggleWaypoints();
+                        return InputMessageResult.Handled;
                 }
                 break;
         }

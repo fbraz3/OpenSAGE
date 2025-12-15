@@ -743,7 +743,16 @@ public sealed class FXParticleEmissionVolumeTerrainFire : FXParticleEmissionVolu
 
     public override Ray GetRay()
     {
-        throw new NotImplementedException();
+        // TerrainFire emission: emit from random offset positions
+        // This is used for fire effects that spread across terrain
+        var xOffset = Xoffset.GetRandomFloat();
+        var yOffset = Yoffset.GetRandomFloat();
+        var zOffset = Zoffset.GetRandomFloat();
+
+        var position = new Vector3(xOffset, yOffset, zOffset);
+        var direction = Vector3.Normalize(new Vector3(xOffset, yOffset, zOffset) + Vector3.One * 0.1f);
+
+        return new Ray(position, direction);
     }
 }
 
@@ -820,7 +829,36 @@ public sealed class FXParticleEmissionVolumeLightning : FXParticleEmissionVolume
 
     public override Ray GetRay()
     {
-        throw new NotImplementedException();
+        // Lightning emission: create deformed path between start and end points
+        // Uses three waves with different amplitudes and frequencies for natural lightning effect
+        var t = ParticleSystemUtility.GetRandomFloat(0, 1);
+
+        // Base position along the line
+        var basePosition = Vector3.Lerp(StartPoint, EndPoint, t);
+
+        // Apply three sine waves for deformation in different directions
+        var amp1 = Amplitude1.GetRandomFloat();
+        var freq1 = Frequency1.GetRandomFloat();
+        var phase1 = Phase1.GetRandomFloat();
+
+        var amp2 = Amplitude2.GetRandomFloat();
+        var freq2 = Frequency2.GetRandomFloat();
+        var phase2 = Phase2.GetRandomFloat();
+
+        var amp3 = Amplitude3.GetRandomFloat();
+        var freq3 = Frequency3.GetRandomFloat();
+        var phase3 = Phase3.GetRandomFloat();
+
+        // Wave deformations
+        var deformation = Vector3.Zero;
+        deformation.X += amp1 * MathF.Sin(freq1 * t + phase1);
+        deformation.Y += amp2 * MathF.Sin(freq2 * t + phase2);
+        deformation.Z += amp3 * MathF.Sin(freq3 * t + phase3);
+
+        var position = basePosition + deformation;
+        var direction = Vector3.Normalize(EndPoint - StartPoint);
+
+        return new Ray(position, direction);
     }
 }
 
