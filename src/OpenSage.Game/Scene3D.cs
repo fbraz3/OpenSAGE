@@ -369,6 +369,9 @@ public sealed class Scene3D : DisposableBase, IScene3D
             gameObject.LocalLogicTick(gameTime, tickT, Terrain?.HeightMap);
         }
 
+        // Update water wave simulations
+        WaterAreas.Update((float)gameTime.DeltaTime.TotalSeconds);
+
         // TODO: Remove or refactor these
         //_editorCameraInputMessageHandler?.UpdateInputState(ref _editorCameraInputState);
         //EditorCameraController?.UpdateCamera(Camera, _editorCameraInputState, gameTime);

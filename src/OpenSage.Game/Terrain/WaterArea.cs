@@ -27,6 +27,8 @@ public sealed class WaterArea : DisposableBase
     private readonly Pipeline _pipeline;
 
     private readonly Material _material;
+    private WaveSimulation _waveSimulation;
+    private StandingWaveArea _waveAreaData;
 
     private readonly BeforeRenderDelegate _beforeRender;
     private Matrix4x4 _world;
@@ -137,7 +139,8 @@ public sealed class WaterArea : DisposableBase
         StandingWaveArea area) : this(loadContext, area.Name)
     {
         CreateGeometry(loadContext, area.Points, area.FinalHeight);
-        //TODO: add waves
+        _waveAreaData = area;
+        _waveSimulation = AddDisposable(new WaveSimulation());
     }
 
     private WaterArea(
@@ -172,4 +175,14 @@ public sealed class WaterArea : DisposableBase
             _indexBuffer,
             _beforeRender));
     }
+
+    internal void Update(float deltaTime)
+    {
+        if (_waveSimulation != null)
+        {
+            _waveSimulation.Update(deltaTime);
+        }
+    }
+
+    internal WaveSimulation GetWaveSimulation() => _waveSimulation;
 }
