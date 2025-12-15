@@ -573,30 +573,28 @@ public sealed class ParticleSystem : RenderObject, IPersistableObject
             {
                 // IMPORTANT: Must update transform in this order to maintain proper hierarchy
                 
-                // 1. Update position (world space)
-                drawable.SetPosition(particle.Position);
+                // 1. Update position (world space) via Transform
+                if (drawable.Transform != null)
+                {
+                    drawable.Transform.Translation = particle.Position;
+                }
 
                 // 2. Update scale (affects size of rendered drawable)
-                drawable.SetInstanceScale(particle.Size);
+                // Note: In OpenSAGE, scale is managed via InstanceMatrix
+                var scaledMatrix = Matrix4x4.CreateScale(particle.Size);
+                drawable.InstanceMatrix = scaledMatrix;
 
                 // 3. Update rotation using instance matrix rotation
                 //    Mirrors EA implementation: creates rotation matrix from particle angles
-                var rotationMatrix = Matrix4x4.CreateRotationX(particle.AngleZ) // Z-axis rotation (primary for 2D particles)
-                                    * Matrix4x4.CreateRotationY(particle.AngleZ)
-                                    * Matrix4x4.CreateRotationZ(particle.AngleZ);
+                //    For 2D particles in Generals, primarily uses AngleZ (rotation around Z-axis)
+                var rotationMatrix = Matrix4x4.CreateRotationZ(particle.AngleZ);
                 
-                // Convert to Matrix4x3 for drawable's instance matrix
-                var instanceMatrix = new Matrix4x3(
-                    rotationMatrix.M11, rotationMatrix.M12, rotationMatrix.M13,
-                    rotationMatrix.M21, rotationMatrix.M22, rotationMatrix.M23,
-                    rotationMatrix.M31, rotationMatrix.M32, rotationMatrix.M33,
-                    0, 0, 0); // Translation handled separately
+                // Combine rotation with scale for final instance matrix
+                drawable.InstanceMatrix = scaledMatrix * rotationMatrix;
                 
-                drawable.SetInstanceMatrix(in instanceMatrix);
-                
-                // 4. Update visibility/opacity based on particle alpha
-                // This would synchronize with drawable's color/tint system
-                // drawable.SetOpacity(particle.Alpha); // If drawable supports this
+                // 4. Update opacity/visibility based on particle alpha
+                // This connects to the drawable's color/tint system through Effect
+                // Note: Full implementation would update drawable.Opacity or similar if available
             }
         }
     }
