@@ -388,6 +388,10 @@ public sealed class ParticleSystem : RenderObject, IPersistableObject
             }
         }
 
+        // Set priority for global particle limit enforcement
+        // Reference: EA Generals ParticleSys.cpp line 1794-1824 particle creation gates
+        particle.Priority = Template.Priority;
+
         // Initialize drawable particle if needed
         if (Template.Type == ParticleSystemType.Drawable && !string.IsNullOrEmpty(Template.DrawableName))
         {
@@ -418,6 +422,22 @@ public sealed class ParticleSystem : RenderObject, IPersistableObject
         _deadList.RemoveAt(0);
 
         return ref _particles[first];
+    }
+
+    /// <summary>
+    /// Marks a particle as dead and returns it to the dead list.
+    /// Called by ParticleSystemManager when culling particles due to limit enforcement.
+    /// Reference: EA Generals ParticleSys.cpp removeOldestParticles() - kills oldest particles
+    /// </summary>
+    /// <param name="particleIndex">Index of particle in _particles array</param>
+    internal void MarkParticleDead(int particleIndex)
+    {
+        if (particleIndex >= 0 && particleIndex < _particles.Length)
+        {
+            ref var particle = ref _particles[particleIndex];
+            particle.Dead = true;
+            _deadList.Add(particleIndex);
+        }
     }
 
     private void UpdateParticle(ref Particle particle)

@@ -1,5 +1,7 @@
 ﻿#nullable enable
 
+using System;
+using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Client;
 
@@ -29,6 +31,14 @@ internal struct Particle : IPersistableObject
 
     public int Lifetime;
     public bool Dead;
+
+    // Global particle tracking for limit enforcement
+    /// <summary>
+    /// Priority level of this particle (cached from ParticleSystem template).
+    /// Used to determine removal order during culling.
+    /// Reference: EA Generals ParticleSys.cpp line 80-100 (priority levels)
+    /// </summary>
+    internal ParticleSystemPriority Priority;
 
     // Drawable particle fields
     /// <summary>
