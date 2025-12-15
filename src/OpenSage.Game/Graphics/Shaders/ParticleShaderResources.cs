@@ -13,6 +13,7 @@ internal sealed class ParticleShaderResources : ShaderSetBase
 {
     private readonly Pipeline _alphaPipeline;
     private readonly Pipeline _additivePipeline;
+    private readonly Pipeline _multiplyPipeline;
 
     private readonly ConstantBuffer<ParticleConstantsVS> _particleConstantsBufferIsGroundAlignedFalse;
     private readonly ConstantBuffer<ParticleConstantsVS> _particleConstantsBufferIsGroundAlignedTrue;
@@ -38,6 +39,27 @@ internal sealed class ParticleShaderResources : ShaderSetBase
 
         _alphaPipeline = CreatePipeline(BlendStateDescription.SingleAlphaBlend);
         _additivePipeline = CreatePipeline(BlendStateDescriptionUtility.SingleAdditiveBlendNoAlpha);
+        
+        // MULTIPLY blend: result = destination * source
+        // This creates shadow-like particles that darken the scene
+        // Formula: src=ZERO, dst=SRC_COLOR, ref: EA W3DWater.cpp TexProjectClass::Init_Multiplicative
+        var multiplyBlendState = new BlendStateDescription
+        {
+            AttachmentStates = new[]
+            {
+                new BlendAttachmentDescription
+                {
+                    BlendEnabled = true,
+                    SourceColorFactor = BlendFactor.Zero,
+                    DestinationColorFactor = BlendFactor.SourceColor,
+                    ColorFunction = BlendFunction.Add,
+                    SourceAlphaFactor = BlendFactor.SourceAlpha,
+                    DestinationAlphaFactor = BlendFactor.One,
+                    AlphaFunction = BlendFunction.Add
+                }
+            }
+        };
+        _multiplyPipeline = CreatePipeline(multiplyBlendState);
 
         ConstantBuffer<ParticleConstantsVS> CreateParticleConstantsBuffer(bool isGroundAligned)
         {
@@ -77,6 +99,7 @@ internal sealed class ParticleShaderResources : ShaderSetBase
                 ParticleSystemShader.Alpha => _alphaPipeline,
                 ParticleSystemShader.AlphaTest => _alphaPipeline, // TODO: Proper implementation
                 ParticleSystemShader.Additive => _additivePipeline,
+                ParticleSystemShader.Multiply => _multiplyPipeline,
                 _ => throw new ArgumentOutOfRangeException(nameof(template)),
             };
 
