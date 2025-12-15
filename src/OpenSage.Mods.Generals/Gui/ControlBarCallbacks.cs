@@ -49,6 +49,12 @@ public static class ControlBarCallbacks
         }
     }
 
+    public static void ControlBarInput(Control control, WndWindowMessage message, ControlCallbackContext context)
+    {
+        // Forward control bar input events to the main control bar system
+        ControlBarSystem(control, message, context);
+    }
+
     public static void LeftHUDInput(Control control, WndWindowMessage message, ControlCallbackContext context)
     {
         if (message.MessageType != WndWindowMessageType.MouseDown
@@ -88,5 +94,71 @@ public static class ControlBarCallbacks
         control.Window.Game.Scene3D.RadarDrawUtil.Draw(
             drawingContext,
             control.ClientRectangle);
+    }
+
+    public static void W3DGameWinDefaultDraw(Control control, DrawingContext2D drawingContext)
+    {
+        // Default game window draw - handled by rendering system
+    }
+
+    public static void BeaconWindowInput(Control control, WndWindowMessage message, ControlCallbackContext context)
+    {
+        // Beacon window input handling
+    }
+
+    public static void ControlBarObserverSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
+    {
+        // Observer system for control bar state updates
+        ControlBarSystem(control, message, context);
+    }
+
+    public static void GameWinDefaultSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
+    {
+        // Default game window system
+    }
+
+    public static void W3DCommandBarGenExpDraw(Control control, DrawingContext2D drawingContext)
+    {
+        // General experience draw
+    }
+
+    public static void W3DRightHUDDraw(Control control, DrawingContext2D drawingContext)
+    {
+        // Right HUD draw
+    }
+
+    public static void GameWinDefaultInput(Control control, WndWindowMessage message, ControlCallbackContext context)
+    {
+        // Default game window input
+    }
+
+    public static void W3DCommandBarGridDraw(Control control, DrawingContext2D drawingContext)
+    {
+        // Command bar grid draw
+    }
+
+    public static void W3DGadgetPushButtonImageDraw(Control control, DrawingContext2D drawingContext)
+    {
+        // Button image draw
+    }
+
+    public static void W3DCommandBarForegroundDraw(Control control, DrawingContext2D drawingContext)
+    {
+        // Command bar foreground draw
+    }
+
+    public static void W3DPowerDraw(Control control, DrawingContext2D drawingContext)
+    {
+        // Power indicator draw
+    }
+
+    public static void W3DCommandBarTopDraw(Control control, DrawingContext2D drawingContext)
+    {
+        // Command bar top draw
+    }
+
+    public static void W3DCommandBarHelpPopupDraw(Control control, DrawingContext2D drawingContext)
+    {
+        // Help popup draw
     }
 }

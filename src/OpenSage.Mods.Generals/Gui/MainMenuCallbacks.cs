@@ -207,4 +207,18 @@ public static class MainMenuCallbacks
             DoneMainMenuFadeIn = true;
         }
     }
+
+    public static void MainMenuUpdate(Window window, IGame game)
+    {
+        // Called periodically to update main menu state
+        // No special update logic needed currently
+    }
+
+    public static void MainMenuShutdown(Window window, IGame game)
+    {
+        // Called when main menu is shutting down
+        DoneMainMenuFadeIn = false;
+        CurrentSide = null;
+        CurrentSideWindowSuffix = null;
+    }
 }

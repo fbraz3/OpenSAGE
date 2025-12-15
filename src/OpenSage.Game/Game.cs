@@ -130,7 +130,7 @@ public sealed class Game : DisposableBase, IGame
     /// <summary>
     /// This is how fast we actually tick through updates.
     /// </summary>
-    private float LogicUpdateInterval => GameEngine.MsPerLogicFrame / LogicUpdateScaleFactor;
+    private float LogicUpdateInterval => (GameEngine?.MsPerLogicFrame ?? 200) / LogicUpdateScaleFactor;
 
     public float LogicUpdateScaleFactor { get; set; } = 1f;
 
@@ -386,7 +386,7 @@ public sealed class Game : DisposableBase, IGame
 
     public PartitionCellManager PartitionCellManager { get; }
 
-    public IGameEngine GameEngine => Scene3D.GameEngine;
+    public IGameEngine GameEngine => Scene3D?.GameEngine;
 
     public Game(GameInstallation installation)
         : this(installation, null, new Configuration(), null)
