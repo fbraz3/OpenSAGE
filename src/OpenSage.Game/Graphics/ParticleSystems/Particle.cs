@@ -1,4 +1,7 @@
-﻿using System.Numerics;
+﻿#nullable enable
+
+using System.Numerics;
+using OpenSage.Client;
 
 namespace OpenSage.Graphics.ParticleSystems;
 
@@ -27,6 +30,10 @@ internal struct Particle : IPersistableObject
     public int Lifetime;
     public bool Dead;
 
+    // Drawable particle fields
+    public object? AttachedDrawable;
+    public uint AttachedDrawableId;
+
     public float ColorScale;
     public Vector3 Color;
 
@@ -42,6 +49,45 @@ internal struct Particle : IPersistableObject
     public uint UnknownInt5;
     public Vector3 UnknownVector;
     public uint UnknownInt6;
+
+    /// <summary>
+    /// Attaches a drawable to this particle.
+    /// The drawable will follow the particle's position, size, and rotation.
+    /// </summary>
+    public void AttachDrawable(object drawable)
+    {
+        AttachedDrawable = drawable;
+        if (drawable != null)
+        {
+            // Try to extract ID from drawable (works for Drawable and compatible mock objects)
+            if (drawable is Drawable d)
+            {
+                AttachedDrawableId = d.ID;
+            }
+            else if (drawable.GetType().GetProperty("ID")?.GetValue(drawable) is uint id)
+            {
+                // Fallback for mock objects with ID property (like FakeDrawable)
+                AttachedDrawableId = id;
+            }
+            else
+            {
+                AttachedDrawableId = 0;
+            }
+        }
+        else
+        {
+            AttachedDrawableId = 0;
+        }
+    }
+
+    /// <summary>
+    /// Detaches the drawable from this particle.
+    /// </summary>
+    public void DetachDrawable()
+    {
+        AttachedDrawable = null;
+        AttachedDrawableId = 0;
+    }
 
     public Particle(ParticleSystem system)
     {
@@ -73,6 +119,8 @@ internal struct Particle : IPersistableObject
         UnknownInt5 = 0;
         UnknownVector = Vector3.Zero;
         UnknownInt6 = 0;
+        AttachedDrawable = null;
+        AttachedDrawableId = 0;
     }
 
     public void Persist(StatePersister reader)

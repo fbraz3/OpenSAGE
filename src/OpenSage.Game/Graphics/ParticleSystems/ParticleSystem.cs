@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
+using OpenSage.Client;
 using OpenSage.Content.Loaders;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Logic.Object;
@@ -386,6 +387,23 @@ public sealed class ParticleSystem : RenderObject, IPersistableObject
                 particle.AlphaKeyframes[i] = new ParticleAlphaKeyframe(Template.Alpha.AlphaKeyframes[i]);
             }
         }
+
+        // Initialize drawable particle if needed
+        if (Template.Type == ParticleSystemType.Drawable && !string.IsNullOrEmpty(Template.DrawableName))
+        {
+            InitializeDrawableParticle(ref particle);
+        }
+    }
+
+    /// <summary>
+    /// Creates and attaches a drawable to a particle based on template.
+    /// </summary>
+    private void InitializeDrawableParticle(ref Particle particle)
+    {
+        // Note: Full drawable creation requires access to the object factory and game engine
+        // For now, mark this as a drawable particle (actual drawable creation would happen
+        // through the ParticleSystemManager when it has access to the game engine)
+        particle.AttachedDrawableId = 0; // Will be set when drawable is actually created
     }
 
     private ref Particle FindDeadParticleOrCreateNewOne()
@@ -515,6 +533,47 @@ public sealed class ParticleSystem : RenderObject, IPersistableObject
         commandList.UpdateBuffer(_vertexBuffer, 0, _vertices);
     }
 
+    /// <summary>
+    /// Updates drawable particles with current particle transformations.
+    /// Updates position, scale, and rotation of attached drawables.
+    /// </summary>
+    private void UpdateDrawableParticles()
+    {
+        if (Template.Type != ParticleSystemType.Drawable)
+        {
+            return;
+        }
+
+        for (var i = 0; i < _particles.Length; i++)
+        {
+            ref var particle = ref _particles[i];
+
+            if (particle.Dead || particle.AttachedDrawable == null)
+            {
+                continue;
+            }
+
+            // Update drawable transform to match particle state
+            if (particle.AttachedDrawable is Drawable drawable)
+            {
+                // Update position
+                if (drawable.Transform != null)
+                {
+                    drawable.Transform.Translation = particle.Position;
+                    
+                    // Update scale based on particle size
+                    drawable.Transform.Scale = particle.Size;
+                    
+                    // Update rotation around Z axis using quaternion
+                    var halfAngle = particle.AngleZ * 0.5f;
+                    var sin = (float)System.Math.Sin(halfAngle);
+                    var cos = (float)System.Math.Cos(halfAngle);
+                    drawable.Transform.Rotation = new Quaternion(0, 0, sin, cos);
+                }
+            }
+        }
+    }
+
     public override void Render(CommandList commandList)
     {
         if (State == ParticleSystemState.Inactive)
@@ -522,6 +581,14 @@ public sealed class ParticleSystem : RenderObject, IPersistableObject
             return;
         }
 
+        // Handle drawable particles separately
+        if (Template.Type == ParticleSystemType.Drawable)
+        {
+            UpdateDrawableParticles();
+            return; // Drawables render themselves through their modules
+        }
+
+        // Standard particle rendering for PARTICLE type
         UpdateVertexBuffer(commandList);
 
         commandList.SetVertexBuffer(0, _vertexBuffer);

@@ -145,6 +145,7 @@ public sealed class FXParticleSystemTemplate : BaseAsset
     public ParticleSystemShader Shader { get; internal set; } = ParticleSystemShader.Additive;
     public ParticleSystemType Type { get; internal set; } = ParticleSystemType.Particle;
     public LazyAssetReference<TextureAsset> ParticleTexture { get; internal set; }
+    public string DrawableName { get; internal set; }
     public string PerParticleAttachedSystem { get; internal set; }
     public string SlaveSystem { get; internal set; }
     public Vector3 SlavePosOffset { get; internal set; }
