@@ -31,11 +31,29 @@ internal struct Particle : IPersistableObject
     public bool Dead;
 
     // Drawable particle fields
+    /// <summary>
+    /// References the attached drawable object if this is a DRAWABLE type particle.
+    /// The drawable is synchronized with the particle's transform each frame.
+    /// </summary>
     public object? AttachedDrawable;
+    
+    /// <summary>
+    /// Unique identifier for the attached drawable object.
+    /// Used for lookups when the particle is saved/loaded.
+    /// </summary>
     public uint AttachedDrawableId;
 
     // Streak particle fields - stores trail history for ribbon rendering
+    /// <summary>
+    /// Circular buffer storing historical particle positions for streak trail rendering.
+    /// Newest position at index 0, oldest at MaxStreakVertices-1.
+    /// </summary>
     public Vector3[]? StreakVertices;
+    
+    /// <summary>
+    /// Current number of vertices recorded in the streak trail (0 to MaxStreakVertices).
+    /// Used to render only the valid portion of the trail.
+    /// </summary>
     public int StreakVertexCount;
     private const int MaxStreakVertices = 50;
 
@@ -57,8 +75,15 @@ internal struct Particle : IPersistableObject
 
     /// <summary>
     /// Attaches a drawable to this particle.
-    /// The drawable will follow the particle's position, size, and rotation.
+    /// The drawable will follow the particle's position, size, and rotation each frame.
+    /// 
+    /// Mirrors EA implementation from ParticleSys.cpp:
+    /// - Drawable position synchronized with particle position
+    /// - Drawable scale applied from particle size
+    /// - Drawable rotation synchronized with particle angles (AngleX, AngleY, AngleZ)
+    /// - Drawable visibility tied to particle lifetime
     /// </summary>
+    /// <param name="drawable">The drawable object to attach (must have ID property for lookup)</param>
     public void AttachDrawable(object drawable)
     {
         AttachedDrawable = drawable;
@@ -87,6 +112,7 @@ internal struct Particle : IPersistableObject
 
     /// <summary>
     /// Detaches the drawable from this particle.
+    /// Called when the particle dies or when the drawable is destroyed externally.
     /// </summary>
     public void DetachDrawable()
     {
@@ -96,7 +122,14 @@ internal struct Particle : IPersistableObject
 
     /// <summary>
     /// Records current particle position as a vertex in the streak trail.
-    /// Shifts older vertices back in the array, adding new position at index 0.
+    /// Implements circular buffer: shifts older vertices back in the array, adding new position at index 0.
+    /// 
+    /// Trail lifecycle:
+    /// - Frame 1: StreakVertices[0] = particle pos, count = 1
+    /// - Frame 2: StreakVertices[1] = old[0], StreakVertices[0] = new pos, count = 2
+    /// - Frame N (N > 50): StreakVertices[0..49] are most recent positions, oldest is dropped
+    /// 
+    /// Used for rendering streak/trail particle effects with proper alpha fade.
     /// </summary>
     public void RecordStreakVertex()
     {

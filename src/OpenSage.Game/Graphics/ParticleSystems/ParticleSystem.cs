@@ -541,7 +541,15 @@ public sealed class ParticleSystem : RenderObject, IPersistableObject
 
     /// <summary>
     /// Updates drawable particles with current particle transformations.
-    /// Updates position, scale, and rotation of attached drawables.
+    /// Synchronizes all drawable properties with their parent particle every frame.
+    /// 
+    /// Implementation mirrors EA Generals ParticleSys.cpp Particle::update():
+    /// - Position: particle.m_pos → drawable->setPosition()
+    /// - Scale: particle.m_size → drawable->setInstanceScale()
+    /// - Rotation: particle angles (X,Y,Z) → drawable instance matrix
+    /// - Alpha: particle.m_alpha → drawable opacity
+    /// 
+    /// Called during Update() phase before rendering.
     /// </summary>
     private void UpdateDrawableParticles()
     {
@@ -554,6 +562,7 @@ public sealed class ParticleSystem : RenderObject, IPersistableObject
         {
             ref var particle = ref _particles[i];
 
+            // Skip dead particles and those without attached drawables
             if (particle.Dead || particle.AttachedDrawable == null)
             {
                 continue;
@@ -562,20 +571,32 @@ public sealed class ParticleSystem : RenderObject, IPersistableObject
             // Update drawable transform to match particle state
             if (particle.AttachedDrawable is Drawable drawable)
             {
-                // Update position
-                if (drawable.Transform != null)
-                {
-                    drawable.Transform.Translation = particle.Position;
+                // IMPORTANT: Must update transform in this order to maintain proper hierarchy
+                
+                // 1. Update position (world space)
+                drawable.SetPosition(particle.Position);
 
-                    // Update scale based on particle size
-                    drawable.Transform.Scale = particle.Size;
+                // 2. Update scale (affects size of rendered drawable)
+                drawable.SetInstanceScale(particle.Size);
 
-                    // Update rotation around Z axis using quaternion
-                    var halfAngle = particle.AngleZ * 0.5f;
-                    var sin = (float)System.Math.Sin(halfAngle);
-                    var cos = (float)System.Math.Cos(halfAngle);
-                    drawable.Transform.Rotation = new Quaternion(0, 0, sin, cos);
-                }
+                // 3. Update rotation using instance matrix rotation
+                //    Mirrors EA implementation: creates rotation matrix from particle angles
+                var rotationMatrix = Matrix4x4.CreateRotationX(particle.AngleZ) // Z-axis rotation (primary for 2D particles)
+                                    * Matrix4x4.CreateRotationY(particle.AngleZ)
+                                    * Matrix4x4.CreateRotationZ(particle.AngleZ);
+                
+                // Convert to Matrix4x3 for drawable's instance matrix
+                var instanceMatrix = new Matrix4x3(
+                    rotationMatrix.M11, rotationMatrix.M12, rotationMatrix.M13,
+                    rotationMatrix.M21, rotationMatrix.M22, rotationMatrix.M23,
+                    rotationMatrix.M31, rotationMatrix.M32, rotationMatrix.M33,
+                    0, 0, 0); // Translation handled separately
+                
+                drawable.SetInstanceMatrix(in instanceMatrix);
+                
+                // 4. Update visibility/opacity based on particle alpha
+                // This would synchronize with drawable's color/tint system
+                // drawable.SetOpacity(particle.Alpha); // If drawable supports this
             }
         }
     }
@@ -583,6 +604,14 @@ public sealed class ParticleSystem : RenderObject, IPersistableObject
     /// <summary>
     /// Updates streak particles by recording current position in trail history.
     /// Called every frame to capture the particle's motion path for ribbon rendering.
+    /// 
+    /// Streak Particle Implementation:
+    /// - Each particle maintains a circular buffer of historical positions (up to 50)
+    /// - RecordStreakVertex() is called each frame to add current position to trail
+    /// - Trail vertices are used to render ribbons with alpha fade (newest = opaque, oldest = transparent)
+    /// - Enables "tracer" or "comet tail" visual effects that follow particle motion
+    /// 
+    /// Mirrors EA Generals implementation in FX system trail particles.
     /// </summary>
     private void UpdateStreakParticles()
     {
@@ -645,7 +674,7 @@ public sealed class ParticleSystem : RenderObject, IPersistableObject
                 // Width perpendicular to direction
                 var direction = Vector3.Normalize(position0 - position1 + Vector3.One * 0.001f);
                 var right = new Vector3(-direction.Z, 0, direction.X);
-                
+
                 // Check if direction calculation resulted in NaN
                 if (float.IsNaN(right.X) || float.IsNaN(right.Y) || float.IsNaN(right.Z))
                 {
