@@ -102,9 +102,9 @@ public class TextureAtlasingStage4Tests
                 MaxMemory = 2097152,
                 MinMemory = 524288
             },
-            Recommendations = new List<string> 
-            { 
-                "Sample recommendation" 
+            Recommendations = new List<string>
+            {
+                "Sample recommendation"
             }
         };
 
