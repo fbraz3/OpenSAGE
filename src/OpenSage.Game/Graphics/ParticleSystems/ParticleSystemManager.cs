@@ -5,10 +5,64 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Content.Loaders;
+using OpenSage.Graphics.Shaders;
 using OpenSage.Rendering;
 //using OpenSage.Graphics.Rendering;
 
 namespace OpenSage.Graphics.ParticleSystems;
+
+/// <summary>
+/// Uniquely identifies a particle material for batching purposes.
+/// Materials with identical keys can be grouped together to reduce draw calls.
+/// Reference: EA Generals dx8renderer.h line 78 - "render in 'TextureCategory' batches"
+/// </summary>
+internal readonly struct ParticleMaterialKey : IEquatable<ParticleMaterialKey>
+{
+    public readonly ParticleSystemShader ShaderType;
+    public readonly bool IsGroundAligned;
+    public readonly string TextureName;
+
+    public ParticleMaterialKey(ParticleSystemShader shaderType, bool isGroundAligned, string textureName)
+    {
+        ShaderType = shaderType;
+        IsGroundAligned = isGroundAligned;
+        TextureName = textureName ?? string.Empty;
+    }
+
+    public override bool Equals(object? obj) => obj is ParticleMaterialKey key && Equals(key);
+
+    public bool Equals(ParticleMaterialKey other) =>
+        ShaderType == other.ShaderType &&
+        IsGroundAligned == other.IsGroundAligned &&
+        TextureName == other.TextureName;
+
+    public override int GetHashCode() =>
+        HashCode.Combine(ShaderType, IsGroundAligned, TextureName);
+
+    public static bool operator ==(ParticleMaterialKey left, ParticleMaterialKey right) =>
+        left.Equals(right);
+
+    public static bool operator !=(ParticleMaterialKey left, ParticleMaterialKey right) =>
+        !left.Equals(right);
+}
+
+/// <summary>
+/// Groups particle systems that share the same material for batching.
+/// Preserves priority order within each group for correct rendering.
+/// </summary>
+internal readonly struct ParticleMaterialGroup
+{
+    public readonly ParticleMaterialKey MaterialKey;
+    public readonly List<ParticleSystem> Systems;
+
+    public ParticleMaterialGroup(ParticleMaterialKey materialKey)
+    {
+        MaterialKey = materialKey;
+        Systems = new List<ParticleSystem>();
+    }
+
+    public int SystemCount => Systems.Count;
+}
 
 /// <summary>
 /// Manages all particle systems and enforces global particle count limits.
@@ -275,6 +329,60 @@ internal sealed class ParticleSystemManager : DisposableBase, IPersistableObject
 
             return priorityComparison;
         });
+    }
+
+    /// <summary>
+    /// Extracts the material key from a particle system.
+    /// Used to group systems with identical materials for batching.
+    /// </summary>
+    private static ParticleMaterialKey ExtractMaterialKey(ParticleSystem system)
+    {
+        var template = system.Template;
+        var textureName = template.ParticleTexture?.Value?.Name ?? string.Empty;
+        var shaderType = template.Shader;
+        var isGroundAligned = template.IsGroundAligned;
+
+        return new ParticleMaterialKey(shaderType, isGroundAligned, textureName ?? string.Empty);
+    }
+
+    /// <summary>
+    /// Groups particle systems by their material for batching.
+    /// Preserves priority order: systems within each group are sorted by priority.
+    /// Expected: 50-100 systems → 15-40 groups (2-5 systems per group average).
+    /// Reference: EA Generals dx8renderer.h - TextureCategory batching pattern
+    /// </summary>
+    public List<ParticleMaterialGroup> GroupSystemsByMaterial()
+    {
+        var groups = new Dictionary<ParticleMaterialKey, ParticleMaterialGroup>();
+        var groupOrder = new List<ParticleMaterialKey>();
+
+        // Iterate through systems in priority order (from previous sort)
+        // This ensures priority is maintained within groups
+        foreach (var system in _particleSystems)
+        {
+            if (system.State == ParticleSystemState.Inactive || system.CurrentParticleCount == 0)
+            {
+                continue;
+            }
+
+            var materialKey = ExtractMaterialKey(system);
+
+            // Create group if it doesn't exist, preserving insertion order
+            if (!groups.ContainsKey(materialKey))
+            {
+                var group = new ParticleMaterialGroup(materialKey);
+                groups[materialKey] = group;
+                groupOrder.Add(materialKey);
+            }
+
+            if (groups.TryGetValue(materialKey, out var existingGroup))
+            {
+                existingGroup.Systems.Add(system);
+            }
+        }
+
+        // Return groups in order they were first encountered (preserves priority)
+        return groupOrder.Select(key => groups[key]).ToList();
     }
 
     public void Persist(StatePersister reader)
