@@ -30,7 +30,7 @@ public sealed class GraphicsSystem : GameSystem
         // PLAN-015: Profile rendering pipeline execution
         // Note: gameTime is 'in' parameter, must be copied for use in lambdas
         var time = gameTime;
-        
+
         PerfGather.Profile("RenderPipeline.Setup", () => {
             _renderContext.ContentManager = Game.ContentManager;
             _renderContext.GraphicsDevice = Game.GraphicsDevice;
@@ -40,7 +40,7 @@ public sealed class GraphicsSystem : GameSystem
             _renderContext.GameTime = time;
         });
 
-        PerfGather.Profile("RenderPipeline.Execute", () => 
+        PerfGather.Profile("RenderPipeline.Execute", () =>
             RenderPipeline.Execute(_renderContext));
     }
 }

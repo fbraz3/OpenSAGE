@@ -829,7 +829,7 @@ public sealed class Game : DisposableBase, IGame
             RenderTime = _renderTimer.CurrentGameTime;
         });
 
-        PerfGather.Profile("InputProcessing", () => 
+        PerfGather.Profile("InputProcessing", () =>
             InputMessageBuffer.PumpEvents(messages, RenderTime));
 
         // Prevent virtual Update() call when the game has already started, it's only needed in the menu
@@ -849,19 +849,19 @@ public sealed class Game : DisposableBase, IGame
                                  .TotalMilliseconds / LogicUpdateInterval);
 
         // We pass RenderTime to Scene2D so that the UI remains responsive even when the game is paused.
-        PerfGather.Profile("Scene2D.LocalLogicTick", () => 
+        PerfGather.Profile("Scene2D.LocalLogicTick", () =>
             Scene2D.LocalLogicTick(RenderTime, Scene3D?.LocalPlayer));
-        
-        PerfGather.Profile("Scene3D.LocalLogicTick", () => 
+
+        PerfGather.Profile("Scene3D.LocalLogicTick", () =>
             Scene3D?.LocalLogicTick(MapTime, tickT));
 
-        PerfGather.Profile("Audio.Update", () => 
+        PerfGather.Profile("Audio.Update", () =>
             Audio.Update(Scene3D?.Camera));
-        
-        PerfGather.Profile("Cursors.Update", () => 
+
+        PerfGather.Profile("Cursors.Update", () =>
             Cursors.Update(RenderTime));
 
-        PerfGather.Profile("Updating.Invoke", () => 
+        PerfGather.Profile("Updating.Invoke", () =>
             Updating?.Invoke(this, new GameUpdatingEventArgs(RenderTime)));
     }
 
@@ -869,17 +869,17 @@ public sealed class Game : DisposableBase, IGame
     {
         PerfGather.Profile("GameLogic.Update", () => GameLogic.Update());
 
-        PerfGather.Profile("NetworkMessageBuffer.Tick", () => 
+        PerfGather.Profile("NetworkMessageBuffer.Tick", () =>
             NetworkMessageBuffer?.Tick());
 
         // TODO: What is the order?
         // TODO: Calculate time correctly.
         var timeInterval = GetTimeInterval();
-        
-        PerfGather.Profile("Scene3D.LogicTick", () => 
+
+        PerfGather.Profile("Scene3D.LogicTick", () =>
             Scene3D?.LogicTick(timeInterval));
 
-        PerfGather.Profile("PartitionCellManager.Update", () => 
+        PerfGather.Profile("PartitionCellManager.Update", () =>
             PartitionCellManager.Update());
     }
 
