@@ -241,6 +241,25 @@ public class GameLodManager
     }
 
     /// <summary>
+    /// Apply static LOD settings via a StaticLodApplicationManager.
+    /// This is called after SetStaticLodLevel to actually apply the LOD to all systems.
+    /// </summary>
+    public void ApplyStaticLodWithManager(StaticLodApplicationManager applicationManager)
+    {
+        if (applicationManager == null)
+        {
+            throw new ArgumentNullException(nameof(applicationManager));
+        }
+
+        if (!_staticLods.TryGetValue(CurrentStaticLod, out var lodInfo))
+        {
+            return;  // Current LOD level not defined
+        }
+
+        applicationManager.ApplyStaticLod(CurrentStaticLod, lodInfo);
+    }
+
+    /// <summary>
     /// Get the current static LOD definition.
     /// </summary>
     public StaticGameLod GetStaticLodInfo()
