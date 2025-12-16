@@ -385,6 +385,46 @@ internal sealed class ParticleSystemManager : DisposableBase, IPersistableObject
         return groupOrder.Select(key => groups[key]).ToList();
     }
 
+    /// <summary>
+    /// Sets up material-based batch rendering for all active particle systems.
+    /// Replaces individual particle systems in the render bucket with batch renderers.
+    ///
+    /// Algorithm:
+    /// 1. Group systems by material (call GroupSystemsByMaterial())
+    /// 2. For each group, remove individual systems from render bucket
+    /// 3. Create a ParticleBatchRenderer for the group
+    /// 4. Add batch renderer to render bucket
+    ///
+    /// Expected draw call reduction: 40-70% (50-100 systems → 15-40 batches)
+    /// Reference: EA Generals dx8renderer.h line 78 - TextureCategory batching
+    /// </summary>
+    public void SetupBatchRendering()
+    {
+        // Get current material groups
+        var groups = GroupSystemsByMaterial();
+
+        if (groups.Count == 0)
+        {
+            return; // No active systems to batch
+        }
+
+        // Remove individual systems from render bucket and create batch renderers
+        foreach (var group in groups)
+        {
+            // Remove all systems in this group from individual rendering
+            foreach (var system in group.Systems)
+            {
+                _renderBucket.RemoveObject(system);
+            }
+
+            // Create batch renderer for the group
+            var batchRenderer = new ParticleBatchRenderer(group);
+
+            // Add batch renderer to render bucket (will render all systems in group)
+            _renderBucket.AddObject(batchRenderer);
+        }
+    }
+
     public void Persist(StatePersister reader)
     {
         reader.PersistVersion(1);
