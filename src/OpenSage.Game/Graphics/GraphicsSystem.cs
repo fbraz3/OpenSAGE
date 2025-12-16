@@ -1,4 +1,5 @@
-﻿using OpenSage.Graphics.Rendering;
+﻿using OpenSage.Diagnostics;
+using OpenSage.Graphics.Rendering;
 using Veldrid;
 
 namespace OpenSage.Graphics;
@@ -26,13 +27,20 @@ public sealed class GraphicsSystem : GameSystem
 
     internal void Draw(in TimeInterval gameTime)
     {
-        _renderContext.ContentManager = Game.ContentManager;
-        _renderContext.GraphicsDevice = Game.GraphicsDevice;
-        _renderContext.Scene3D = Game.Scene3D;
-        _renderContext.Scene2D = Game.Scene2D;
-        _renderContext.RenderTarget = Game.Panel.Framebuffer;
-        _renderContext.GameTime = gameTime;
+        // PLAN-015: Profile rendering pipeline execution
+        // Note: gameTime is 'in' parameter, must be copied for use in lambdas
+        var time = gameTime;
+        
+        PerfGather.Profile("RenderPipeline.Setup", () => {
+            _renderContext.ContentManager = Game.ContentManager;
+            _renderContext.GraphicsDevice = Game.GraphicsDevice;
+            _renderContext.Scene3D = Game.Scene3D;
+            _renderContext.Scene2D = Game.Scene2D;
+            _renderContext.RenderTarget = Game.Panel.Framebuffer;
+            _renderContext.GameTime = time;
+        });
 
-        RenderPipeline.Execute(_renderContext);
+        PerfGather.Profile("RenderPipeline.Execute", () => 
+            RenderPipeline.Execute(_renderContext));
     }
 }

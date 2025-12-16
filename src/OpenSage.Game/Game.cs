@@ -788,52 +788,60 @@ public sealed class Game : DisposableBase, IGame
 
     public void Update(IEnumerable<InputMessage> messages)
     {
-        // Update timers, input and UI state
-        LocalLogicTick(messages);
+        // PLAN-015: Profile update frame components hierarchically
+        PerfGather.Profile("Update", () => {
+            // Update timers, input and UI state
+            PerfGather.Profile("LocalLogicTick", () => LocalLogicTick(messages));
 
-        var totalGameTime = MapTime.TotalTime;
+            var totalGameTime = MapTime.TotalTime;
 
-        // If the game is not paused and it's time to do a logic update, do so.
-        if (IsLogicRunning && totalGameTime >= _nextLogicUpdate)
-        {
-            LogicTick();
-            CumulativeLogicUpdateError += (totalGameTime - _nextLogicUpdate);
-            // Logic updates happen at 5Hz.
-            _nextLogicUpdate += TimeSpan.FromMilliseconds(LogicUpdateInterval);
-
-            if (_isStepping)
+            // If the game is not paused and it's time to do a logic update, do so.
+            if (IsLogicRunning && totalGameTime >= _nextLogicUpdate)
             {
-                IsLogicRunning = false;
-            }
-        }
+                PerfGather.Profile("LogicTick", () => LogicTick());
+                CumulativeLogicUpdateError += (totalGameTime - _nextLogicUpdate);
+                // Logic updates happen at 5Hz.
+                _nextLogicUpdate += TimeSpan.FromMilliseconds(LogicUpdateInterval);
 
-        // TODO: Which update should be performed first?
-        if (IsLogicRunning && totalGameTime >= _nextScriptingUpdate)
-        {
-            Scripting.ScriptingTick();
-            // Scripting updates happen at 30Hz / 5Hz depending on game.
-            _nextScriptingUpdate += TimeSpan.FromMilliseconds(_scriptingUpdateInterval);
-        }
+                if (_isStepping)
+                {
+                    IsLogicRunning = false;
+                }
+            }
+
+            // TODO: Which update should be performed first?
+            if (IsLogicRunning && totalGameTime >= _nextScriptingUpdate)
+            {
+                PerfGather.Profile("ScriptingTick", () => Scripting.ScriptingTick());
+                // Scripting updates happen at 30Hz / 5Hz depending on game.
+                _nextScriptingUpdate += TimeSpan.FromMilliseconds(_scriptingUpdateInterval);
+            }
+        });
     }
 
     private void LocalLogicTick(IEnumerable<InputMessage> messages)
     {
-        _mapTimer.Update();
-        MapTime = _mapTimer.CurrentGameTime;
+        PerfGather.Profile("TimerUpdate", () => {
+            _mapTimer.Update();
+            MapTime = _mapTimer.CurrentGameTime;
 
-        _renderTimer.Update();
-        RenderTime = _renderTimer.CurrentGameTime;
+            _renderTimer.Update();
+            RenderTime = _renderTimer.CurrentGameTime;
+        });
 
-        InputMessageBuffer.PumpEvents(messages, RenderTime);
+        PerfGather.Profile("InputProcessing", () => 
+            InputMessageBuffer.PumpEvents(messages, RenderTime));
 
         // Prevent virtual Update() call when the game has already started, it's only needed in the menu
         if (SkirmishManager != null && SkirmishManager.Settings.Status != SkirmishGameStatus.Started)
         {
-            SkirmishManager?.Update();
+            PerfGather.Profile("SkirmishManagerUpdate", () => {
+                SkirmishManager?.Update();
 
-            // TODO: This is a hack just to get MapTime correct immediately after we start a game.
-            _mapTimer.Update();
-            MapTime = _mapTimer.CurrentGameTime;
+                // TODO: This is a hack just to get MapTime correct immediately after we start a game.
+                _mapTimer.Update();
+                MapTime = _mapTimer.CurrentGameTime;
+            });
         }
 
         // How close are we to the next logic frame?
@@ -841,27 +849,38 @@ public sealed class Game : DisposableBase, IGame
                                  .TotalMilliseconds / LogicUpdateInterval);
 
         // We pass RenderTime to Scene2D so that the UI remains responsive even when the game is paused.
-        Scene2D.LocalLogicTick(RenderTime, Scene3D?.LocalPlayer);
-        Scene3D?.LocalLogicTick(MapTime, tickT);
+        PerfGather.Profile("Scene2D.LocalLogicTick", () => 
+            Scene2D.LocalLogicTick(RenderTime, Scene3D?.LocalPlayer));
+        
+        PerfGather.Profile("Scene3D.LocalLogicTick", () => 
+            Scene3D?.LocalLogicTick(MapTime, tickT));
 
-        Audio.Update(Scene3D?.Camera);
-        Cursors.Update(RenderTime);
+        PerfGather.Profile("Audio.Update", () => 
+            Audio.Update(Scene3D?.Camera));
+        
+        PerfGather.Profile("Cursors.Update", () => 
+            Cursors.Update(RenderTime));
 
-        Updating?.Invoke(this, new GameUpdatingEventArgs(RenderTime));
+        PerfGather.Profile("Updating.Invoke", () => 
+            Updating?.Invoke(this, new GameUpdatingEventArgs(RenderTime)));
     }
 
     private void LogicTick()
     {
-        GameLogic.Update();
+        PerfGather.Profile("GameLogic.Update", () => GameLogic.Update());
 
-        NetworkMessageBuffer?.Tick();
+        PerfGather.Profile("NetworkMessageBuffer.Tick", () => 
+            NetworkMessageBuffer?.Tick());
 
         // TODO: What is the order?
         // TODO: Calculate time correctly.
         var timeInterval = GetTimeInterval();
-        Scene3D?.LogicTick(timeInterval);
+        
+        PerfGather.Profile("Scene3D.LogicTick", () => 
+            Scene3D?.LogicTick(timeInterval));
 
-        PartitionCellManager.Update();
+        PerfGather.Profile("PartitionCellManager.Update", () => 
+            PartitionCellManager.Update());
     }
 
     private TimeInterval GetTimeInterval() => new(MapTime.TotalTime, TimeSpan.FromMilliseconds(GameEngine?.MsPerLogicFrame ?? 200));
@@ -880,8 +899,11 @@ public sealed class Game : DisposableBase, IGame
 
     public void Render()
     {
-        Graphics.Draw(RenderTime);
-        RenderCompleted?.Invoke(this, EventArgs.Empty);
+        // PLAN-015: Profile rendering frame components hierarchically
+        PerfGather.Profile("Render", () => {
+            PerfGather.Profile("GraphicsDraw", () => Graphics.Draw(RenderTime));
+            PerfGather.Profile("RenderCompleted", () => RenderCompleted?.Invoke(this, EventArgs.Empty));
+        });
     }
 
     protected override void Dispose(bool disposeManagedResources)
