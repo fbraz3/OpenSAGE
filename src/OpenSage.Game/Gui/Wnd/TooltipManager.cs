@@ -100,14 +100,32 @@ internal sealed class TooltipManager : DisposableBase
             return;
         }
 
+        // Get font from control (use default if not available)
+        var font = _currentControl.Font;
+        if (font == null)
+        {
+            // TODO: Get default font from content manager
+            return; // Skip rendering if no font available
+        }
+
+        // Measure tooltip text to get exact dimensions
+        const int MaxTooltipWidth = 300;
+        var textSize = DrawingContext2D.MeasureText(tooltipText, font, TextAlignment.Leading, MaxTooltipWidth);
+
+        // Add padding to get total tooltip size
+        const int PaddingX = 8;
+        const int PaddingY = 6;
+        var tooltipWidth = (int)(textSize.Width + PaddingX * 2);
+        var tooltipHeight = (int)(textSize.Height + PaddingY * 2);
+
         // Calculate tooltip position with edge wrapping
-        var tooltipPos = CalculateTooltipPosition(tooltipText, viewportSize);
+        var tooltipPos = CalculateTooltipPosition(tooltipText, viewportSize, tooltipWidth, tooltipHeight);
 
         // Draw tooltip background
-        DrawTooltipBackground(drawingContext, tooltipPos, tooltipText);
+        DrawTooltipBackground(drawingContext, tooltipPos, tooltipWidth, tooltipHeight);
 
         // Draw tooltip text
-        DrawTooltipText(drawingContext, tooltipPos, tooltipText);
+        DrawTooltipText(drawingContext, tooltipPos, tooltipText, font, tooltipWidth, tooltipHeight, PaddingX, PaddingY);
     }
 
     private void ShowTooltip()
@@ -165,15 +183,11 @@ internal sealed class TooltipManager : DisposableBase
         return _currentControl.TooltipText;
     }
 
-    private Point2D CalculateTooltipPosition(string tooltipText, Size viewportSize)
+    private Point2D CalculateTooltipPosition(string tooltipText, Size viewportSize, int tooltipWidth, int tooltipHeight)
     {
         // Start with offset from mouse
         var x = _lastMousePosition.X + TooltipOffsetX;
         var y = _lastMousePosition.Y + TooltipOffsetY;
-
-        // TODO: Calculate text bounds to get tooltip dimensions
-        var tooltipWidth = 200; // Placeholder
-        var tooltipHeight = 40; // Placeholder
 
         // Wrap left if at right edge
         if (x + tooltipWidth + EdgeSafetyMargin > viewportSize.Width)
@@ -190,43 +204,33 @@ internal sealed class TooltipManager : DisposableBase
         return new Point2D(Math.Max(EdgeSafetyMargin, x), Math.Max(EdgeSafetyMargin, y));
     }
 
-    private void DrawTooltipBackground(DrawingContext2D drawingContext, Point2D position, string tooltipText)
+    private void DrawTooltipBackground(DrawingContext2D drawingContext, Point2D position, int width, int height)
     {
         // Based on EA Generals: semi-transparent background with thin border
-        const int PaddingX = 6;
-        const int PaddingY = 4;
         const int BorderWidth = 1;
 
-        // TODO: Measure tooltip text to get exact dimensions
-        // For now, use placeholder dimensions
-        var tooltipWidth = 200;
-        var tooltipHeight = 40;
+        var bgRect = new RectangleF(position.X, position.Y, width, height);
 
-        var bgRect = new RectangleF(position.X, position.Y, tooltipWidth, tooltipHeight);
-
-        // Draw semi-transparent background
-        var bgColor = new ColorRgbaF(0.1f, 0.1f, 0.1f, 0.8f);
+        // Draw semi-transparent background (dark gray with alpha)
+        var bgColor = new ColorRgbaF(0.1f, 0.1f, 0.1f, 0.85f);
         drawingContext.FillRectangle(bgRect, bgColor);
 
-        // Draw border
-        var borderColor = new ColorRgbaF(0.5f, 0.5f, 0.5f, 1.0f);
+        // Draw light gray border
+        var borderColor = new ColorRgbaF(0.6f, 0.6f, 0.6f, 1.0f);
         drawingContext.DrawRectangle(bgRect, borderColor, BorderWidth);
     }
 
-    private void DrawTooltipText(DrawingContext2D drawingContext, Point2D position, string tooltipText)
+    private void DrawTooltipText(DrawingContext2D drawingContext, Point2D position, string tooltipText, SixLabors.Fonts.Font font, int tooltipWidth, int tooltipHeight, int paddingX, int paddingY)
     {
-        // TODO: Draw tooltip text with proper font and alignment
-        // Positioned within tooltip background with padding
-        const int PaddingX = 6;
-        const int PaddingY = 4;
+        // Draw white text inside tooltip
+        var textRect = new RectangleF(
+            position.X + paddingX,
+            position.Y + paddingY,
+            tooltipWidth - paddingX * 2,
+            tooltipHeight - paddingY * 2);
 
-        var textPos = new Point2D(position.X + PaddingX, position.Y + PaddingY);
-
-        // Draw white text
         var textColor = new ColorRgbaF(1.0f, 1.0f, 1.0f, 1.0f);
-
-        // TODO: Implement text rendering using DrawingContext2D.DrawText
-        // Placeholder: text would be drawn at textPos with textColor
+        drawingContext.DrawText(tooltipText, font, TextAlignment.Leading, textColor, textRect);
     }
 
     private bool IsMouseInTolerance(in Point2D newPosition)
