@@ -465,18 +465,57 @@ public void DrawCallReduction_MaterialBatching()
 
 ---
 
-## Next Steps
+## Stage 2: Material-Based Draw Call Batching
 
-1. **Implement priority sorting** in ParticleSystemManager.Update()
-2. **Add unit tests** for sorting and batching logic
-3. **Integrate profiling** using PLAN-015 PerfGather
-4. **Benchmark before/after** draw call counts
-5. **Visual validation** with multiple particle effects
-6. **Commit and document** results
+See [PLAN-012_STAGE2_MATERIAL_BATCHING_DESIGN.md](PLAN-012_STAGE2_MATERIAL_BATCHING_DESIGN.md) for comprehensive design.
+
+**Goal**: Reduce draw calls by 40-70% via material grouping
+
+**Key Concepts**:
+
+- Material Key = (ShaderType, IsGroundAligned, TextureName)
+- Group systems with identical materials
+- Maintain priority ordering from Stage 1
+- Expected: 50-100 systems → 15-40 draw calls
+
+**Performance Target**: +0.1-0.2ms grouping, -2-3ms GPU state changes = Net -1.8-2.9ms
 
 ---
 
-**Status**: Ready for implementation  
+## Implementation Status
+
+**Stage 1**: ✅ COMPLETE (committed 8fd8691f)
+
+- Priority sorting implemented
+- Unit tests passing (4/4)
+- Build clean (0 errors)
+
+**Stage 2**: 📋 DESIGN COMPLETE (see linked design doc)
+
+- Material grouping strategy defined
+- Implementation plan with 3 phases
+- Testing strategy outlined
+- Ready for coding phase
+
+**Stage 3**: 🔮 FUTURE (Dirty flag optimization)
+
+- Skip vertex buffer uploads if no changes
+- Target: 20-30% CPU reduction
+
+---
+
+## Next Steps
+
+1. **Code Stage 2 infrastructure** (ParticleMaterialKey, ParticleMaterialGroup)
+2. **Implement batching algorithm** (GroupSystemsByMaterial)
+3. **Add unit tests** for material grouping logic
+4. **Integrate with rendering pipeline** (RenderPipeline hook)
+5. **Profiling and validation** using PLAN-015
+6. **Stage 3 planning** (dirty flag optimization)
+
+---
+
+**Status**: Stage 1 Complete, Stage 2 In Design  
 **Foundation**: PLAN-015 profiling framework complete  
 **Priority**: High (removes TODO, improves performance)  
 **Dependencies**: PLAN-004, PLAN-005 (particle systems must be complete)
