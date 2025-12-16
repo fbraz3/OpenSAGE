@@ -303,10 +303,10 @@ public sealed class AssetStore
         AddAssetCollection(LodPresets = new ScopedAssetCollection<LodPreset>(this));
         AddAssetCollection(MapCaches = new ScopedAssetCollection<MapCache>(this));
         AddAssetCollection(MappedImages = new ScopedAssetCollection<MappedImage>(this));
-        
+
         // Initialize texture atlas image collection after MappedImages is loaded
         TextureAtlasImages = new TextureAtlasImageCollection(MappedImages);
-        
+
         AddAssetCollection(MeshNameMatches = new ScopedAssetCollection<MeshNameMatches>(this));
         AddAssetCollection(Models = new ScopedAssetCollection<Model>(this, loadStrategy.CreateModelLoader()));
         AddAssetCollection(ModelAnimations = new ScopedAssetCollection<Graphics.Animation.W3DAnimation>(this, loadStrategy.CreateAnimationLoader()));
