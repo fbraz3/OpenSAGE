@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Numerics;
 using ImGuiNET;
 using OpenSage.Content;
 using OpenSage.Logic.Map;
@@ -148,6 +149,50 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
     public bool TryGetObjectByName(string name, out GameObject gameObject)
     {
         return _nameLookup.TryGetValue(name, out gameObject);
+    }
+
+    /// <summary>
+    /// Get all objects in a spherical range around a position
+    /// </summary>
+    public List<GameObject> GetObjectsInRange(in Vector3 center, float radius)
+    {
+        var result = new List<GameObject>();
+        var radiusSq = radius * radius;
+        
+        foreach (var gameObject in Objects)
+        {
+            if (gameObject == null || gameObject.IsEffectivelyDead)
+                continue;
+            
+            var distanceSq = Vector3.DistanceSquared(gameObject.Translation, center);
+            if (distanceSq <= radiusSq)
+            {
+                result.Add(gameObject);
+            }
+        }
+        
+        return result;
+    }
+
+    /// <summary>
+    /// Get all objects owned by a specific player
+    /// </summary>
+    public List<GameObject> GetObjectsByPlayer(Player player)
+    {
+        var result = new List<GameObject>();
+        
+        foreach (var gameObject in Objects)
+        {
+            if (gameObject == null || gameObject.IsEffectivelyDead)
+                continue;
+            
+            if (gameObject.Owner == player)
+            {
+                result.Add(gameObject);
+            }
+        }
+        
+        return result;
     }
 
     public void AddNameLookup(GameObject gameObject)
