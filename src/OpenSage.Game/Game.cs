@@ -710,6 +710,10 @@ public sealed class Game : DisposableBase, IGame
 
         NetworkMessageBuffer = new NetworkMessageBuffer(this, connection);
 
+        // Register input handlers for selection and game logic
+        InputMessageBuffer.Handlers.Add(new SelectionInputHandler(Selection));
+        InputMessageBuffer.Handlers.Add(new GameLogicInputHandler(OrderGenerator));
+
         if (Definition.ControlBar != null)
         {
             Scene2D.ControlBar = Definition.ControlBar.Create(Scene3D.LocalPlayer.Side, this);
@@ -780,6 +784,10 @@ public sealed class Game : DisposableBase, IGame
         // Hopefully it will be fixed when we refactor ContentManager.
 
         Audio.StopCurrentMusicTrack();
+
+        // Remove input handlers before disposing Scene3D
+        InputMessageBuffer.Handlers.RemoveAll(h => 
+            h is SelectionInputHandler || h is GameLogicInputHandler);
 
         Scene3D.Dispose();
         Scene3D = null;
