@@ -220,8 +220,6 @@ internal sealed class ParticleSystemManager : DisposableBase, IPersistableObject
 
     public void Update(in TimeInterval gameTime)
     {
-        // TODO: Sort by ParticleSystem.Priority.
-
         var totalParticles = 0;
 
         for (var i = 0; i < _particleSystems.Count; i++)
@@ -251,6 +249,32 @@ internal sealed class ParticleSystemManager : DisposableBase, IPersistableObject
             //    break;
             //}
         }
+
+        // Sort particle systems by priority for correct rendering order
+        // Reference: EA Generals ParticleSys.cpp - particle priority-based rendering
+        // Higher priority systems render first (back to front for transparency)
+        SortSystemsByPriority();
+    }
+
+    /// <summary>
+    /// Sorts particle systems by priority in descending order (highest first).
+    /// This ensures correct visual depth ordering for transparent particle effects.
+    /// Reference: EA Generals ParticleSys.cpp line 1794 - priority-based particle culling
+    /// </summary>
+    private void SortSystemsByPriority()
+    {
+        _particleSystems.Sort((a, b) => {
+            // Compare by priority (higher first, descending order)
+            var priorityComparison = b.Template.Priority.CompareTo(a.Template.Priority);
+
+            // If same priority, sort by template name for stable ordering
+            if (priorityComparison == 0)
+            {
+                return a.Template.Name.CompareTo(b.Template.Name);
+            }
+
+            return priorityComparison;
+        });
     }
 
     public void Persist(StatePersister reader)
