@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Graphics;
+using OpenSage.Gui.TextureAtlasing;
 using OpenSage.Mathematics;
 using SixLabors.Fonts;
 using Veldrid;
@@ -29,6 +30,12 @@ public sealed class DrawingContext2D : DisposableBase
     private Texture _alphaMask;
 
     private TimeInterval _now;
+
+    /// <summary>
+    /// Optional render optimizer for texture atlasing profiling.
+    /// If set, tracks MappedImage texture bindings for rendering optimization.
+    /// </summary>
+    private MappedImageRenderOptimizer? _renderOptimizer;
 
     internal DrawingContext2D(
         ContentManager contentManager,
@@ -63,6 +70,16 @@ public sealed class DrawingContext2D : DisposableBase
             commandList,
             samplerState,
             outputSize);
+    }
+
+    /// <summary>
+    /// Gets or sets the render optimizer for texture atlasing profiling.
+    /// When set, the DrawingContext2D will record texture binding information.
+    /// </summary>
+    public MappedImageRenderOptimizer? RenderOptimizer
+    {
+        get => _renderOptimizer;
+        set => _renderOptimizer = value;
     }
 
     public void PushTransform(in Matrix3x2 transform)
@@ -132,6 +149,7 @@ public sealed class DrawingContext2D : DisposableBase
         bool flipped = false,
         bool grayscaled = false)
     {
+        _renderOptimizer?.RecordTextureBinding(mappedImage);
         DrawImage(mappedImage.Texture.Value, mappedImage.Coords, destinationRect, sourceColor, flipped, grayscaled);
     }
 
@@ -142,6 +160,7 @@ public sealed class DrawingContext2D : DisposableBase
         bool flipped = false,
         bool grayscaled = false)
     {
+        _renderOptimizer?.RecordTextureBinding(mappedImage);
         DrawImage(mappedImage.Texture.Value, mappedImage.Coords, destinationRect, flipped, grayscaled);
     }
 
