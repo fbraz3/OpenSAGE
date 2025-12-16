@@ -1,7 +1,7 @@
 # Phase 05: Input System & Selection - PLAYABLE INTERACTION
 
 **Phase Identifier**: PHASE05_INPUT_AND_SELECTION  
-**Status**: Ready for Implementation  
+**Status**: ⏸️ DEFERRED (Phase 06 required first)  
 **Priority**: 🔴 CRITICAL (Blocking all gameplay)  
 **Estimated Duration**: 3-4 days  
 **Target Completion**: ~12 developer-days of work  
@@ -12,7 +12,7 @@
 
 Enable the player to interact with the game through keyboard and mouse input. This phase establishes the foundation for all subsequent gameplay by connecting player input to game logic.
 
-**Current State**: 50% (input captured but not routed to game logic)  
+**Current State**: 30% (input system exists, raycasting not yet implemented)  
 **Target State**: 100% (click, select, command working)
 
 ---
@@ -86,6 +86,8 @@ public sealed class Game : DisposableBase, IGame
 - [ ] UI clicks captured before game logic
 - [ ] Game receives terrain clicks
 - [ ] No input processed twice
+
+**Status**: ⏳ Blocked by Phase 06 (needs game loop first)
 
 **Effort**: 1 day
 
@@ -195,11 +197,14 @@ public abstract class GameObject : DisposableBase
 ```
 
 **Acceptance Criteria**:
+
 - [ ] Left-click selects unit/building
 - [ ] Selection highlighted visually (green box)
 - [ ] Shift-click adds to selection
 - [ ] Ctrl+A selects all player units
 - [ ] Escape deselects all
+
+**Status**: ⏳ Blocked by Phase 06 (needs game loop first)
 
 **Effort**: 1.5 days
 
@@ -343,10 +348,13 @@ public sealed class GameLogic : DisposableBase
 ```
 
 **Acceptance Criteria**:
+
 - [ ] Screen coordinates convert to world coordinates
 - [ ] Terrain intersection calculated correctly
 - [ ] Object picking works (nearest object selected)
 - [ ] Works with any camera position/angle
+
+**Status**: ⏳ Blocked by Phase 06 (needs game loop first)
 
 **Effort**: 1.5 days
 
@@ -454,10 +462,13 @@ public sealed class GameLogic : DisposableBase
 ```
 
 **Acceptance Criteria**:
+
 - [ ] Commands queued without executing immediately
 - [ ] Commands execute in FIFO order
 - [ ] Multiple commands can be queued
 - [ ] Commands apply to all selected units
+
+**Status**: ⏳ Blocked by Phase 06 (needs game loop first)
 
 **Effort**: 1 day
 
@@ -471,6 +482,8 @@ public sealed class GameLogic : DisposableBase
 - [ ] Command system integrated
 - [ ] Selection highlighting renders
 - [ ] Input messages flow correctly
+
+⚠️ **NOTE**: Phase 05 is deferred until after Phase 06 completion, as it requires a functioning game loop for testing.
 
 ---
 
@@ -532,20 +545,23 @@ public class InputIntegrationTests
 
 ## Success Metrics
 
-After Phase 05:
-- ✅ Player can select units by clicking
-- ✅ Right-click can issue commands (queued, not executed yet)
-- ✅ Visual feedback on selection (highlight)
-- ✅ Ctrl+click for multi-select
-- ✅ Escape to deselect all
+After Phase 05 (when Phase 06 complete):
+
+- ⏳ Player can select units by clicking
+- ⏳ Right-click can issue commands (queued, not executed yet)
+- ⏳ Visual feedback on selection (highlight)
+- ⏳ Ctrl+click for multi-select
+- ⏳ Escape to deselect all
 
 ---
 
-## Next Phase Dependencies
+## Dependencies & Blockers
 
-**Phase 06 (Game Loop)** requires:
-- SelectionManager working ✅
-- CommandQueue implemented ✅
-- Input flowing correctly ✅
+**Blocked by**: Phase 06 (Game Loop)
+- Phase 05 requires SelectionManager with active game objects
+- Cannot test input without GameLogic.Update() running
+- Cannot verify unit selection without persistent objects
 
-All input groundwork complete for gameplay logic.
+**Decision**: User correctly identified that Phase 05 cannot be meaningfully tested without Phase 06. Deferring Phase 05 testing until after Phase 06 completion.
+
+**Resume Plan**: After Phase 06 complete, return to Phase 05 for manual integration testing.
