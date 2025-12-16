@@ -17,7 +17,7 @@
 
 ## Code & documentation conventions
 - Follow `docs/coding-style.md`: Allman braces, four-space indentation, `_camelCase` private fields (`s_` for static), explicit visibility, `System.*` imports first, `var` only when obvious, and `nameof(...)` instead of literals; keep fields at the top of types.
-- Documentation obeys `.github/instructions/docs.instructions.md`: diaries belong in `docs/DEV_BLOG/YYYY-MM-DIARY.md`, planning and checklists in `docs/PLANNING/` and `docs/PLANNING/phases/`, and technical/session reports in `docs/ETC/`—never add ad-hoc docs to the root of `docs/`.
+- Documentation obeys `.github/instructions/docs.instructions.md`: diary belongs in `docs/DEV_BLOG/YYYY-MM-DIARY.md`, active work in `docs/WORKDIR/` with appropriate subdirectories (phases, planning, reports, audit, support, lessons), and reference materials in `docs/ETC/`—never add ad-hoc docs to the root of `docs/`.
 - naming convention for phase plans: use `PHASEXX_purpose.md` format for filenames - XX is phase number, purpose is brief description (e.g., `PHASE01_INITIAL_RESEARCH.md`).
 - When you add module-level notes, reference the relevant directory (e.g., `src/OpenSage.Game/Logic/Object/Modules/`, `src/OpenSage.Mods.Bfme/Gui/` for APT callbacks) so reviewers can trace behavior quickly.
 

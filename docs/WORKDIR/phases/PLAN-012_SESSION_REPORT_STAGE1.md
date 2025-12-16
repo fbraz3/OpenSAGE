@@ -28,7 +28,7 @@ Successfully implemented **PLAN-012 Stage 1: Priority-Based Particle System Sort
 
 ### 2. Analysis Documentation ✅
 
-**File Created**: `docs/PLANNING/phases/PLAN-012_GPU_PARTICLE_SORTING.md` (483 lines)
+**File Created**: `docs/WORKDIR/phases/PLAN-012_GPU_PARTICLE_SORTING.md` (483 lines)
 
 Contents:
 

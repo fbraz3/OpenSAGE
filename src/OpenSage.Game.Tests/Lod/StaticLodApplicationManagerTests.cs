@@ -7,7 +7,7 @@ namespace OpenSage.Tests.Lod;
 /// <summary>
 /// Integration tests for static LOD application.
 /// Tests the StaticLodApplicationManager applying LOD settings to GameData.
-/// 
+///
 /// Note: Since GameData and StaticGameLod have read-only properties,
 /// these tests focus on:
 /// 1. Manager initialization and state tracking
@@ -77,7 +77,7 @@ public class StaticLodApplicationManagerTests
         // Arrange
         var gameData = CreateTestGameData();
         var manager = new StaticLodApplicationManager(gameData);
-        
+
         var lodInfo1 = CreateMockStaticGameLod(LodType.High);
         var lodInfo2 = CreateMockStaticGameLod(LodType.High);
 
@@ -226,7 +226,7 @@ public class StaticLodApplicationManagerTests
     )
     {
         var lod = new StaticGameLod();
-        
+
         // Use reflection to set read-only properties
         var levelProperty = typeof(StaticGameLod).GetProperty(nameof(StaticGameLod.Level));
         levelProperty?.SetValue(lod, level);

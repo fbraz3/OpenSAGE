@@ -52,14 +52,14 @@ public class GameLodManagerTests
     {
         // 0x00 mask means no skipping
         // Pattern: every particle passes (doesn't skip)
-        
+
         // Simulate: (++counter & 0x00) != 0x00
         // = (1 & 0x00) != 0x00 = 0 != 0 = false (no skip)
         // = (2 & 0x00) != 0x00 = 0 != 0 = false (no skip)
-        
+
         var skipMask = 0x00;
         var skipped = false;
-        
+
         for (int i = 1; i <= 100; i++)
         {
             var result = (i & skipMask) != skipMask;
@@ -76,10 +76,10 @@ public class GameLodManagerTests
         // Pattern: (++counter & 0xFF) != 0xFF
         // Counter wraps at 256, so pattern repeats every 256 items
         // Only counter=255 satisfies: (255 & 0xFF) = 255 = 0xFF, so (255 & 0xFF) != 0xFF = false
-        
+
         var skipMask = 0xFF;
         var skipCount = 0;
-        
+
         for (int counter = 1; counter <= 256; counter++)
         {
             var skipped = (counter & skipMask) != skipMask;
@@ -98,10 +98,10 @@ public class GameLodManagerTests
     {
         // 0x0F mask means skip 15 of 16
         // Only counter=15 satisfies: (15 & 0x0F) = 15 = 0x0F
-        
+
         var skipMask = 0x0F;
         var skipCount = 0;
-        
+
         for (int counter = 1; counter <= 16; counter++)
         {
             var skipped = (counter & skipMask) != skipMask;
@@ -120,10 +120,10 @@ public class GameLodManagerTests
     {
         // 0x03 mask means skip 3 of 4
         // Only counter=3 satisfies: (3 & 0x03) = 3 = 0x03
-        
+
         var skipMask = 0x03;
         var skipCount = 0;
-        
+
         for (int counter = 1; counter <= 4; counter++)
         {
             var skipped = (counter & skipMask) != skipMask;
@@ -152,7 +152,7 @@ public class GameLodManagerTests
         // Test FPS = 75 (should select VeryHigh, first level where fps >= threshold)
         var fps = 75f;
         var selectedLod = LodType.Low;  // Default fallback
-        
+
         foreach (var (level, threshold) in levels)
         {
             if (fps >= threshold)
@@ -179,7 +179,7 @@ public class GameLodManagerTests
         // Test FPS = 35 (should select Medium, first level where fps >= threshold)
         var fps = 35f;
         var selectedLod = LodType.Low;  // Default fallback
-        
+
         foreach (var (level, threshold) in levels)
         {
             if (fps >= threshold)
@@ -206,7 +206,7 @@ public class GameLodManagerTests
         // Test FPS = 15 (below Low threshold, should return Low as fallback)
         var fps = 15f;
         var selectedLod = LodType.Low;  // Default fallback
-        
+
         foreach (var (level, threshold) in levels)
         {
             if (fps >= threshold)
@@ -285,7 +285,7 @@ public class GameLodManagerTests
     {
         // Verify that CpuType enum has expected values
         var cpuTypes = new[] { CpuType.P3, CpuType.P4, CpuType.K7 };
-        
+
         Assert.Equal(3, cpuTypes.Length);
     }
 
@@ -300,7 +300,7 @@ public class GameLodManagerTests
             GpuType.R100,
             GpuType.GF3
         };
-        
+
         Assert.Equal(4, gpuTypes.Length);
     }
 
@@ -309,7 +309,7 @@ public class GameLodManagerTests
     {
         // Verify that LodType enum has expected LOD levels
         var lodTypes = new[] { LodType.Low, LodType.Medium, LodType.High, LodType.VeryHigh };
-        
+
         Assert.Equal(4, lodTypes.Length);
     }
 }

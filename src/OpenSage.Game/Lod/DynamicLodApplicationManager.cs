@@ -7,13 +7,13 @@ namespace OpenSage.Lod;
 
 /// <summary>
 /// Manages dynamic LOD adjustments based on FPS performance.
-/// 
+///
 /// Implements the EA GameLODManager algorithm:
 /// - Rolling average FPS calculation (30-frame history to filter spikes)
 /// - FPS-to-LOD-level mapping with hysteresis to prevent flickering
 /// - Skip mask application for particle/debris throttling
 /// - Game loop integration for real-time LOD adjustment
-/// 
+///
 /// References:
 /// - EA Header: references/generals_code/GeneralsMD/Code/GameEngine/Include/Common/GameLOD.h
 /// - EA Implementation: references/generals_code/GeneralsMD/Code/GameEngine/Source/Common/GameLOD.cpp
@@ -99,13 +99,13 @@ public class DynamicLodApplicationManager : IDisposable
     public DynamicLodApplicationManager(GameLodManager gameLodManager)
     {
         _gameLodManager = gameLodManager ?? throw new ArgumentNullException(nameof(gameLodManager));
-        
+
         // Initialize FPS history with sensible default (60 FPS)
         for (int i = 0; i < FpsHistorySize; i++)
         {
             _fpsHistory.Enqueue(1.0f / 60.0f);
         }
-        
+
         // Start at VeryHigh LOD
         _lastAppliedDynamicLod = _gameLodManager.CurrentDynamicLod;
     }
@@ -113,7 +113,7 @@ public class DynamicLodApplicationManager : IDisposable
     /// <summary>
     /// Update frame time and optionally recalculate dynamic LOD level.
     /// Call this once per render frame from the game loop.
-    /// 
+    ///
     /// Algorithm:
     /// 1. Accept frame time only if under MaximumFrameTimeCutoff (filter spikes)
     /// 2. Add to rolling history, remove oldest if full
@@ -245,7 +245,7 @@ public class DynamicLodApplicationManager : IDisposable
         {
             _fpsHistory.Enqueue(1.0f / 60.0f);
         }
-        
+
         _averageFps = 60.0f;
         _lodUpdateAccumulator = 0;
         _lastAppliedDynamicLod = _gameLodManager.CurrentDynamicLod;

@@ -20,7 +20,7 @@
 ## Deliverables
 
 ### 1. ✅ Phase 4 Comprehensive Analysis
-**File**: [PHASE04_OPTIMIZATION_ANALYSIS.md](docs/PLANNING/phases/PHASE04_OPTIMIZATION_ANALYSIS.md)
+**File**: [PHASE04_OPTIMIZATION_ANALYSIS.md](docs/WORKDIR/phases/PHASE04_OPTIMIZATION_ANALYSIS.md)
 
 **Contents**:
 - Executive summary of all 4 Phase 4 plans
@@ -90,7 +90,7 @@ PerfGather.Profile("Parent", () => {
 - Error handling tests
 
 ### 5. ✅ PLAN-015 Specification Document
-**File**: [PLAN-015_PROFILING_FRAMEWORK.md](docs/PLANNING/phases/PLAN-015_PROFILING_FRAMEWORK.md)
+**File**: [PLAN-015_PROFILING_FRAMEWORK.md](docs/WORKDIR/planning/PLAN-015_PROFILING_FRAMEWORK.md)
 
 **Contents**:
 - Implementation status overview

@@ -297,7 +297,7 @@ docs: update PHASE01_MAP_RENDERING to mark PLAN-006 complete
 Created:
   ├─ src/OpenSage.Game/Terrain/WaveSimulation.cs (190 lines)
   ├─ src/OpenSage.Game.Tests/Terrain/WaveSimulationTests.cs (218 lines)
-  └─ docs/ETC/SESSION_REPORTS/PHASE01_SESSION2_WAVE_ANIMATION_COMPLETE.md
+  └─ docs/WORKDIR/reports/PHASE01_SESSION2_WAVE_ANIMATION_COMPLETE.md
 
 Modified:
   ├─ src/OpenSage.Game/Terrain/WaterArea.cs (+27 lines)

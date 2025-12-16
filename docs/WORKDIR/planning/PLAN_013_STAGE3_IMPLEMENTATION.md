@@ -208,7 +208,7 @@ public sealed class MappedImageSampleTests
 ### Files Created
 1. ✅ `Data/INI/MappedImages/TextureSize_512/Sample_UI_Buttons.ini` - 5 sample definitions
 2. ✅ `src/OpenSage.Game.Tests/Gui/MappedImageSampleTests.cs` - Unit tests
-3. ✅ `docs/ETC/PLAN_013_STAGE3_SAMPLES.md` - Developer guide
+3. ✅ `docs/WORKDIR/support/PLAN_013_STAGE3_SAMPLES.md` - Developer guide
 
 ### Build Status
 - ✅ Clean compilation (no new errors)

@@ -123,7 +123,7 @@ Recommendations:
 - Performance targets and benchmarking approach
 
 #### Document 2: Validation and Testing Guide
-**File**: [docs/ETC/PLAN_013_VALIDATION.md](docs/ETC/PLAN_013_VALIDATION.md)
+**File**: [docs/WORKDIR/planning/PLAN-013_VALIDATION.md](docs/WORKDIR/planning/PLAN-013_VALIDATION.md)
 
 **Contents**:
 - Success criteria and metrics
@@ -282,7 +282,7 @@ BenchmarkReport generated with metrics
 ### Created (4 files)
 1. ✅ `src/OpenSage.Game/Gui/TextureAtlasing/TextureAtlasingBenchmark.cs` (330 lines)
 2. ✅ `docs/ETC/TEXTURE_ATLASING_GUIDE.md` (225 lines)
-3. ✅ `docs/ETC/PLAN_013_VALIDATION.md` (185 lines)
+3. ✅ `docs/WORKDIR/planning/PLAN-013_VALIDATION.md` (185 lines)
 
 ### Modified (1 file)
 1. ✅ `src/OpenSage.Game/Gui/DrawingContext2D.cs` (added integration hooks)

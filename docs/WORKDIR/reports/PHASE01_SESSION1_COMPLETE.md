@@ -207,7 +207,7 @@ The emission volumes were already mostly implemented! The structure was in place
    - 11 unit tests
    - ~350 lines of test code
 
-3. **Updated**: `docs/PLANNING/phases/PHASE01_MAP_RENDERING.md`
+3. **Updated**: `docs/WORKDIR/phases/PHASE01_MAP_RENDERING.md`
    - Marked PLAN-001 as COMPLETED
    - Added implementation details
    - Updated acceptance criteria

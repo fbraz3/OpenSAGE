@@ -7,13 +7,13 @@ namespace OpenSage.Lod;
 
 /// <summary>
 /// Manages the Level of Detail (LOD) system for dynamic quality adjustment.
-/// 
+///
 /// Implements the EA GameLODManager algorithm:
 /// - Hardware detection for initial static LOD selection
 /// - Preset-based LOD matching with 6% error tolerance
 /// - FPS-based dynamic LOD adjustment
 /// - Particle/debris skip mask generation (counter-based)
-/// 
+///
 /// References:
 /// - EA Header: references/generals_code/GeneralsMD/Code/GameEngine/Include/Common/GameLOD.h
 /// - EA Implementation: references/generals_code/GeneralsMD/Code/GameEngine/Source/Common/GameLOD.cpp
@@ -159,12 +159,12 @@ public class GameLodManager : IDisposable
     /// <summary>
     /// Find the optimal static LOD level for the current hardware.
     /// Implements EA's preset matching algorithm with 6% error tolerance.
-    /// 
+    ///
     /// Algorithm:
     /// 1. Try to match detected hardware to a BenchProfile (with tolerance)
     /// 2. For each matching profile, check LOD presets from HIGH→LOW
     /// 3. Return the highest LOD level that matches the hardware
-    /// 
+    ///
     /// Returns: Highest matching LOD level, or Medium as fallback
     /// </summary>
     public LodType FindStaticLodLevel()
@@ -278,7 +278,7 @@ public class GameLodManager : IDisposable
     /// <summary>
     /// Find the optimal dynamic LOD level based on current FPS.
     /// Uses FPS thresholds from dynamic LOD definitions.
-    /// 
+    ///
     /// Returns the highest dynamic LOD level whose minimum FPS is less than current FPS.
     /// </summary>
     public LodType FindDynamicLodLevel(float averageFps)
@@ -351,10 +351,10 @@ public class GameLodManager : IDisposable
 
     /// <summary>
     /// Check if a particle should be skipped based on dynamic LOD skip mask.
-    /// 
+    ///
     /// Implements EA's bitmask algorithm:
     /// Increment counter and check if (counter & mask) == mask
-    /// 
+    ///
     /// Example masks:
     /// - 0x00000000: render all particles (no skipping)
     /// - 0x00000003: render 1 of 4 particles (skip 3 of 4)

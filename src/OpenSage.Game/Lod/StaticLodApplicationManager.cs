@@ -5,7 +5,7 @@ namespace OpenSage.Lod;
 /// <summary>
 /// Applies static LOD settings to GameData.
 /// Based on EA's GameLODManager::applyStaticLODLevel() implementation.
-/// 
+///
 /// This manager is responsible for:
 /// - Updating GameData with LOD settings that OpenSAGE supports
 /// - Adjusting texture resolution/mipmaps
@@ -32,7 +32,7 @@ public class StaticLodApplicationManager : IDisposable
     /// <summary>
     /// Apply a static LOD level to all game systems.
     /// Updates GameData properties that control rendering detail.
-    /// 
+    ///
     /// Settings applied:
     /// 1. Maximum particle count (restricts GPU workload)
     /// 2. Shadow volume/decal settings (lighting detail)

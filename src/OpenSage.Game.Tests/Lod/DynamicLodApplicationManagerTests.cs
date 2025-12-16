@@ -7,7 +7,7 @@ namespace OpenSage.Tests.Lod;
 
 /// <summary>
 /// Unit tests for DynamicLodApplicationManager.
-/// 
+///
 /// Tests focus on:
 /// - FPS history tracking and rolling average calculation
 /// - Spike filtering (frame times > 500ms ignored)
@@ -36,7 +36,7 @@ public class DynamicLodApplicationManagerTests
     public void Constructor_WithValidGameLodManager_Succeeds()
     {
         var manager = new DynamicLodApplicationManager(_gameLodManager);
-        
+
         Assert.NotNull(manager);
         Assert.Equal(60.0f, manager.CurrentAverageFps, 1);  // Default 60 FPS
         Assert.Equal(LodType.VeryHigh, manager.LastAppliedDynamicLod);
@@ -48,9 +48,9 @@ public class DynamicLodApplicationManagerTests
     [Fact]
     public void Constructor_WithNullGameLodManager_ThrowsArgumentNullException()
     {
-        var ex = Assert.Throws<ArgumentNullException>(() => 
+        var ex = Assert.Throws<ArgumentNullException>(() =>
             new DynamicLodApplicationManager(null!));
-        
+
         Assert.Equal("gameLodManager", ex.ParamName);
     }
 
@@ -72,7 +72,7 @@ public class DynamicLodApplicationManagerTests
     {
         var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
             _manager.Update(0));
-        
+
         Assert.Equal("deltaTimeSeconds", ex.ParamName);
     }
 
@@ -84,7 +84,7 @@ public class DynamicLodApplicationManagerTests
     {
         var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
             _manager.Update(-0.016f));
-        
+
         Assert.Equal("deltaTimeSeconds", ex.ParamName);
     }
 
@@ -95,10 +95,10 @@ public class DynamicLodApplicationManagerTests
     public void Update_WithFrameTimeSpike_IsFiltered()
     {
         var initialFps = _manager.CurrentAverageFps;
-        
+
         // 600ms frame time = 1.67 FPS (spike)
         _manager.Update(0.6f);
-        
+
         // FPS should remain at ~60 FPS since spike was filtered
         Assert.Equal(initialFps, _manager.CurrentAverageFps, 0);
     }
@@ -115,7 +115,7 @@ public class DynamicLodApplicationManagerTests
         {
             _manager.Update(frameTime);
         }
-        
+
         // Average should converge to 30 FPS
         Assert.InRange(_manager.CurrentAverageFps, 29.0f, 31.0f);
     }
@@ -131,10 +131,10 @@ public class DynamicLodApplicationManagerTests
         {
             _manager.Update(1.0f / 60.0f);
         }
-        
+
         // Get diagnostics to check history size
         var diag = _manager.GetDiagnostics();
-        
+
         // Should only have 30 frames in history
         Assert.Equal(30, diag.FpsHistorySize);
     }
@@ -150,9 +150,9 @@ public class DynamicLodApplicationManagerTests
         {
             _manager.Update(1.0f / 60.0f);
         }
-        
+
         var diag = _manager.GetDiagnostics();
-        
+
         // Accumulator should have reset (remaining should be < 1.0)
         // Due to timing, it should be small
         Assert.InRange(diag.LodUpdateIntervalRemaining, 0, 1.0f);
@@ -189,7 +189,7 @@ public class DynamicLodApplicationManagerTests
     public void GetDiagnostics_ReturnsValidData()
     {
         var diag = _manager.GetDiagnostics();
-        
+
         Assert.NotNull(diag);
         Assert.True(diag.AverageFps > 0);
         Assert.Equal(LodType.VeryHigh, diag.LastAppliedDynamicLod);
@@ -205,10 +205,10 @@ public class DynamicLodApplicationManagerTests
         // Manually update to change state
         _manager.Update(1.0f / 30.0f);  // 30 FPS
         _manager.SetDynamicLodLevel(LodType.Low);
-        
+
         // Reset
         _manager.Reset();
-        
+
         // Should be back to defaults
         Assert.InRange(_manager.CurrentAverageFps, 59.0f, 61.0f);  // ~60 FPS
         Assert.Equal(LodType.VeryHigh, _manager.LastAppliedDynamicLod);
@@ -222,7 +222,7 @@ public class DynamicLodApplicationManagerTests
     {
         var particleMask = _manager.GetParticleSkipMask();
         var debrisMask = _manager.GetDebrisSkipMask();
-        
+
         // Should be non-negative integers
         Assert.True(particleMask >= 0);
         Assert.True(debrisMask >= 0);
@@ -251,8 +251,8 @@ public class DynamicLodApplicationManagerTests
 
         // Trigger LOD update interval
         _manager.Update(1.0f);
-        
-        // Change FPS significantly (drop to 10 FPS) 
+
+        // Change FPS significantly (drop to 10 FPS)
         for (int i = 0; i < 60; i++)
         {
             _manager.Update(1.0f / 10.0f);
@@ -281,13 +281,13 @@ public class DynamicLodApplicationManagerTests
 
         // Allow time accumulator to reach interval threshold
         _manager.Update(1.0f);  // Triggers LOD update check
-        
+
         // Now drop to 20 FPS (50ms frame time) for 60+ frames
         for (int i = 0; i < 60; i++)
         {
             _manager.Update(1.0f / 20.0f);
         }
-        
+
         // With FPS dropping to 20, LOD should adjust downward (event may fire)
         // Exact behavior depends on LOD thresholds in test GameLodManager
         Assert.InRange(_manager.CurrentAverageFps, 15.0f, 25.0f);
@@ -304,7 +304,7 @@ public class DynamicLodApplicationManagerTests
         {
             _manager.Update(1.0f / 60.0f);
         }
-        
+
         // Should still be valid
         Assert.InRange(_manager.CurrentAverageFps, 59.0f, 61.0f);
     }
@@ -318,7 +318,7 @@ public class DynamicLodApplicationManagerTests
         // Create a new GameLodManager without calling Initialize
         // (which requires AssetStore setup)
         var manager = new GameLodManager();
-        
+
         // The manager should work with default state for testing
         // Just using it for interface compatibility
         return manager;

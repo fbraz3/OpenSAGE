@@ -165,17 +165,17 @@
 
 ## Files Created
 
-1. **docs/ETC/PLAN-013-014_ANALYSIS.md** (420 lines)
+1. **docs/WORKDIR/planning/PLAN-013-014_ANALYSIS.md** (420 lines)
    - Research findings
    - Architecture overview
    - Dependency analysis
 
-2. **docs/ETC/PLAN-013_DETAILED.md** (380 lines)
+2. **docs/WORKDIR/planning/PLAN-013_DETAILED.md** (380 lines)
    - Implementation plan
    - 26-item checklist
    - File structure & integration points
 
-3. **docs/ETC/PLAN-014_DETAILED.md** (520 lines)
+3. **docs/WORKDIR/planning/PLAN-014_DETAILED.md** (520 lines)
    - Implementation plan
    - 37-item checklist
    - INI configuration examples
@@ -196,7 +196,7 @@
 ## Next Steps (When Ready to Implement)
 
 ### PLAN-013 Start
-1. Review `docs/ETC/PLAN-013_DETAILED.md` checklist
+1. Review `docs/WORKDIR/planning/PLAN-013_DETAILED.md` checklist
 2. Create `TextureAtlasImage` class
 3. Create `TextureAtlasImageCollection` class
 4. Implement INI parsing
@@ -206,7 +206,7 @@
 **Estimated**: 2-3 days
 
 ### PLAN-014 Start (After PLAN-013)
-1. Review `docs/ETC/PLAN-014_DETAILED.md` checklist
+1. Review `docs/WORKDIR/planning/PLAN-014_DETAILED.md` checklist
 2. Verify/enhance LOD infrastructure
 3. Implement hardware detection
 4. Implement texture reduction
@@ -254,7 +254,7 @@ references/generals_code/GeneralsMD/Code/GameEngine/
 4. "What asset streaming or LOD system exists in OpenSAGE?"
 
 ### Documentation Created
-- docs/ETC/PLAN-013-014_ANALYSIS.md
-- docs/ETC/PLAN-013_DETAILED.md
-- docs/ETC/PLAN-014_DETAILED.md
+- docs/WORKDIR/planning/PLAN-013-014_ANALYSIS.md
+- docs/WORKDIR/planning/PLAN-013_DETAILED.md
+- docs/WORKDIR/planning/PLAN-014_DETAILED.md
 
