@@ -25,6 +25,7 @@ using OpenSage.Input.Cursors;
 using OpenSage.IO;
 using OpenSage.Logic;
 using OpenSage.Logic.Map;
+using OpenSage.Lod;
 using OpenSage.Mathematics;
 using OpenSage.Network;
 using OpenSage.Rendering;
@@ -89,6 +90,18 @@ public sealed class Game : DisposableBase, IGame
     /// Gets the audio system
     /// </summary>
     public AudioSystem Audio { get; }
+
+    /// <summary>
+    /// Gets the LOD (Level of Detail) manager.
+    /// Manages static LOD selection based on hardware capabilities and dynamic LOD based on FPS.
+    /// </summary>
+    public GameLodManager LodManager { get; }
+
+    /// <summary>
+    /// Gets the dynamic LOD application manager.
+    /// Monitors FPS and adjusts dynamic LOD levels for real-time performance optimization.
+    /// </summary>
+    public DynamicLodApplicationManager DynamicLodManager { get; }
 
     public GameState GameState { get; } = new GameState();
 
@@ -511,6 +524,15 @@ public sealed class Game : DisposableBase, IGame
             GameSystems = new List<GameSystem>();
 
             Audio = AddDisposable(new AudioSystem(this));
+
+            // Initialize LOD (Level of Detail) system
+            // GameLodManager handles hardware detection and LOD selection
+            LodManager = AddDisposable(new GameLodManager());
+            LodManager.Initialize(AssetStore);
+
+            // DynamicLodApplicationManager handles FPS-based LOD adjustments
+            // Call Update(deltaTime) in the render loop to monitor FPS and adjust LOD
+            DynamicLodManager = AddDisposable(new DynamicLodApplicationManager(LodManager));
 
             Graphics = AddDisposable(new GraphicsSystem(this));
 

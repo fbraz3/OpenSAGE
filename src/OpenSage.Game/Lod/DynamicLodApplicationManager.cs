@@ -20,7 +20,7 @@ namespace OpenSage.Lod;
 /// - updateAverageFPS(): lines 805-830 (W3DDisplay.cpp)
 /// - applyDynamicLODLevel(): lines 670-680 (GameLOD.cpp)
 /// </summary>
-public class DynamicLodApplicationManager
+public class DynamicLodApplicationManager : IDisposable
 {
     /// <summary>
     /// Number of FPS measurements to keep in rolling average (filters temporary spikes).
@@ -264,6 +264,15 @@ public class DynamicLodApplicationManager
         FpsHistorySize = _fpsHistory.Count,
         LodUpdateIntervalRemaining = LodUpdateInterval - _lodUpdateAccumulator,
     };
+
+    /// <summary>
+    /// Dispose resources (none for now, but required by IDisposable interface).
+    /// </summary>
+    public void Dispose()
+    {
+        // No unmanaged resources to dispose
+        GC.SuppressFinalize(this);
+    }
 }
 
 /// <summary>

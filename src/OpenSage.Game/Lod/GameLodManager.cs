@@ -18,7 +18,7 @@ namespace OpenSage.Lod;
 /// - EA Header: references/generals_code/GeneralsMD/Code/GameEngine/Include/Common/GameLOD.h
 /// - EA Implementation: references/generals_code/GeneralsMD/Code/GameEngine/Source/Common/GameLOD.cpp
 /// </summary>
-public class GameLodManager
+public class GameLodManager : IDisposable
 {
     /// <summary>
     /// 6% error tolerance when matching hardware to bench profiles and LOD presets.
@@ -409,6 +409,15 @@ public class GameLodManager
         ParticleSkipCounter = _particleSkipCounter,
         DebrisSkipCounter = _debrisSkipCounter
     };
+
+    /// <summary>
+    /// Dispose resources (none for now, but required by IDisposable interface).
+    /// </summary>
+    public void Dispose()
+    {
+        // No unmanaged resources to dispose
+        GC.SuppressFinalize(this);
+    }
 }
 
 /// <summary>

@@ -12,7 +12,7 @@ namespace OpenSage.Lod;
 /// - Adjusting particle limits
 /// - Applying shadow settings
 /// </summary>
-public class StaticLodApplicationManager
+public class StaticLodApplicationManager : IDisposable
 {
     private readonly GameData _gameData;
     private LodType _currentAppliedLod = LodType.Medium;
@@ -104,4 +104,13 @@ public class StaticLodApplicationManager
     /// Get the currently applied LOD level.
     /// </summary>
     public LodType CurrentAppliedLod => _currentAppliedLod;
+
+    /// <summary>
+    /// Dispose resources (none for now, but required by IDisposable interface).
+    /// </summary>
+    public void Dispose()
+    {
+        // No unmanaged resources to dispose
+        GC.SuppressFinalize(this);
+    }
 }
