@@ -62,6 +62,7 @@ internal sealed class WndInputMessageHandler : InputMessageHandler
                                 control,
                                 new WndWindowMessage(WndWindowMessageType.MouseExit, control),
                                 context);
+                            _windowManager.TooltipManager.OnMouseLeave();
                         }
                     }
                     foreach (var control in mouseOverControls)
@@ -72,11 +73,14 @@ internal sealed class WndInputMessageHandler : InputMessageHandler
                                 control,
                                 new WndWindowMessage(WndWindowMessageType.MouseEnter, control),
                                 context);
+                            _windowManager.TooltipManager.OnMouseEnter(control, message.Value.MousePosition, gameTime);
                         }
                     }
 
                     _lastMouseOverControls.Clear();
                     _lastMouseOverControls.AddRange(mouseOverControls);
+
+                    _windowManager.TooltipManager.OnMouseMove(message.Value.MousePosition);
 
                     foreach (var control in mouseOverControls)
                     {

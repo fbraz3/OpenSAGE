@@ -46,7 +46,14 @@ partial class Control
             result.DrawCallback = drawCallback;
         }
 
-        // TODO: TooltipCallback
+        var tooltipCallback = wndCallbackResolver.GetControlCallback(wndWindow.TooltipCallback);
+        if (tooltipCallback != null)
+        {
+            result.TooltipCallback = tooltipCallback;
+        }
+
+        result.TooltipText = wndWindow.TooltipText;
+        result.TooltipDelay = wndWindow.TooltipDelay;
 
         result.Visible = !wndWindow.Status.HasFlag(WndWindowStatusFlags.Hidden);
 

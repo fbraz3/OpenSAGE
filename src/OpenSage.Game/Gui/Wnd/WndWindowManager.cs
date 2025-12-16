@@ -7,7 +7,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Wnd;
 
-public sealed class WndWindowManager
+public sealed class WndWindowManager : DisposableBase
 {
     private readonly IGame _game;
 
@@ -16,6 +16,7 @@ public sealed class WndWindowManager
     internal Stack<Window> WindowStack { get; }
 
     public WindowTransitionManager TransitionManager { get; }
+    internal TooltipManager TooltipManager { get; }
     public Control FocussedControl { get; private set; }
 
     public Window TopWindow => WindowStack.Count > 0 ? WindowStack.Peek() : null;
@@ -24,6 +25,7 @@ public sealed class WndWindowManager
     {
         _game = game;
         WindowStack = new Stack<Window>();
+        TooltipManager = AddDisposable(new TooltipManager());
 
         game.InputMessageBuffer.Handlers.Add(new WndInputMessageHandler(this, _game));
 
@@ -166,6 +168,8 @@ public sealed class WndWindowManager
         {
             window.Update();
         }
+
+        TooltipManager.Update(gameTime);
     }
 
     internal void Render(DrawingContext2D drawingContext)
@@ -175,5 +179,9 @@ public sealed class WndWindowManager
         {
             window.Render(drawingContext);
         }
+
+        // Render tooltips on top of all windows
+        var viewportSize = new Size(_game.Panel.ClientBounds.Width, _game.Panel.ClientBounds.Height);
+        TooltipManager.Render(drawingContext, viewportSize);
     }
 }

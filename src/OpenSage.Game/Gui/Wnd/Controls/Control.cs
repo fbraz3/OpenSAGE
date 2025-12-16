@@ -13,6 +13,9 @@ public partial class Control : DisposableBase
     public ControlCallback TooltipCallback { get; set; }
     public ControlDrawCallback DrawCallback { get; set; }
 
+    public string TooltipText { get; set; }
+    public int TooltipDelay { get; set; }
+
     public Control Parent
     {
         get => ParentInternal;
