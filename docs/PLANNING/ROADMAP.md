@@ -3,7 +3,7 @@
 **Last Updated**: December 15, 2025 (23:00 UTC)  
 **Target Completion**: 12-16 weeks (3-4 months)  
 **Priority Focus**: Rendering (3 phases) + Game Logic (4 phases)  
-**Current Progress**: 10/15 Plans Complete (67%) - PLAN-015 Framework Complete
+**Current Progress**: 11/15 Plans Complete (73%) - PLAN-012 Stage 2 + PLAN-015 Integration Complete
 
 ---
 
@@ -78,12 +78,13 @@ Each phase has solid architectural foundations or is ready for implementation. F
 
 ### 💥 Particle Systems
 
-- **Status**: 🟢 85% complete (DRAWABLE + STREAK IMPLEMENTED)
+- **Status**: 🟢 90% complete (DRAWABLE + STREAK + BATCHING IMPLEMENTED)
 - **Key References**: [PHASE02_PARTICLE_SYSTEMS.md](phases/PHASE02_PARTICLE_SYSTEMS.md)
 - **Primary Files**:
   - `src/OpenSage.Game/Graphics/ParticleSystems/ParticleSystem.cs` ✅
-  - `src/OpenSage.Game/Graphics/ParticleSystems/ParticleSystemManager.cs`
+  - `src/OpenSage.Game/Graphics/ParticleSystems/ParticleSystemManager.cs` ✅ (Batching added)
   - `src/OpenSage.Game/Graphics/ParticleSystems/Particle.cs` ✅
+  - `src/OpenSage.Game/Graphics/Rendering/RenderPipeline.cs` ✅ (Batching integrated)
 
 ### 🎮 GUI/WND
 
@@ -219,10 +220,10 @@ For detailed implementation plans, see:
 
 ### Phase 4 Progress
 
-- [ ] PLAN-012: GPU sorting - 0%
-- [ ] PLAN-013: Texture atlasing - 0%
-- [ ] PLAN-014: Asset streaming - 0%
-- [x] PLAN-015: Performance profiling - 100% ✅ CORE FRAMEWORK COMPLETE
+- [x] PLAN-012: Particle Material Batching - 100% ✅ COMPLETE (Stage 2: Material-Based Batching + Integration + Profiling)
+- [ ] PLAN-013: Texture atlasing - 0% (Planned, not started)
+- [ ] PLAN-014: Asset streaming - 0% (Planned, not started)
+- [x] PLAN-015: Performance profiling - 100% ✅ COMPLETE (Framework + Game Loop Integration)
 
 ---
 
