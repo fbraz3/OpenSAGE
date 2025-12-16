@@ -10,34 +10,6 @@ namespace OpenSage.Content.Translation.Providers;
 
 public sealed class CsfTranslationProvider : ATranslationProviderBase
 {
-    private enum LanguageGenerals
-    {
-        [Display("en-US")] EnglishUS,
-        [Display("en-UK")] EnglishUK,
-        [Display("de-DE")] German,
-        [Display("fr-FR")] French,
-        [Display("es-ES")] Spanish,
-        [Display("it-IT")] Italian,
-        [Display("ja-JP")] Japanese,
-        [Display("en-US")] Jabber,
-        [Display("ko-KR")] Korean,
-        [Display("zh-Hant")] ChineseTraditional,
-        [Display("pl-PL")] Polish = 12,
-    }
-    private enum LanguageBFME
-    {
-        [Display("en-US")] English,
-        [Display("es-ES")] Spanish,
-        [Display("de-DE")] German = 3,
-        [Display("fr-FR")] French,
-        [Display("it-IT")] Italian,
-        [Display("nl-NL")] Dutch,
-        [Display("pl-PL")] Polish = 11,
-        [Display("nb-NO")] Norwegan,
-        [Display("zh-Hant")] ChineseTraditional,
-        [Display("ru-RU")] Russian = 17
-    }
-
     private class Csf
     {
         private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
@@ -78,26 +50,15 @@ public sealed class CsfTranslationProvider : ATranslationProviderBase
                 csf._numStrings = numStrings;
                 reader.ReadUInt32(); // reserved
                 var languageCode = reader.ReadUInt32();
-                string language;
-                switch (game)
+
+                // Use the dynamic language mapper instead of rigid enums
+                if (!LanguageMapper.TryMapLanguage(languageCode, game, out var language))
                 {
-                    case SageGame.CncGenerals:
-                    case SageGame.CncGeneralsZeroHour:
-                        language = ((LanguageGenerals)languageCode).GetName();
-                        break;
-                    case SageGame.Bfme:
-                    case SageGame.Bfme2:
-                    case SageGame.Bfme2Rotwk:
-                        language = ((LanguageBFME)languageCode).GetName();
-                        break;
-                    default:
-                        throw new InvalidOperationException();
+                    // Logger message is already handled by LanguageMapper.TryMapLanguage
+                    // but we ensure we have a valid language
+                    language ??= "en-US";
                 }
-                if (language is null)
-                {
-                    language = "en-US";
-                    Logger.Warn($"Unknown language id {languageCode} for game {game}.");
-                }
+
                 csf._language = language;
                 string label;
                 int strCount;
