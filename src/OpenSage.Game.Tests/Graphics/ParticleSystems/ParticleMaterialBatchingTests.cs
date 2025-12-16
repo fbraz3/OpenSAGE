@@ -223,7 +223,7 @@ public class ParticleMaterialBatchingTests
     {
         // Arrange - create 8 unique keys by varying each bit
         var baseKey = new ParticleMaterialKey(ParticleSystemShader.Alpha, false, "tex");
-        
+
         var shaderKey = new ParticleMaterialKey(ParticleSystemShader.Additive, false, "tex");
         var alignKey = new ParticleMaterialKey(ParticleSystemShader.Alpha, true, "tex");
         var textureKey = new ParticleMaterialKey(ParticleSystemShader.Alpha, false, "tex2");

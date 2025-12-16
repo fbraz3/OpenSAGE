@@ -31,7 +31,7 @@ public class ParticleSystemManagerSortingTests
             (ParticleSystemPriority.AlwaysRender, "AlwaysRenderFX"),       // Priority 13 (high)
             (ParticleSystemPriority.Buildup, "BuildupFX"),                 // Priority 4
         };
-        
+
         // Act
         systems.Sort((a, b) =>
         {
@@ -42,14 +42,14 @@ public class ParticleSystemManagerSortingTests
             }
             return priorityComparison;
         });
-        
+
         // Assert - should be sorted by priority descending
         Assert.Equal(3, systems.Count);
         Assert.Equal(ParticleSystemPriority.AlwaysRender, systems[0].priority);
         Assert.Equal(ParticleSystemPriority.Buildup, systems[1].priority);
         Assert.Equal(ParticleSystemPriority.ScorchMark, systems[2].priority);
     }
-    
+
     /// <summary>
     /// Test that particle systems with the same priority are sorted by name (stable sort).
     /// </summary>
@@ -63,7 +63,7 @@ public class ParticleSystemManagerSortingTests
             (ParticleSystemPriority.Constant, "AppleSmoke"),         // Same priority
             (ParticleSystemPriority.Constant, "MonkeyDust"),         // Same priority
         };
-        
+
         // Act
         systems.Sort((a, b) =>
         {
@@ -74,14 +74,14 @@ public class ParticleSystemManagerSortingTests
             }
             return priorityComparison;
         });
-        
+
         // Assert - should be sorted alphabetically by name
         Assert.Equal(3, systems.Count);
         Assert.Equal("AppleSmoke", systems[0].name);
         Assert.Equal("MonkeyDust", systems[1].name);
         Assert.Equal("ZebraExplosion", systems[2].name);
     }
-    
+
     /// <summary>
     /// Test comprehensive sorting with mixed priorities and names.
     /// Primary sort: priority (descending)
@@ -99,7 +99,7 @@ public class ParticleSystemManagerSortingTests
             (ParticleSystemPriority.DustTrail, "Monkey"),             // Medium priority
             (ParticleSystemPriority.WeaponExplosion, "Zebra2"),       // Low priority (same as second)
         };
-        
+
         // Act
         systems.Sort((a, b) =>
         {
@@ -110,31 +110,31 @@ public class ParticleSystemManagerSortingTests
             }
             return priorityComparison;
         });
-        
+
         // Assert
         // Expected order:
         // AreaEffect (11): Alpha, Zebra (alphabetical within priority)
         // DustTrail (4): Monkey
         // WeaponExplosion (1): Apple, Zebra2 (alphabetical within priority)
         Assert.Equal(5, systems.Count);
-        
+
         // AreaEffect items (highest priority)
         Assert.Equal(ParticleSystemPriority.AreaEffect, systems[0].priority);
         Assert.Equal("Alpha", systems[0].name);
         Assert.Equal(ParticleSystemPriority.AreaEffect, systems[1].priority);
         Assert.Equal("Zebra", systems[1].name);
-        
+
         // DustTrail item (medium priority)
         Assert.Equal(ParticleSystemPriority.DustTrail, systems[2].priority);
         Assert.Equal("Monkey", systems[2].name);
-        
+
         // WeaponExplosion items (lowest priority)
         Assert.Equal(ParticleSystemPriority.WeaponExplosion, systems[3].priority);
         Assert.Equal("Apple", systems[3].name);
         Assert.Equal(ParticleSystemPriority.WeaponExplosion, systems[4].priority);
         Assert.Equal("Zebra2", systems[4].name);
     }
-    
+
     /// <summary>
     /// Test that priority ordering matches EA Generals' hierarchy.
     /// AlwaysRender should have highest priority (render first).
@@ -150,10 +150,10 @@ public class ParticleSystemManagerSortingTests
             ParticleSystemPriority.Critical,          // 12 (near-highest)
             ParticleSystemPriority.WeaponExplosion,   // 1 (low)
         };
-        
+
         // Act
         priorities.Sort((a, b) => b.CompareTo(a)); // Descending
-        
+
         // Assert
         Assert.Equal(4, priorities.Count);
         Assert.Equal(ParticleSystemPriority.AlwaysRender, priorities[0]);

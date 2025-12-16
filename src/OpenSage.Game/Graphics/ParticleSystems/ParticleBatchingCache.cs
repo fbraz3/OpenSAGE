@@ -38,7 +38,7 @@ internal sealed class ParticleBatchingCache
 
     /// <summary>
     /// Gets or updates the cached batch groups.
-    /// 
+    ///
     /// Algorithm:
     /// 1. If cache is clean, return cached groups (O(1) access)
     /// 2. If cache is dirty, recompute from grouping algorithm (O(n) where n = system count)

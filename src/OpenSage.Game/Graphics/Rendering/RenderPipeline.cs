@@ -117,6 +117,12 @@ internal sealed class RenderPipeline : DisposableBase
             context.Scene3D?.Camera,
             context.GameTime));
 
+        // PLAN-012 Stage 2: Setup material-based batching for particle systems
+        // Must be called after BuildRenderList() but before rendering
+        // Reduces draw calls from ~50-100 to ~15-40 by grouping systems with identical materials
+        // Reference: EA Generals dx8renderer.h line 78 - TextureCategory batching
+        context.Scene3D?.ParticleSystemManager.SetupBatchRendering();
+
         _commandList.Begin();
 
         if (context.Scene3D != null)

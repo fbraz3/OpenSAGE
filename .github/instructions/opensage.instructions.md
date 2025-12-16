@@ -15,6 +15,9 @@ If the user request is "resume" or "continue" or "try again", check the previous
 
 Take your time and think through every step - remember to check your solution rigorously and watch out for boundary cases, especially with the changes you made.
 
+W3D assets specifications can be found in this URL:
+https://openw3ddocs.readthedocs.io/en/latest/file-formats/w3d/index.html
+
 Original assets are under these folders (if available on the user's system):
 - `$HOME/GeneralsX/Generals/` - base game
 - `$HOME/GeneralsX/GeneralsMD/` - expansion pack
