@@ -214,4 +214,4 @@ File.WriteAllText("render_profile.txt", statistics.ToString());
 
 - SAGE Engine Texture Management: [W3D Format Specs](https://openw3ddocs.readthedocs.io/)
 - Original Generals Code: `references/generals_code/`
-- Related PLAN Documents: `docs/PLANNING/phases/PLAN-013_TextureAtlasing.md`
+- Related PLAN Documents: [PLAN-013_DETAILED.md](../planning/PLAN-013_DETAILED.md)

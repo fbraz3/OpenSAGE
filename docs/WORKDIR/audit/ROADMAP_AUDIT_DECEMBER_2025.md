@@ -94,8 +94,8 @@ After a comprehensive audit of the codebase, documentation, and session reports,
 | PLAN-015 | Performance Profiling Framework | ✅ COMPLETE | Hierarchical profiling (PerfTimer/PerfGather), 17/17 tests passing, integrated into Game.cs + GraphicsSystem | Ready for validation |
 
 **Key Documents**:
-- [PLAN-012_STAGE2_IMPLEMENTATION_COMPLETE.md](PLAN-012_STAGE2_IMPLEMENTATION_COMPLETE.md) - Complete batching implementation details
-- [PLAN-015_INTEGRATION_COMPLETE.md](../PLANNING/phases/PLAN-015_INTEGRATION_COMPLETE.md) - Profiling framework integration
+- [PLAN-012_STAGE2_IMPLEMENTATION_COMPLETE.md](../planning/PLAN-012_STAGE2_IMPLEMENTATION_COMPLETE.md) - Complete batching implementation details
+- [PLAN-015_PROFILING_FRAMEWORK.md](../planning/PLAN-015_PROFILING_FRAMEWORK.md) - Profiling framework specification
 - [PHASE04_OPTIMIZATION_ANALYSIS.md](phases/PHASE04_OPTIMIZATION_ANALYSIS.md) - Optimization research
 
 **Code Evidence**:
@@ -265,9 +265,9 @@ With rendering complete, the project is well-positioned to:
 - [PHASE03_GUI_RENDERING.md](phases/PHASE03_GUI_RENDERING.md)
 - [PHASE04_OPTIMIZATION_ANALYSIS.md](phases/PHASE04_OPTIMIZATION_ANALYSIS.md)
 
-**Session Reports**:
-- [PLAN-012_STAGE2_IMPLEMENTATION_COMPLETE.md](PLAN-012_STAGE2_IMPLEMENTATION_COMPLETE.md)
-- [PLAN-015_INTEGRATION_COMPLETE.md](../PLANNING/phases/PLAN-015_INTEGRATION_COMPLETE.md)
+**Planning Documents**:
+- [PLAN-012_STAGE2_IMPLEMENTATION_COMPLETE.md](../planning/PLAN-012_STAGE2_IMPLEMENTATION_COMPLETE.md)
+- [PLAN-015_PROFILING_FRAMEWORK.md](../planning/PLAN-015_PROFILING_FRAMEWORK.md)
 
 **Development Blog**:
 - [2024-12-DIARY.md](../DEV_BLOG/2024-12-DIARY.md)

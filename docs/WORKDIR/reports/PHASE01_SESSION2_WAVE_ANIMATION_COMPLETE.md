@@ -303,7 +303,7 @@ Modified:
   ├─ src/OpenSage.Game/Terrain/WaterArea.cs (+27 lines)
   ├─ src/OpenSage.Game/Terrain/WaterAreaCollection.cs (+44 lines)
   ├─ src/OpenSage.Game/Scene3D.cs (+3 lines)
-  └─ docs/PLANNING/phases/PHASE01_MAP_RENDERING.md (updated PLAN-006 status)
+  └─ docs/WORKDIR/phases/PHASE01_MAP_RENDERING.md (updated PLAN-006 status)
 ```
 
 ---

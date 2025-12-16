@@ -101,7 +101,7 @@ PerfGather.Profile("Parent", () => {
 - ~430 lines of documentation
 
 ### 6. ✅ Updated ROADMAP
-**File**: [ROADMAP.md](docs/PLANNING/ROADMAP.md)
+**File**: [ROADMAP.md](docs/WORKDIR/planning/ROADMAP.md)
 
 **Changes**:
 - Progress: 9/15 → 10/15 (60% → 67%)

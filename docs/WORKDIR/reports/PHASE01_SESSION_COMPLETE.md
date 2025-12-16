@@ -144,7 +144,7 @@ This session focused on completing all Phase 1 "quick win" tasks for the OpenSAG
 
 ## Documentation Updates
 
-### Phase 1 Document (`docs/PLANNING/phases/PHASE01_MAP_RENDERING.md`)
+### Phase 1 Document (`docs/WORKDIR/phases/PHASE01_MAP_RENDERING.md`)
 - **Fixed**: Task numbering errors (Water System now correctly labeled as Task 4 instead of Task 3)
 - **Updated**: Phase status from "Planning" to "75% Complete - Quick Wins Done"
 - **Added**: Comprehensive documentation for all 4 quick-win tasks
