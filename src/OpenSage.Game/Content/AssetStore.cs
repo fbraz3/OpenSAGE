@@ -10,6 +10,7 @@ using OpenSage.Gui;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.InGame;
+using OpenSage.Gui.TextureAtlasing;
 using OpenSage.Gui.Wnd.Transitions;
 using OpenSage.Input;
 using OpenSage.Input.Cursors;
@@ -132,6 +133,7 @@ public sealed class AssetStore
     public ScopedAssetCollection<LodPreset> LodPresets { get; }
     public ScopedAssetCollection<MapCache> MapCaches { get; }
     public ScopedAssetCollection<MappedImage> MappedImages { get; }
+    public TextureAtlasImageCollection? TextureAtlasImages { get; private set; }
     public ScopedAssetCollection<MeshNameMatches> MeshNameMatches { get; }
     public ScopedAssetCollection<Model> Models { get; }
     public ScopedAssetCollection<Graphics.Animation.W3DAnimation> ModelAnimations { get; }
@@ -301,6 +303,10 @@ public sealed class AssetStore
         AddAssetCollection(LodPresets = new ScopedAssetCollection<LodPreset>(this));
         AddAssetCollection(MapCaches = new ScopedAssetCollection<MapCache>(this));
         AddAssetCollection(MappedImages = new ScopedAssetCollection<MappedImage>(this));
+        
+        // Initialize texture atlas image collection after MappedImages is loaded
+        TextureAtlasImages = new TextureAtlasImageCollection(MappedImages);
+        
         AddAssetCollection(MeshNameMatches = new ScopedAssetCollection<MeshNameMatches>(this));
         AddAssetCollection(Models = new ScopedAssetCollection<Model>(this, loadStrategy.CreateModelLoader()));
         AddAssetCollection(ModelAnimations = new ScopedAssetCollection<Graphics.Animation.W3DAnimation>(this, loadStrategy.CreateAnimationLoader()));
