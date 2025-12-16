@@ -786,7 +786,7 @@ public sealed class Game : DisposableBase, IGame
         Audio.StopCurrentMusicTrack();
 
         // Remove input handlers before disposing Scene3D
-        InputMessageBuffer.Handlers.RemoveAll(h => 
+        InputMessageBuffer.Handlers.RemoveAll(h =>
             h is SelectionInputHandler || h is GameLogicInputHandler);
 
         Scene3D.Dispose();

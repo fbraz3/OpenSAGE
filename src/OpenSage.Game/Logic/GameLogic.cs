@@ -158,19 +158,19 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
     {
         var result = new List<GameObject>();
         var radiusSq = radius * radius;
-        
+
         foreach (var gameObject in Objects)
         {
             if (gameObject == null || gameObject.IsEffectivelyDead)
                 continue;
-            
+
             var distanceSq = Vector3.DistanceSquared(gameObject.Translation, center);
             if (distanceSq <= radiusSq)
             {
                 result.Add(gameObject);
             }
         }
-        
+
         return result;
     }
 
@@ -180,18 +180,18 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
     public List<GameObject> GetObjectsByPlayer(Player player)
     {
         var result = new List<GameObject>();
-        
+
         foreach (var gameObject in Objects)
         {
             if (gameObject == null || gameObject.IsEffectivelyDead)
                 continue;
-            
+
             if (gameObject.Owner == player)
             {
                 result.Add(gameObject);
             }
         }
-        
+
         return result;
     }
 
