@@ -369,4 +369,3 @@ Scripting/Campaign      LOW           HIGH   Not required
 6. **Week 6**: Deployment-ready MVP
 
 **Target**: Playable skirmish game by end of Week 5
-

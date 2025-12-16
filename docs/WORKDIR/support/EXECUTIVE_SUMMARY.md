@@ -230,9 +230,8 @@ OpenSAGE has **excellent rendering foundation** (100% complete) but **zero game 
 
 ### Document References
 
-- **Full Analysis**: [docs/DEEP_ANALYSIS_CRITICAL_GAPS.md](../DEEP_ANALYSIS_CRITICAL_GAPS.md)
-- **Visual Guide**: [docs/GAP_ANALYSIS_VISUAL_REFERENCE.md](../GAP_ANALYSIS_VISUAL_REFERENCE.md)
-- **Existing Roadmap**: [docs/WORKDIR/planning/ROADMAP.md](../WORKDIR/planning/ROADMAP.md)
-- **Phase Plans**: [docs/WORKDIR/phases/](../WORKDIR/phases/)
-- **Implementation Status**: [docs/ETC/OPENSAGE_IMPLEMENTATION_STATUS.md](../ETC/OPENSAGE_IMPLEMENTATION_STATUS.md)
-
+- **Full Analysis**: [DEEP_ANALYSIS_CRITICAL_GAPS.md](DEEP_ANALYSIS_CRITICAL_GAPS.md)
+- **Visual Guide**: [GAP_ANALYSIS_VISUAL_REFERENCE.md](GAP_ANALYSIS_VISUAL_REFERENCE.md)
+- **Existing Roadmap**: [../planning/ROADMAP.md](../planning/ROADMAP.md)
+- **Phase Plans**: [../phases/](../phases/)
+- **Implementation Status**: [../../ETC/OPENSAGE_IMPLEMENTATION_STATUS.md](../../ETC/OPENSAGE_IMPLEMENTATION_STATUS.md)

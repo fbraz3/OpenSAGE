@@ -457,7 +457,7 @@ public sealed class AudioSystem : GameSystem
 - **No campaign support**: Campaign progression impossible
 
 #### Implementation Gaps
-- See [PHASE04_SCRIPTING_ENGINE.md](phases/PHASE04_SCRIPTING_ENGINE.md)
+- See [PHASE04_SCRIPTING_ENGINE.md](../phases/PHASE04_SCRIPTING_ENGINE.md)
 - Full implementation designed but not started
 
 **Impact**: Campaign/missions impossible. Single player story blocked.
@@ -930,7 +930,7 @@ Acceptance Criteria:
 ### References
 
 - Original Game: `references/generals_code/` - Has AI, combat, building logic
-- Documentation: [docs/WORKDIR/phases/](docs/WORKDIR/phases/) - Detailed phase plans
+- Documentation: [docs/WORKDIR/phases/](../phases/) - Detailed phase plans
 - Module System: `src/OpenSage.Game/Logic/Object/Modules/` - How to add new systems
 
 ---
@@ -954,4 +954,3 @@ Acceptance Criteria:
 5. Economy ← Completes gameplay loop
 
 **Success Metric**: Players can select units, move them, fight enemies, build structures, and play 15-20 min skirmish games.
-
