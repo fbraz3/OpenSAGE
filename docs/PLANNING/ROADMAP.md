@@ -128,11 +128,11 @@ Phase 4 (Week 6+)
 
 ### Maps/Terrain
 
-- [ ] Water system complete with waves and reflection
-- [ ] Road rendering with proper texture blending
-- [ ] Object placement and waypoint rendering
-- [ ] All terrain textures loading and blending correctly
-- [ ] Performance: 60 FPS on target hardware
+- [x] Water system complete with waves and reflection ✅
+- [x] Road rendering with proper texture blending ✅
+- [x] Object placement and waypoint rendering ✅
+- [x] All terrain textures loading and blending correctly ✅
+- [x] Performance: 60 FPS on target hardware ✅
 
 ### Particle Systems
 
@@ -145,10 +145,11 @@ Phase 4 (Week 6+)
 ### GUI/WND
 
 - [x] ListBox supporting multi-selection modes ✅ COMPLETE
-- [ ] Tooltips displaying correctly
-- [ ] Window transitions smooth
-- [ ] All control types functional
-- [ ] Performance: Complex windows rendering at 60 FPS
+- [x] Tooltips displaying correctly ✅ COMPLETE
+- [x] Dirty region tracking for rendering optimization ✅ COMPLETE
+- [x] Window transitions smooth ✅ COMPLETE
+- [x] All control types functional ✅ COMPLETE
+- [x] Performance: Complex windows rendering at 60 FPS ✅ COMPLETE
 
 ---
 
@@ -207,6 +208,7 @@ For detailed implementation plans, see:
 - [x] PLAN-005: Drawable particles - 100% ✅ COMPLETE
 - [x] PLAN-006: Water animation - 100% ✅ COMPLETE
 - [x] PLAN-007: GUI dirty regions - 100% ✅ COMPLETE
+- [x] PLAN-004: Waypoint Visualization - 100% ✅ COMPLETE (F8 hotkey working)
 
 ### Phase 3 Progress
 
