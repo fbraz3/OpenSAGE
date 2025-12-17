@@ -17,6 +17,13 @@ internal abstract class WindowTransitionOperation
         var element = window.Controls.FindControl(transitionWindow.WinName);
         var startTime = currentTime + TimeSpan.FromSeconds(transitionWindow.FrameDelay / 30.0f);
 
+        System.Diagnostics.Debug.WriteLine($"[Transition] Creating {transitionWindow.Style} for element '{transitionWindow.WinName}' (found: {element != null})");
+        if (element != null)
+        {
+            System.Diagnostics.Debug.WriteLine($"  - Element Opacity before transition: {element.Opacity}");
+            System.Diagnostics.Debug.WriteLine($"  - Element Visible before transition: {element.Visible}");
+        }
+
         switch (transitionWindow.Style)
         {
             case WindowTransitionStyle.WinFade:

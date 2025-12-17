@@ -232,9 +232,14 @@ public static class MainMenuCallbacks
                 }
             }
 
-            // Queue only the main fade-in transition
+            // Queue transitions: fade-in title, then show menu items
+            // Both transitions are needed: MainMenuFade (immediate) fades background,
+            // MainMenuDefaultMenu queues after it to fade in menu buttons/elements
             System.Diagnostics.Debug.WriteLine("[MainMenu] Queueing MainMenuFade transition");
             context.WindowManager.TransitionManager.QueueTransition(null, control.Window, "MainMenuFade");
+            
+            System.Diagnostics.Debug.WriteLine("[MainMenu] Queueing MainMenuDefaultMenu transition");
+            context.WindowManager.TransitionManager.QueueTransition(null, control.Window, "MainMenuDefaultMenu");
             
             DoneMainMenuFadeIn = true;
         }
