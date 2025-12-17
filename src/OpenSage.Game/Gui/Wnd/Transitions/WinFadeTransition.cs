@@ -16,7 +16,8 @@ internal sealed class WinFadeTransition : WindowTransitionOperation
     {
         _startOpacity = element.Opacity;
         _endOpacity = element.Opacity == 1 ? 0 : 1;
-        System.Diagnostics.Debug.WriteLine($"[WinFadeTransition] Element: {element?.Name}, StartOpacity: {_startOpacity}, EndOpacity: {_endOpacity} ({(_endOpacity == 1 ? "FADE-IN" : "FADE-OUT")})");
+        var logPath = "/tmp/opensage_transitions.log";
+        System.IO.File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss.fff}] WinFadeTransition: {element?.Name} | Start={_startOpacity} End={_endOpacity} ({(_endOpacity == 1 ? "FADE-IN" : "FADE-OUT")})\n");
     }
 
     protected override void OnUpdate(float progress)

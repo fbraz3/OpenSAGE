@@ -201,6 +201,9 @@ public static class MainMenuCallbacks
         // Any input at all (mouse, keyboard) will trigger the main menu fade-in.
         if (!DoneMainMenuFadeIn)
         {
+            var logPath = "/tmp/opensage_transitions.log";
+            System.IO.File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss.fff}] MainMenuInput: Starting fade-in\n");
+            
             // Prepare all menu elements
             var ruler = control.Window.Controls.FindControl("MainMenu.wnd:MainMenuRuler");
             var borderSections = new[]
@@ -218,7 +221,7 @@ public static class MainMenuCallbacks
             {
                 ruler.Show();
                 ruler.Opacity = 0;  // Set opacity to 0 for fade-in animation
-                System.Diagnostics.Debug.WriteLine($"[MainMenu] MainMenuRuler shown, opacity=0");
+                System.IO.File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss.fff}] MainMenuRuler: Visible={ruler.Visible}, Opacity={ruler.Opacity}\n");
             }
 
             foreach (var borderName in borderSections)
@@ -228,17 +231,17 @@ public static class MainMenuCallbacks
                 {
                     border.Show();
                     border.Opacity = 0;  // Set opacity to 0 for fade-in animation
-                    System.Diagnostics.Debug.WriteLine($"[MainMenu] {borderName} shown, opacity=0");
+                    System.IO.File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss.fff}] {borderName}: Visible={border.Visible}, Opacity={border.Opacity}\n");
                 }
             }
 
             // Queue transitions: fade-in title, then show menu items
             // Both transitions are needed: MainMenuFade (immediate) fades background,
             // MainMenuDefaultMenu queues after it to fade in menu buttons/elements
-            System.Diagnostics.Debug.WriteLine("[MainMenu] Queueing MainMenuFade transition");
+            System.IO.File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss.fff}] Queueing MainMenuFade transition\n");
             context.WindowManager.TransitionManager.QueueTransition(null, control.Window, "MainMenuFade");
             
-            System.Diagnostics.Debug.WriteLine("[MainMenu] Queueing MainMenuDefaultMenu transition");
+            System.IO.File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss.fff}] Queueing MainMenuDefaultMenu transition\n");
             context.WindowManager.TransitionManager.QueueTransition(null, control.Window, "MainMenuDefaultMenu");
             
             DoneMainMenuFadeIn = true;
