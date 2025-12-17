@@ -243,7 +243,7 @@ internal sealed class MainForm : DisposableBase
             }
             catch (Exception e)
             {
-                Logger.Error(e.Message);
+                Logger.Error(e, "Failed to open big archive at " + path);
             }
         }
     }
@@ -403,7 +403,7 @@ internal sealed class MainForm : DisposableBase
             }
             catch (Exception e)
             {
-                Logger.Error(e.Message);
+                Logger.Error(e, "Failed to create export directory: " + filePath);
                 return;
             }
 
@@ -419,7 +419,7 @@ internal sealed class MainForm : DisposableBase
             }
             catch (Exception e)
             {
-                Logger.Error(e.Message);
+                Logger.Error(e, $"Failed to export file: {entry.FullName}");
             }
         }
     }

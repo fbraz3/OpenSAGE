@@ -77,19 +77,19 @@ internal sealed class LuaScriptConsole : DiagnosticView
             Game.Lua.ExecuteUserCode(userInputScript);
             _consoleTextColor = new Vector4(0, 150, 0, 1);
         }
-        catch (SyntaxErrorException exeption)
+        catch (SyntaxErrorException exception)
         {
-            _scriptConsoleTextAll = string.Concat(_scriptConsoleTextAll, "LUA SYNTAX ERROR: ", exeption.DecoratedMessage, "\n");
+            _scriptConsoleTextAll = string.Concat(_scriptConsoleTextAll, "LUA SYNTAX ERROR: ", exception.DecoratedMessage, "\n");
             _consoleTextColor = new Vector4(150, 0, 0, 1);
         }
-        catch (ScriptRuntimeException exeption)
+        catch (ScriptRuntimeException exception)
         {
-            _scriptConsoleTextAll = string.Concat(_scriptConsoleTextAll, "LUA RUNTIME ERROR: ", exeption.DecoratedMessage, "\n");
+            _scriptConsoleTextAll = string.Concat(_scriptConsoleTextAll, "LUA RUNTIME ERROR: ", exception.DecoratedMessage, "\n");
             _consoleTextColor = new Vector4(150, 0, 0, 1);
         }
-        catch (Exception exeption)
+        catch (Exception exception)
         {
-            _scriptConsoleTextAll = string.Concat(_scriptConsoleTextAll, "FATAL ERROR: ", exeption, "\n");
+            _scriptConsoleTextAll = string.Concat(_scriptConsoleTextAll, "FATAL ERROR: ", exception, "\n");
             _consoleTextColor = new Vector4(150, 0, 0, 1);
         }
     }
