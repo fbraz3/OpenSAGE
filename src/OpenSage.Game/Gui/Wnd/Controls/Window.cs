@@ -28,6 +28,7 @@ public class Window : Control
         : this(wndFile.RootWindow.ScreenRect.CreationResolution, game.GraphicsLoadContext)
     {
         Game = game;
+        Name = wndFile.RootWindow.Name;  // Set the window name!
         Bounds = wndFile.RootWindow.ScreenRect.ToRectangle();
         LayoutInit = wndCallbackResolver.GetWindowCallback(wndFile.LayoutBlock.LayoutInit);
         LayoutUpdate = wndCallbackResolver.GetWindowCallback(wndFile.LayoutBlock.LayoutUpdate);

@@ -147,8 +147,11 @@ internal sealed class RenderPipeline : DisposableBase
                 new SizeF(context.RenderTarget.Width, context.RenderTarget.Height),
                 context.GameTime);
 
-            context.Scene3D?.Render(DrawingContext);
+            // Render Scene2D FIRST so it appears on top
             context.Scene2D?.Render(DrawingContext);
+
+            // Render Scene3D 2.5D overlay AFTER Scene2D so UI stays on top
+            context.Scene3D?.Render(DrawingContext);
 
             _shadowMapRenderer.DrawDebugOverlay(
                 context.Scene3D,
