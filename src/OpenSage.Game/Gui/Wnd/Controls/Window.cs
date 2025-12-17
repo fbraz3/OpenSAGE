@@ -109,11 +109,12 @@ public class Window : Control
                 return;
             }
 
-            // Check if control intersects with dirty region
-            if (!_dirtyRegionTracker.IntersectsDirtyRegion(control.Bounds))
-            {
-                return;
-            }
+            // TODO: Re-enable dirty region optimization once invalidation is properly implemented
+            // For now, always render all visible controls to fix menu visibility issues
+            // if (!_dirtyRegionTracker.IntersectsDirtyRegion(control.Bounds))
+            // {
+            //     return;
+            // }
 
             drawingContext.PushTransform(Matrix3x2.CreateTranslation(control.Bounds.X, control.Bounds.Y));
 

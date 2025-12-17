@@ -53,17 +53,17 @@ public sealed class RenderBucket
             if (forwardPass != null)
             {
                 _forwardPassList.RemoveObject(renderObject, forwardPass);
-                NLog.LogManager.GetCurrentClassLogger().Debug($"Added {renderObject.DebugName} to {Name} forward pass (total: {_forwardPassList.AllObjects.Count})");
+                NLog.LogManager.GetCurrentClassLogger().Debug($"Removed {renderObject.DebugName} from {Name} forward pass (total: {_forwardPassList.AllObjects.Count})");
             }
 
             if (shadowPass != null)
             {
-                _shadowPassList.AddObject(renderObject, shadowPass);
+                _shadowPassList.RemoveObject(renderObject, shadowPass);
             }
         }
         else
         {
-            NLog.LogManager.GetCurrentClassLogger().Warn($"RenderBucket.AddObject: {renderObject.DebugName} has NULL MaterialPass!");
+            NLog.LogManager.GetCurrentClassLogger().Warn($"RenderBucket.RemoveObject: {renderObject.DebugName} has NULL MaterialPass!");
         }
     }
 
@@ -247,7 +247,11 @@ internal sealed class RenderList
         // TODO: Do something faster.
         var index = AllObjects.IndexOf((renderObject, material));
 
-        AllObjects.RemoveAt(index);
+        if (index >= 0)
+        {
+            AllObjects.RemoveAt(index);
+        }
+        // Object not found - this can happen if it was never added or already removed
     }
 
     public void Cull()
