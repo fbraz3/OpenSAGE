@@ -48,23 +48,7 @@ public partial class Control : DisposableBase
     public bool Visible 
     { 
         get => _visible;
-        set 
-        { 
-            if (_visible != value && (Name == "MainMenu.wnd:MainMenuRuler"))
-            {
-                var logPath = "/tmp/opensage_transitions.log";
-                System.IO.File.AppendAllText(logPath, $"[{System.DateTime.Now:HH:mm:ss.fff}] MainMenuRuler.Visible changed: {_visible} → {value}\n");
-                var stackTrace = System.Environment.StackTrace;
-                // Log just the first few stack frames to see where it's coming from
-                var frames = stackTrace.Split('\n').Take(5);
-                foreach (var frame in frames)
-                {
-                    if (!string.IsNullOrWhiteSpace(frame))
-                        System.IO.File.AppendAllText(logPath, $"  {frame}\n");
-                }
-            }
-            _visible = value;
-        }
+        set => _visible = value;
     }
 
     public void Show() => Visible = true;
