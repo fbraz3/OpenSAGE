@@ -18,7 +18,9 @@ internal sealed class RenderPipeline : DisposableBase
 
     private const int ParallelCullingBatchSize = 128;
 
-    private static readonly RgbaFloat ClearColor = new RgbaFloat(105f / 255f, 105f / 255f, 105f / 255f, 1f);
+    // Clear color used when no Scene3D is present (e.g., --noshellmap mode)
+    // Using a dark gray as fallback background
+    private static readonly RgbaFloat ClearColor = new RgbaFloat(0.1f, 0.1f, 0.1f, 1f);
 
     public static readonly OutputDescription GameOutputDescription = new OutputDescription(
         new OutputAttachmentDescription(PixelFormat.D32_Float_S8_UInt),

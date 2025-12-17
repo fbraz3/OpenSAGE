@@ -42,12 +42,11 @@ public class Window : Control
             game.AssetStore,
             wndCallbackResolver,
             wndFile.RootWindow.ScreenRect.UpperLeft);
-        
-        // Root windows should always be transparent - they are pure containers
-        // that should not render any background color, only their children
-        Root.BackgroundColor = ColorRgbaF.Transparent;
-        Root.BorderColor = ColorRgbaF.Transparent;
-        
+
+        // Note: Root background transparency is now controlled by the menu callbacks.
+        // When shell map is loaded, the callback sets DrawCallback to NOT draw (transparent).
+        // When shell map is NOT loaded, the callback sets DrawCallback = DefaultDraw (draws background).
+
         Controls.Add(Root);
     }
 

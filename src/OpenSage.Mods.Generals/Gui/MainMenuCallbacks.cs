@@ -20,7 +20,19 @@ public static class MainMenuCallbacks
         if (!game.Configuration.LoadShellMap)
         {
             // Draw the main menu background if no map is loaded.
+            // Root needs to draw its background when there's no shell map.
             window.Root.DrawCallback = window.Root.DefaultDraw;
+        }
+        else
+        {
+            // When shell map is loaded, make root transparent so the 3D map shows through.
+            // We do this by setting an empty draw callback that only draws children.
+            window.Root.DrawCallback = (control, drawingContext) =>
+            {
+                // Don't draw background, just let children draw
+                drawingContext.PushOpacity(control.Opacity);
+                drawingContext.PopOpacity();
+            };
         }
 
         // We'll show these later via window transitions.
@@ -234,7 +246,7 @@ public static class MainMenuCallbacks
             // MainMenuDefaultMenu queues after it to fade in menu buttons/elements
             context.WindowManager.TransitionManager.QueueTransition(null, control.Window, "MainMenuFade");
             context.WindowManager.TransitionManager.QueueTransition(null, control.Window, "MainMenuDefaultMenu");
-            
+
             DoneMainMenuFadeIn = true;
         }
     }
