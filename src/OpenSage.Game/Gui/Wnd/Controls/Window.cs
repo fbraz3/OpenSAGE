@@ -2,6 +2,7 @@
 using OpenSage.Content;
 using OpenSage.Content.Util;
 using OpenSage.Data.Wnd;
+using OpenSage.Graphics;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Mathematics;
 
@@ -41,6 +42,12 @@ public class Window : Control
             game.AssetStore,
             wndCallbackResolver,
             wndFile.RootWindow.ScreenRect.UpperLeft);
+        
+        // Root windows should always be transparent - they are pure containers
+        // that should not render any background color, only their children
+        Root.BackgroundColor = ColorRgbaF.Transparent;
+        Root.BorderColor = ColorRgbaF.Transparent;
+        
         Controls.Add(Root);
     }
 
