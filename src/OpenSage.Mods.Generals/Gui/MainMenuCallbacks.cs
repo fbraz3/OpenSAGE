@@ -201,9 +201,41 @@ public static class MainMenuCallbacks
         // Any input at all (mouse, keyboard) will trigger the main menu fade-in.
         if (!DoneMainMenuFadeIn)
         {
+            // Prepare all menu elements
+            var ruler = control.Window.Controls.FindControl("MainMenu.wnd:MainMenuRuler");
+            var borderSections = new[]
+            {
+                "MainMenu.wnd:MapBorder",
+                "MainMenu.wnd:MapBorder1",
+                "MainMenu.wnd:MapBorder2",
+                "MainMenu.wnd:MapBorder3",
+                "MainMenu.wnd:MapBorder4"
+            };
+
+            // IMPORTANT: Show elements FIRST before transitions
+            // Elements must be visible before fade-in transitions can work
+            if (ruler != null)
+            {
+                ruler.Show();
+                ruler.Opacity = 0;  // Set opacity to 0 for fade-in animation
+                System.Diagnostics.Debug.WriteLine($"[MainMenu] MainMenuRuler shown, opacity=0");
+            }
+
+            foreach (var borderName in borderSections)
+            {
+                var border = control.Window.Controls.FindControl(borderName);
+                if (border != null)
+                {
+                    border.Show();
+                    border.Opacity = 0;  // Set opacity to 0 for fade-in animation
+                    System.Diagnostics.Debug.WriteLine($"[MainMenu] {borderName} shown, opacity=0");
+                }
+            }
+
+            // Queue only the main fade-in transition
+            System.Diagnostics.Debug.WriteLine("[MainMenu] Queueing MainMenuFade transition");
             context.WindowManager.TransitionManager.QueueTransition(null, control.Window, "MainMenuFade");
-            context.WindowManager.TransitionManager.QueueTransition(null, control.Window, "MainMenuDefaultMenu");
-            control.Window.Controls.FindControl("MainMenu.wnd:MainMenuRuler").Show();
+            
             DoneMainMenuFadeIn = true;
         }
     }

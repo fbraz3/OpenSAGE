@@ -10,8 +10,9 @@ layout(location = 0) out vec3 out_WorldPosition;
 layout(location = 1) out vec2 out_CloudUV;
 layout(location = 2) out float out_ViewSpaceDepth;
 
-// Wave animation constants
-layout(set = 1, binding = 0) uniform WaveAnimationConstants
+// Wave animation constants - using a dedicated set to avoid conflicts
+// with other pass constants (lighting, shadows, clouds, decals)
+layout(set = WATER_ANIMATION_CONSTANTS_RESOURCE_SET, binding = 0) uniform WaveAnimationConstants
 {
     vec4 ActiveWaves[32];  // x, y = position, z = width, w = alpha (up to 32 waves)
     uint WaveCount;

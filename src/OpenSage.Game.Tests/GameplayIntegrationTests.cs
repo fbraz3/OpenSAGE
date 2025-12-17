@@ -65,7 +65,7 @@ public class GameplayIntegrationTests : MockedGameTest
     {
         var game = Generals;
         var frameStart = game.GameLogic.CurrentFrame.Value;
-        
+
         // Frame counter should be tracking time
         Assert.True(frameStart >= 0);
     }
@@ -198,14 +198,14 @@ public class GameplayIntegrationTests : MockedGameTest
 
         // Phase 05 systems
         Assert.NotNull(game.PlayerManager);
-        
+
         // Phase 06 systems
         Assert.NotNull(game.GameLogic);
         Assert.NotNull(game.GameEngine);
-        
+
         // Phase 07+ systems
         Assert.NotNull(game.AssetStore);
-        
+
         // Phase 08 systems
         var player = game.PlayerManager.GetPlayerByIndex(0);
         Assert.NotNull(player.BankAccount);
@@ -227,11 +227,11 @@ public class GameplayIntegrationTests : MockedGameTest
     public void Integration_GameLoopResponsive()
     {
         var game = Generals;
-        
+
         // Verify game loop is functional
         var frameStart = game.GameLogic.CurrentFrame.Value;
         Assert.True(frameStart >= 0);
-        
+
         // Verify systems respond to queries
         Assert.NotNull(game.PlayerManager.GetPlayerByIndex(0));
         Assert.NotNull(game.GameEngine);
@@ -265,7 +265,7 @@ public class GameplayIntegrationTests : MockedGameTest
         var assetStore = game.AssetStore;
         Assert.NotNull(assetStore);
         Assert.NotNull(assetStore.ObjectDefinitions);
-        
+
         // Should be able to query definitions (even if empty)
         var defs = assetStore.ObjectDefinitions;
         Assert.NotNull(defs);

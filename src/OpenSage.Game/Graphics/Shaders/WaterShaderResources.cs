@@ -53,6 +53,8 @@ internal sealed class WaterShaderResources : ShaderSetBase
         WaterResourceLayout = ResourceLayouts[2];
 
         // Wave animation layout: uniform buffer for wave data passed to vertex shader
+        // Using binding slot 2 (in set 1) to avoid collision with GlobalLightingConstantsVS (binding 0)
+        // and GlobalLightingConstantsPS (binding 1) in the PASS_CONSTANTS_RESOURCE_SET
         WaveAnimationLayout = ResourceLayouts[1];
 
         Pipeline = AddDisposable(store.GraphicsDevice.ResourceFactory.CreateGraphicsPipeline(
