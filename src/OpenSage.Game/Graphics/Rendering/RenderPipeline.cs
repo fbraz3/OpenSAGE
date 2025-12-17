@@ -161,6 +161,11 @@ internal sealed class RenderPipeline : DisposableBase
 
             DrawingContext.End();
 
+            // Render camera fade overlay AFTER all 2D content so it appears on top
+            context.Scene3D?.Game.Scripting.CameraFadeOverlay.Render(
+                _commandList,
+                new SizeF(context.RenderTarget.Width, context.RenderTarget.Height));
+
             _commandList.PopDebugGroup();
         }
 
@@ -254,10 +259,6 @@ internal sealed class RenderPipeline : DisposableBase
         commandList.PopDebugGroup();
 
         commandList.PopDebugGroup();
-
-        scene.Game.Scripting.CameraFadeOverlay.Render(
-            commandList,
-            new SizeF(context.RenderTarget.Width, context.RenderTarget.Height));
     }
 
     private void CalculateWaterShaderMap(IScene3D scene, RenderContext context, CommandList commandList, RenderItem renderItem, ResourceSet forwardPassResourceSet)
