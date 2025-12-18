@@ -45,8 +45,8 @@ public partial class Control : DisposableBase
     public object Tag { get; set; }
 
     private bool _visible = true;
-    public bool Visible 
-    { 
+    public bool Visible
+    {
         get => _visible;
         set => _visible = value;
     }
