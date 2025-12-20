@@ -15,7 +15,7 @@ public class DirectionalLightFrustumCalculatorTests
         // Arrange.
         var light = new GlobalShaderResources.Light { Direction = Vector3.Normalize(new Vector3(-1, -1, -1)) };
 
-        var camera = new Camera(() => new Veldrid.Viewport { Width = 800, Height = 600 });
+        var camera = new Camera(() => new Veldrid.Viewport { Width = 800, Height = 600 }, false);
         camera.SetLookAt(new Vector3(5, 3, 10), Vector3.Zero, Vector3.UnitZ);
 
         var window = new Veldrid.Sdl2.Sdl2Window("Test", 0, 0, 100, 100, 0, false);

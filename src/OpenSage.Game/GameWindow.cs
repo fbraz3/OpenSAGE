@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using OpenSage.Input;
 using OpenSage.Mathematics;
 using OpenSage.Utilities;
@@ -94,9 +95,25 @@ public sealed class GameWindow : DisposableBase
 
     public GraphicsDevice CreateGraphicsDevice(GraphicsDeviceOptions options, GraphicsBackend backend)
     {
-        var graphicsDevice = VeldridStartup.CreateGraphicsDevice(_window, options, backend);
-        Swapchain = graphicsDevice.MainSwapchain;
-        return graphicsDevice;
+        // On macOS, Vulkan via MoltenVK can be unstable. Try it if requested, but fall back to Metal on failure.
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && backend == GraphicsBackend.Vulkan)
+        {
+            try
+            {
+                var graphicsDevice = VeldridStartup.CreateGraphicsDevice(_window, options, backend);
+                Swapchain = graphicsDevice.MainSwapchain;
+                return graphicsDevice;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Vulkan initialization failed on macOS: {ex.Message}. Falling back to Metal.");
+                backend = GraphicsBackend.Metal;
+            }
+        }
+
+        var device = VeldridStartup.CreateGraphicsDevice(_window, options, backend);
+        Swapchain = device.MainSwapchain;
+        return device;
     }
 
     private void HandleClosing()

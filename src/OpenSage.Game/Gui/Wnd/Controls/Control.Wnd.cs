@@ -62,7 +62,11 @@ partial class Control
 
         if (wndWindow.Status.HasFlag(WndWindowStatusFlags.SeeThru))
         {
+            // SEE_THRU in original game means "will not draw, but not hidden"
+            // Must set BackgroundImage to null as well since DrawBackgroundImage
+            // draws independently of BackgroundColor transparency
             result.BackgroundColor = ColorRgbaF.Transparent;
+            result.BackgroundImage = null;
             result.BorderColor = ColorRgbaF.Transparent;
         }
 

@@ -17,7 +17,7 @@ internal static class RasterizerStateDescriptionUtility
             false);
 
         DefaultFrontIsCounterClockwise = new RasterizerStateDescription(
-            FaceCullMode.Back,
+            FaceCullMode.None,
             PolygonFillMode.Solid,
             FrontFace.CounterClockwise,
             true,

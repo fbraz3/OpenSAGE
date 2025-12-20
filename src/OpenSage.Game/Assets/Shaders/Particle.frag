@@ -4,8 +4,8 @@
 #include "Common.h"
 #include "ForwardPass.h"
 
-layout(set = 2, binding = 1) uniform texture2D ParticleTexture;
-layout(set = 2, binding = 2) uniform sampler Sampler;
+layout(set = MATERIAL_CONSTANTS_RESOURCE_SET, binding = 1) uniform texture2D ParticleTexture;
+layout(set = MATERIAL_CONSTANTS_RESOURCE_SET, binding = 2) uniform sampler Sampler;
 
 layout(location = 0) in vec2 in_TexCoords;
 layout(location = 1) in vec3 in_Color;

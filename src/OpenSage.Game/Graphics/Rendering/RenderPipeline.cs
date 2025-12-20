@@ -16,11 +16,13 @@ internal sealed class RenderPipeline : DisposableBase
     public event EventHandler<Rendering2DEventArgs> Rendering2D;
     public event EventHandler<BuildingRenderListEventArgs> BuildingRenderList;
 
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
     private const int ParallelCullingBatchSize = 128;
 
     // Clear color used when no Scene3D is present (e.g., --noshellmap mode)
     // Using a dark gray as fallback background
-    private static readonly RgbaFloat ClearColor = new RgbaFloat(0.1f, 0.1f, 0.1f, 1f);
+    private static readonly RgbaFloat ClearColor = RgbaFloat.Pink; // Changed to Pink for debugging
 
     public static readonly OutputDescription GameOutputDescription = new OutputDescription(
         new OutputAttachmentDescription(PixelFormat.D32_Float_S8_UInt),
@@ -100,6 +102,8 @@ internal sealed class RenderPipeline : DisposableBase
             new FramebufferDescription(_intermediateDepthBuffer, _intermediateTexture)));
     }
 
+    private int _logCounter = 0;
+
     public void Execute(RenderContext context)
     {
         RenderedObjectsOpaque = 0;
@@ -135,8 +139,23 @@ internal sealed class RenderPipeline : DisposableBase
         }
         else
         {
+            Logger.Info("Scene3D is null, clearing screen with default color");
             _commandList.SetFramebuffer(_intermediateFramebuffer);
             _commandList.ClearColorTarget(0, ClearColor);
+        }
+
+        if (_logCounter++ % 60 == 0)
+        {
+            Logger.Info($"[RENDER] Opaque: {RenderedObjectsOpaque}, Transparent: {RenderedObjectsTransparent}");
+            if (context.Scene3D != null)
+            {
+                var cam = context.Scene3D.Camera;
+                Logger.Info($"[RENDER] Camera Pos: {cam.Position}, Target: {cam.Target}, Up: {cam.Up}");
+                Logger.Info($"[RENDER] Camera Near: {cam.NearPlaneDistance}, Far: {cam.FarPlaneDistance}, FOV: {cam.FieldOfView}");
+                var vp = cam.ViewProjection;
+                Logger.Info($"[RENDER] VP Diagonal: {vp.M11}, {vp.M22}, {vp.M33}, {vp.M44}");
+                Logger.Info($"[RENDER] VP Translation: {vp.M41}, {vp.M42}, {vp.M43}");
+            }
         }
 
         // GUI and camera-dependent 2D elements
@@ -214,7 +233,7 @@ internal sealed class RenderPipeline : DisposableBase
 
                 commandList.ClearDepthStencil(1);
 
-                commandList.SetFullViewports();
+                commandList.SetFullViewports(framebuffer);
 
                 var shadowViewProjection = lightBoundingFrustum.Matrix;
                 _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, context, shadowViewProjection, null, null);
@@ -242,7 +261,7 @@ internal sealed class RenderPipeline : DisposableBase
         commandList.ClearColorTarget(0, ClearColor);
         commandList.ClearDepthStencil(1);
 
-        commandList.SetFullViewports();
+        commandList.SetFullViewports(_intermediateFramebuffer);
 
         var standardPassCameraFrustum = scene.Camera.BoundingFrustum;
 
@@ -253,6 +272,11 @@ internal sealed class RenderPipeline : DisposableBase
         commandList.PushDebugGroup("Transparent");
         RenderedObjectsTransparent = DoRenderPass(context, commandList, _renderList.Transparent, standardPassCameraFrustum, forwardPassResourceSet);
         commandList.PopDebugGroup();
+
+        if (RenderedObjectsOpaque == 0 && RenderedObjectsTransparent == 0)
+        {
+            Logger.Info("No opaque or transparent objects rendered in this frame");
+        }
 
         scene.RenderScene.Render(commandList, _globalShaderResourceData.GlobalConstantsResourceSet, forwardPassResourceSet);
 
@@ -294,7 +318,7 @@ internal sealed class RenderPipeline : DisposableBase
                     commandList.ClearColorTarget(0, ClearColor);
                     commandList.ClearDepthStencil(1);
 
-                    commandList.SetFullViewports();
+                    commandList.SetFullViewports(refractionFramebuffer);
 
                     RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Opaque, camera.BoundingFrustum, forwardPassResourceSet, clippingPlaneTop, clippingPlaneBottom);
                     commandList.PopDebugGroup();
@@ -313,6 +337,8 @@ internal sealed class RenderPipeline : DisposableBase
                     commandList.SetFramebuffer(reflectionFramebuffer);
                     commandList.ClearColorTarget(0, ClearColor);
                     commandList.ClearDepthStencil(1);
+
+                    commandList.SetFullViewports(reflectionFramebuffer);
 
                     // -----------------------------------------------------------------------
 
@@ -402,18 +428,27 @@ internal sealed class RenderPipeline : DisposableBase
 
             renderItem.BeforeRenderCallback?.Invoke(commandList, renderItem);
 
-            if (renderItem.Material.MaterialResourceSet != null)
-            {
-                commandList.SetGraphicsResourceSet(2, renderItem.Material.MaterialResourceSet);
-            }
+            // Metal backend requires all resource sets to be bound
+            // All shaders now define a MATERIAL_CONSTANTS_RESOURCE_SET layout (slot 2)
+            // If a shader doesn't use it, we still need to bind a valid ResourceSet
+            commandList.SetGraphicsResourceSet(2, renderItem.Material.MaterialResourceSet);
 
             if (renderItem.IndexBuffer == null)
             {
                 // Skip rendering if index buffer is null
+                Logger.Warn($"[RENDER] Skipping render - IndexBuffer null for: {renderItem.DebugName}");
                 commandList.PopDebugGroup();
                 continue;
             }
 
+            if (renderItem.IndexCount == 0)
+            {
+                Logger.Warn($"[RENDER] Skipping render - IndexCount is 0 for: {renderItem.DebugName}");
+                commandList.PopDebugGroup();
+                continue;
+            }
+
+            Logger.Debug($"[RENDER] About to draw: {renderItem.DebugName}, IndexCount={renderItem.IndexCount}");
             commandList.SetIndexBuffer(renderItem.IndexBuffer, IndexFormat.UInt16);
             try
             {
@@ -424,10 +459,13 @@ internal sealed class RenderPipeline : DisposableBase
                     0,
                     0);
             }
-            catch (NullReferenceException)
+            catch (NullReferenceException ex)
             {
                 // Ignore ResourceSet-related NullReferenceExceptions from Metal backend
                 // This occurs when Graphics resources are released before GPU finishes processing
+                Logger.Error($"[RENDER] NullReferenceException during DrawIndexed for {renderItem.DebugName}: {ex.Message}");
+                // Log the stack trace for debugging
+                Logger.Error($"[RENDER] Stack trace: {ex.StackTrace}");
             }
 
             lastRenderItemIndex = i;
@@ -449,5 +487,25 @@ internal sealed class RenderPipeline : DisposableBase
         {
             commandList.SetGraphicsResourceSet(1, passResourceSet);
         }
+    }
+}
+
+internal static class CommandListExtensions
+{
+    internal static void SetFullViewports(this CommandList commandList, Framebuffer framebuffer)
+    {
+        if (framebuffer != null)
+        {
+            var viewport = new Viewport(0, 0, framebuffer.Width, framebuffer.Height, 0, 1);
+            commandList.SetViewport(0, viewport);
+        }
+    }
+
+    internal static void SetFullViewports(this CommandList commandList)
+    {
+        // Default to 1920x1080 if framebuffer is not accessible
+        // This is a fallback - the Render methods should pass the framebuffer explicitly
+        var viewport = new Viewport(0, 0, 1920, 1080, 0, 1);
+        commandList.SetViewport(0, viewport);
     }
 }

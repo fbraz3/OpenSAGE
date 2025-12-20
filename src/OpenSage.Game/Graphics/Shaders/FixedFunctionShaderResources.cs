@@ -89,8 +89,12 @@ internal sealed class FixedFunctionShaderResources : ShaderSetBase
             depthState.DepthWriteEnabled = pipelineKey.DepthWriteEnabled;
             depthState.DepthComparison = pipelineKey.DepthComparison;
 
+            // Force Always pass for debugging
+            depthState.DepthComparison = ComparisonKind.Always;
+
             var rasterizerState = RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise;
-            rasterizerState.CullMode = pipelineKey.CullMode;
+            // rasterizerState.CullMode = pipelineKey.CullMode;
+            rasterizerState.CullMode = FaceCullMode.None;
 
             _pipelineCache.Add(pipelineKey, result = AddDisposable(GraphicsDevice.ResourceFactory.CreateGraphicsPipeline(
                 new GraphicsPipelineDescription(

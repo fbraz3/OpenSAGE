@@ -255,10 +255,16 @@ public sealed class DrawingContext2D : DisposableBase
 
     public void DrawRectangle(RectangleF rect, in ColorRgbaF strokeColor, float strokeWidth)
     {
+        var modifiedStrokeColor = GetModifiedColorWithCurrentOpacity(strokeColor);
+
+        // Skip drawing if fully transparent
+        if (modifiedStrokeColor.A <= 0)
+        {
+            return;
+        }
+
         rect = RectangleF.Transform(rect, _currentTransform);
         strokeWidth *= _currentScale;
-
-        var modifiedStrokeColor = GetModifiedColorWithCurrentOpacity(strokeColor);
 
         void drawLine(RectangleF lineRect)
         {
@@ -282,6 +288,14 @@ public sealed class DrawingContext2D : DisposableBase
 
     public void DrawLine(Line2D line, float thickness, in ColorRgbaF strokeColor)
     {
+        var modifiedStrokeColor = GetModifiedColorWithCurrentOpacity(strokeColor);
+
+        // Skip drawing if fully transparent
+        if (modifiedStrokeColor.A <= 0)
+        {
+            return;
+        }
+
         line = Line2D.Transform(line, _currentTransform);
         thickness *= _currentScale;
 
@@ -298,13 +312,19 @@ public sealed class DrawingContext2D : DisposableBase
             angle,
             origin,
             scale,
-            GetModifiedColorWithCurrentOpacity(strokeColor),
+            modifiedStrokeColor,
             alphaMask: _alphaMask);
     }
 
     public void FillTriangle(in Triangle2D triangle, in ColorRgbaF fillColor)
     {
         var modifiedFillColor = fillColor.WithA(fillColor.A * _currentOpacity);
+
+        // Skip drawing if fully transparent
+        if (modifiedFillColor.A <= 0)
+        {
+            return;
+        }
 
         _spriteBatch.DrawImage(
             _solidWhiteTexture,
@@ -316,11 +336,19 @@ public sealed class DrawingContext2D : DisposableBase
 
     public void FillTriangle(Texture texture, in Triangle2D sourceTriangle, in Triangle2D triangle, in ColorRgbaF tintColor)
     {
+        var modifiedTintColor = GetModifiedColorWithCurrentOpacity(tintColor);
+
+        // Skip drawing if fully transparent
+        if (modifiedTintColor.A <= 0)
+        {
+            return;
+        }
+
         _spriteBatch.DrawImage(
             texture,
             sourceTriangle,
             Triangle2D.Transform(triangle, _currentTransform),
-            GetModifiedColorWithCurrentOpacity(tintColor),
+            modifiedTintColor,
             alphaMask: _alphaMask);
     }
 
@@ -331,11 +359,19 @@ public sealed class DrawingContext2D : DisposableBase
 
     public void FillRectangle(in RectangleF rect, in ColorRgbaF fillColor)
     {
+        var modifiedFillColor = GetModifiedColorWithCurrentOpacity(fillColor);
+
+        // Skip drawing if fully transparent
+        if (modifiedFillColor.A <= 0)
+        {
+            return;
+        }
+
         _spriteBatch.DrawImage(
             _solidWhiteTexture,
             new Rectangle(0, 0, 1, 1),
             RectangleF.Transform(rect, _currentTransform),
-            GetModifiedColorWithCurrentOpacity(fillColor));
+            modifiedFillColor);
     }
 
     public void FillRectangleRadial360(in Rectangle rect, in ColorRgbaF fillColor, float progress)

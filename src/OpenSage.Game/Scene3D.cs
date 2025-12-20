@@ -284,7 +284,15 @@ public sealed class Scene3D : DisposableBase, IScene3D
     {
         Game = game;
 
-        Camera = new Camera(getViewport);
+        Logger.Info($"[RENDER] Graphics Backend: {game.GraphicsDevice.BackendType}");
+        Logger.Info($"[RENDER] IsDepthRangeZeroToOne: {game.GraphicsDevice.IsDepthRangeZeroToOne}");
+        Logger.Info($"[RENDER] IsClipSpaceYInverted: {game.GraphicsDevice.IsClipSpaceYInverted}");
+
+        // Force 0-1 depth range for Metal, just in case Veldrid reports it incorrectly
+        var useZeroToOne = game.GraphicsDevice.IsDepthRangeZeroToOne || game.GraphicsDevice.BackendType == GraphicsBackend.Metal;
+        Logger.Info($"[RENDER] Using ZeroToOne Depth: {useZeroToOne}");
+
+        Camera = new Camera(getViewport, useZeroToOne);
 
         SelectionGui = new SelectionGui();
 

@@ -20,6 +20,8 @@ namespace OpenSage.Mods.Generals.Gui;
 
 public sealed class GeneralsControlBar : IControlBar
 {
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
     private enum ControlBarSize
     {
         Maximized,
@@ -102,8 +104,6 @@ public sealed class GeneralsControlBar : IControlBar
     private LazyAssetReference<CommandButton> Evacuate { get; }
 
     private ControlBarSize _size = ControlBarSize.Maximized;
-
-    private readonly LocalizedString _moneyString = new("GUI:ControlBarMoneyDisplay");
 
     private Control FindControl(string name) => _window.Controls.FindControl($"ControlBar.wnd:{name}");
 
@@ -218,7 +218,8 @@ public sealed class GeneralsControlBar : IControlBar
             return;
         }
 
-        _moneyDisplay.Text = _moneyString.Localize(player.BankAccount.Money);
+        // Format money display with proper currency symbol
+        _moneyDisplay.Text = string.Format("${0}", player.BankAccount.Money);
 
         var powerBarProgress = player.GetEnergy(this._window.Game.Scene3D.GameObjects) / 100.0f;
         ApplyProgress("PowerWindow", "PowerBar", Math.Clamp(powerBarProgress, 0.0f, 1.0f));
@@ -719,7 +720,6 @@ public sealed class GeneralsControlBar : IControlBar
     {
         Control? _window;
         Control? _progressText;
-        string? _baseText;
 
 
         public override void OnEnterState(GeneralsControlBar controlBar)
@@ -729,8 +729,6 @@ public sealed class GeneralsControlBar : IControlBar
             _window = controlBar._center.Controls.FindControl("ControlBar.wnd:UnderConstructionWindow");
             _window.Show();
             _progressText = _window.Controls.FindControl("ControlBar.wnd:UnderConstructionDesc");
-
-            _baseText ??= _progressText.Text;
 
             Button cancelButton = (Button)_window.Controls.FindControl("ControlBar.wnd:ButtonCancelConstruction");
             // Is that CommandButton hardcoded or defined somewhere?
@@ -742,34 +740,22 @@ public sealed class GeneralsControlBar : IControlBar
         {
             if (_progressText == null)
             {
-                throw new InvalidOperationException();
+                // Try to find the control again if it was lost
+                _progressText = _window?.Controls.FindControl("ControlBar.wnd:UnderConstructionDesc");
+                if (_progressText == null)
+                {
+                    throw new InvalidOperationException();
+                }
             }
 
             var unit = player.SelectedUnits.First();
             var percent = unit.BuildProgress * 100.0f;
 
-            if (_baseText == null)
+            // Format construction progress as a percentage with proper format
+            string progressText = $"Construindo: {percent:F0}%";
+            if (_progressText.Text != progressText)
             {
-                _progressText.Text = string.Empty;
-                return;
-            }
-
-            // On macOS and non-Windows platforms, SprintfNET's P/Invoke to swprintf fails.
-            // Use .NET's string.Format as a fallback for compatibility.
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                _progressText.Text = string.Format(_baseText, percent);
-                return;
-            }
-
-            try
-            {
-                _progressText.Text = SprintfNET.StringFormatter.PrintF(_baseText, percent);
-            }
-            catch (DllNotFoundException)
-            {
-                // Fallback if swprintf is unavailable on Windows
-                _progressText.Text = string.Format(_baseText, percent);
+                _progressText.Text = progressText;
             }
         }
     }
@@ -777,6 +763,8 @@ public sealed class GeneralsControlBar : IControlBar
 
 public sealed class GeneralsControlBarSource : IControlBarSource
 {
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
     public IControlBar Create(string side, IGame game)
     {
         var scheme = game.AssetStore.ControlBarSchemes.FindBySide(side);
@@ -784,6 +772,8 @@ public sealed class GeneralsControlBarSource : IControlBarSource
         // TODO: Support multiple image parts?
         // Generals always uses exactly one image part.
         var imagePart = scheme.ImageParts[0];
+
+        Logger.Info($"[CONTROLBAR] ImagePart: Position={imagePart.Position}, Size={imagePart.Size}, Image={imagePart.ImageName}");
 
         var background = new Control
         {
@@ -793,8 +783,32 @@ public sealed class GeneralsControlBarSource : IControlBarSource
 
         var backgroundWindow = new Window(scheme.ScreenCreationRes, background, game);
         backgroundWindow.Enabled = false;
+
         var controlBarWindow = game.LoadWindow("ControlBar.wnd");
         var controlBarDescriptionWindow = game.LoadWindow("ControlBarPopupDescription.wnd");
+
+        // Make the control bar window root transparent so the 3D scene shows through
+        // The ControlBar.wnd has a full-screen root that would otherwise block the view
+        // Setting both BackgroundColor AND BackgroundImage to null is essential because
+        // DrawBackgroundImage draws independently of BackgroundColor transparency
+        controlBarWindow.Root.BackgroundColor = OpenSage.Mathematics.ColorRgbaF.Transparent;
+        controlBarWindow.Root.BackgroundImage = null;
+        controlBarDescriptionWindow.Root.BackgroundColor = OpenSage.Mathematics.ColorRgbaF.Transparent;
+        controlBarDescriptionWindow.Root.BackgroundImage = null;
+
+        Logger.Info($"[CONTROLBAR] Root Window: Bounds={controlBarWindow.Root.Bounds}, BG={controlBarWindow.Root.BackgroundColor}");
+
+        void LogControlHierarchy(Control control, int depth = 0)
+        {
+            var indent = new string(' ', depth * 2);
+            Logger.Info($"[CONTROLBAR] {indent}{control.Name}: Bounds={control.Bounds}, Visible={control.Visible}, BG={control.BackgroundColor}, BGImage={control.BackgroundImage != null}");
+            foreach (var child in control.Controls.AsList())
+            {
+                LogControlHierarchy(child, depth + 1);
+            }
+        }
+
+        LogControlHierarchy(controlBarWindow.Root);
 
         background.BackgroundImage = backgroundWindow.ImageLoader.CreateFromMappedImageReference(imagePart.ImageName);
 
@@ -855,6 +869,12 @@ public sealed class GeneralsControlBarSource : IControlBarSource
         FindControl("ExpBarForeground").BackgroundImage = controlBarWindow.ImageLoader.CreateFromMappedImageReference(scheme.ExpBarForegroundImage);
 
         var powersShortcutBar = game.LoadWindow(game.Scene3D.LocalPlayer.Template!.SpecialPowerShortcutWinName);
+
+        // Make the power shortcut bar transparent too
+        // Must set both BackgroundColor and BackgroundImage to null for full transparency
+        powersShortcutBar.Root.BackgroundColor = OpenSage.Mathematics.ColorRgbaF.Transparent;
+        powersShortcutBar.Root.BackgroundImage = null;
+
         return new GeneralsControlBar(backgroundWindow, controlBarWindow, controlBarDescriptionWindow, powersShortcutBar, scheme, game.ContentManager, game.AssetStore);
     }
 }

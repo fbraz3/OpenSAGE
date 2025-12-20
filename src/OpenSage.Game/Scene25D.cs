@@ -19,8 +19,6 @@ public class Scene25D(IScene3D scene3D, AssetStore assetStore)
 
     private Player LocalPlayer => scene3D.LocalPlayer;
 
-    private readonly LocalizedString _buildProgressString = new("CONTROLBAR:UnderConstructionDesc");
-
     /// <summary>
     /// Animations which are not persisted across saves
     /// </summary>
@@ -237,7 +235,8 @@ public class Scene25D(IScene3D scene3D, AssetStore assetStore)
             return;
         }
 
-        var text = _buildProgressString.Localize(gameObject.BuildProgress * 100);
+        // Format the build progress as a simple percentage
+        var text = string.Format("{0:F0}%", gameObject.BuildProgress * 100);
         // todo: is this the correct font?
         drawingContext.DrawText(text, scene3D.Game.ContentManager.FontManager.GetOrCreateFont(assetStore.InGameUI.Current.MessageFont, 26, FontWeight.Normal), TextAlignment.Center, ColorRgbaF.White, buildProgressRect.Value);
     }

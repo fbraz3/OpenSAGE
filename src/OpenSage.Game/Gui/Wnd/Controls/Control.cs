@@ -398,6 +398,13 @@ public partial class Control : DisposableBase
             color = HoverBackgroundColor ?? color;
         }
 
+        // Skip drawing if the color is fully transparent
+        // This is essential for see-through windows like the shell map overlay
+        if (color.A <= 0)
+        {
+            return;
+        }
+
         drawingContext.FillRectangle(
             ClientRectangle,
             color);
@@ -446,6 +453,12 @@ public partial class Control : DisposableBase
         else if (IsMouseOver)
         {
             color = HoverBorderColor ?? color;
+        }
+
+        // Skip drawing if the color is fully transparent
+        if (color.A <= 0)
+        {
+            return;
         }
 
         drawingContext.DrawRectangle(

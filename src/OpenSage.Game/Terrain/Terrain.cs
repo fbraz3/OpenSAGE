@@ -64,11 +64,11 @@ public sealed class Terrain : DisposableBase
         HeightMap = heightMap;
 
         _renderBucket = scene.CreateRenderBucket("Terrain", 0);
-        Logger.Debug($"[TERRAIN] Created RenderBucket with visibility={_renderBucket.Visible}");
+        Logger.Info($"[TERRAIN] Created RenderBucket with visibility={_renderBucket.Visible}");
 
         _loadContext = loadContext;
         _graphicsDevice = loadContext.GraphicsDevice;
-        Logger.Debug($"[TERRAIN] HeightMap initialized with dimensions {HeightMap.Width}x{HeightMap.Height}");
+        Logger.Info($"[TERRAIN] HeightMap initialized with dimensions {HeightMap.Width}x{HeightMap.Height}");
 
         _indexBufferCache = AddDisposable(new TerrainPatchIndexBufferCache(loadContext.GraphicsDevice));
 
@@ -297,7 +297,7 @@ public sealed class Terrain : DisposableBase
             numPatchesY += 1;
         }
 
-        Logger.Debug($"[TERRAIN] Creating {numPatchesX}x{numPatchesY} = {numPatchesX * numPatchesY} patches");
+        Logger.Info($"[TERRAIN] Creating {numPatchesX}x{numPatchesY} = {numPatchesX * numPatchesY} patches");
 
         int patchCount = 0;
         for (var y = 0; y < numPatchesY; y++)
@@ -328,7 +328,7 @@ public sealed class Terrain : DisposableBase
             }
         }
 
-        Logger.Debug($"[TERRAIN] Successfully created and added {patchCount} patches to RenderBucket");
+        Logger.Info($"[TERRAIN] Successfully created and added {patchCount} patches to RenderBucket");
     }
 
     private static Texture CreateTileDataTexture(

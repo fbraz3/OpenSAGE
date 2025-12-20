@@ -81,9 +81,12 @@ public sealed class Camera
 
     public Vector2 ScreenSize => new(Viewport.Width, Viewport.Height);
 
-    public Camera(Func<Viewport> getViewport)
+    private readonly bool _isDepthRangeZeroToOne;
+
+    public Camera(Func<Viewport> getViewport, bool isDepthRangeZeroToOne)
     {
         _getViewport = getViewport;
+        _isDepthRangeZeroToOne = isDepthRangeZeroToOne;
         Viewport = getViewport();
 
         View = Matrix4x4.Identity;
@@ -134,9 +137,30 @@ public sealed class Camera
 
     private void CreateProjection(out Matrix4x4 projection)
     {
-        projection = Matrix4x4.CreatePerspectiveFieldOfView(
-            GetVerticalFieldOfView(), Viewport.Width / Viewport.Height,
-            NearPlaneDistance, FarPlaneDistance);
+        if (_isDepthRangeZeroToOne)
+        {
+            var vfov = GetVerticalFieldOfView();
+            var yScale = 1.0f / (float)Math.Tan(vfov * 0.5f);
+            var xScale = yScale * (Viewport.Height / Viewport.Width);
+            var near = NearPlaneDistance;
+            var far = FarPlaneDistance;
+
+            projection = new Matrix4x4
+            {
+                M11 = xScale,
+                M22 = yScale,
+                M33 = far / (near - far),
+                M34 = -1.0f,
+                M43 = near * far / (near - far),
+                M44 = 0.0f
+            };
+        }
+        else
+        {
+            projection = Matrix4x4.CreatePerspectiveFieldOfView(
+                GetVerticalFieldOfView(), Viewport.Width / Viewport.Height,
+                NearPlaneDistance, FarPlaneDistance);
+        }
     }
 
     /// <summary>
