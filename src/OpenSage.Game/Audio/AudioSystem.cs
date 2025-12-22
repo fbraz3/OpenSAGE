@@ -229,6 +229,11 @@ public sealed class AudioSystem : GameSystem
 
     private FileSystemEntry ResolveDialogEventEntry(DialogEvent ev)
     {
+        if (ev?.File?.Value?.Entry == null)
+        {
+            Logger.Warn($"DialogEvent missing file for event: {ev?.Name ?? "<unknown>"}");
+            return null;
+        }
         return ev.File.Value.Entry;
     }
 

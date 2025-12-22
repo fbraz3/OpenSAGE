@@ -112,10 +112,21 @@ partial class IniParser
         {
             lock (CachedEnumMap)
             {
-                stringToValueMap = Enum.GetValues(enumType)
-                    .Cast<Enum>()
-                    .Distinct()
-                    .SelectMany(x => GetIniNames(enumType, x).Select(y => new { Name = y, Value = x }))
+                // Iterate over declared enum fields instead of distinct values so that
+                // duplicate numeric values with multiple named fields (like
+                // `FleshySniper` and `SubdualMissile` sharing the same value) are
+                // all included in the mapping.
+                stringToValueMap = enumType
+                    .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+                    .SelectMany(field =>
+                    {
+                        var val = (Enum)Enum.Parse(enumType, field.Name);
+                        var names = field.GetCustomAttributes(typeof(IniEnumAttribute), false)
+                            .OfType<IniEnumAttribute>()
+                            .SelectMany(a => a.Names ?? new string[0])
+                            .Where(n => n != null);
+                        return names.Select(n => new { Name = n, Value = val });
+                    })
                     .Where(x => x.Name != null)
                     .ToDictionary(x => x.Name, x => x.Value, StringComparer.OrdinalIgnoreCase);
 
@@ -137,10 +148,17 @@ partial class IniParser
         {
             lock (CachedEnumMapReverse)
             {
-                valueToStringMap = Enum.GetValues(enumType)
-                    .Cast<Enum>()
-                    .Distinct()
-                    .SelectMany(x => GetIniNames(enumType, x).Select(y => new { Name = y, Value = x }))
+                valueToStringMap = enumType
+                    .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+                    .SelectMany(field =>
+                    {
+                        var val = (Enum)Enum.Parse(enumType, field.Name);
+                        var names = field.GetCustomAttributes(typeof(IniEnumAttribute), false)
+                            .OfType<IniEnumAttribute>()
+                            .SelectMany(a => a.Names ?? new string[0])
+                            .Where(n => n != null);
+                        return names.Select(n => new { Name = n, Value = val });
+                    })
                     .Where(x => x.Name != null)
                     .ToDictionary(x => x.Value, x => x.Name);
 

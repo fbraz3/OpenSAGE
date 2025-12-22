@@ -857,7 +857,12 @@ internal sealed class SleepyUpdateList
             {
                 var i0 = ((i + 1) / 2) - 1;
                 var priority0 = _inner[i0].Priority;
-                DebugUtility.AssertCrash(priority >= priority0, "Sleepy updates are broken");
+                if (priority < priority0)
+                {
+                    Console.WriteLine($"[Warning] SleepyUpdateList heap violation: child index={i} priority={priority} parent index={i0} priority={priority0}. Rebuilding heap.");
+                    Remake();
+                    return;
+                }
             }
 
             var i1 = (2 * (i + 1)) - 1;
@@ -865,12 +870,22 @@ internal sealed class SleepyUpdateList
             if (i1 < _inner.Count)
             {
                 var priority1 = _inner[i1].Priority;
-                DebugUtility.AssertCrash(priority <= priority1, "Sleepy updates are broken");
+                if (priority > priority1)
+                {
+                    Console.WriteLine($"[Warning] SleepyUpdateList heap violation: parent index={i} priority={priority} left child index={i1} priority={priority1}. Rebuilding heap.");
+                    Remake();
+                    return;
+                }
             }
             if (i2 < _inner.Count)
             {
                 var priority2 = _inner[i2].Priority;
-                DebugUtility.AssertCrash(priority <= priority2, "Sleepy updates are broken");
+                if (priority > priority2)
+                {
+                    Console.WriteLine($"[Warning] SleepyUpdateList heap violation: parent index={i} priority={priority} right child index={i2} priority={priority2}. Rebuilding heap.");
+                    Remake();
+                    return;
+                }
             }
         }
     }

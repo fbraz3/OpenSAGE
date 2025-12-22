@@ -28,28 +28,31 @@ partial class Control
             wndRectangle.Width,
             wndRectangle.Height);
 
-        var systemCallback = wndCallbackResolver.GetControlCallback(wndWindow.SystemCallback);
-        if (systemCallback != null)
+        if (wndCallbackResolver != null)
         {
-            result.SystemCallback = systemCallback;
-        }
+            var systemCallback = wndCallbackResolver.GetControlCallback(wndWindow.SystemCallback);
+            if (systemCallback != null)
+            {
+                result.SystemCallback = systemCallback;
+            }
 
-        var inputCallback = wndCallbackResolver.GetControlCallback(wndWindow.InputCallback);
-        if (inputCallback != null)
-        {
-            result.InputCallback = inputCallback;
-        }
+            var inputCallback = wndCallbackResolver.GetControlCallback(wndWindow.InputCallback);
+            if (inputCallback != null)
+            {
+                result.InputCallback = inputCallback;
+            }
 
-        var drawCallback = wndCallbackResolver.GetControlDrawCallback(wndWindow.DrawCallback);
-        if (drawCallback != null)
-        {
-            result.DrawCallback = drawCallback;
-        }
+            var drawCallback = wndCallbackResolver.GetControlDrawCallback(wndWindow.DrawCallback);
+            if (drawCallback != null)
+            {
+                result.DrawCallback = drawCallback;
+            }
 
-        var tooltipCallback = wndCallbackResolver.GetControlCallback(wndWindow.TooltipCallback);
-        if (tooltipCallback != null)
-        {
-            result.TooltipCallback = tooltipCallback;
+            var tooltipCallback = wndCallbackResolver.GetControlCallback(wndWindow.TooltipCallback);
+            if (tooltipCallback != null)
+            {
+                result.TooltipCallback = tooltipCallback;
+            }
         }
 
         result.TooltipText = wndWindow.TooltipText;
@@ -63,26 +66,59 @@ partial class Control
             result.BorderColor = ColorRgbaF.Transparent;
         }
 
+        // Resolve font: prefer header template font when available, but fall back safely.
         if (wndWindow.HasHeaderTemplate)
         {
-            var headerTemplate = assetStore.HeaderTemplates.GetByName(wndWindow.HeaderTemplate);
-            result.Font = contentManager.FontManager.GetOrCreateFont(headerTemplate.Font.Name, headerTemplate.Font.Size, headerTemplate.Font.Bold ? FontWeight.Bold : FontWeight.Normal);
+            var headerTemplate = assetStore?.HeaderTemplates?.GetByName(wndWindow.HeaderTemplate);
+            if (headerTemplate != null && headerTemplate.Font != null)
+            {
+                result.Font = contentManager.FontManager.GetOrCreateFont(headerTemplate.Font.Name, headerTemplate.Font.Size, headerTemplate.Font.Bold ? FontWeight.Bold : FontWeight.Normal);
+            }
+            else if (wndWindow.Font != null)
+            {
+                result.Font = contentManager.FontManager.GetOrCreateFont(wndWindow.Font.Name, wndWindow.Font.Size, wndWindow.Font.Bold ? FontWeight.Bold : FontWeight.Normal);
+            }
+            else
+            {
+                result.Font = contentManager.FontManager.GetOrCreateFont("Arial", 12, FontWeight.Normal);
+            }
         }
         else
         {
-            result.Font = contentManager.FontManager.GetOrCreateFont(wndWindow.Font.Name, wndWindow.Font.Size, wndWindow.Font.Bold ? FontWeight.Bold : FontWeight.Normal);
+            if (wndWindow.Font != null)
+            {
+                result.Font = contentManager.FontManager.GetOrCreateFont(wndWindow.Font.Name, wndWindow.Font.Size, wndWindow.Font.Bold ? FontWeight.Bold : FontWeight.Normal);
+            }
+            else
+            {
+                result.Font = contentManager.FontManager.GetOrCreateFont("Arial", 12, FontWeight.Normal);
+            }
         }
 
-        result.TextColor = wndWindow.TextColor.Enabled.ToColorRgbaF();
+        if (wndWindow?.TextColor != null)
+        {
+            result.TextColor = wndWindow.TextColor.Enabled.ToColorRgbaF();
+        }
+        else
+        {
+            result.TextColor = ColorRgbaF.White;
+        }
 
-        result.Text = wndWindow.Text.Translate();
+        result.Text = wndWindow?.Text?.Translate() ?? string.Empty;
 
         // TODO: TextBorderColor
 
-        foreach (var childWindow in wndWindow.ChildWindows)
+        if (wndWindow.ChildWindows != null)
         {
-            var child = CreateRecursive(childWindow, imageLoader, contentManager, assetStore, wndCallbackResolver, wndRectangle.Location);
-            result.Controls.Add(child);
+            foreach (var childWindow in wndWindow.ChildWindows)
+            {
+                if (childWindow == null)
+                    continue;
+
+                var child = CreateRecursive(childWindow, imageLoader, contentManager, assetStore, wndCallbackResolver, wndRectangle.Location);
+                if (child != null)
+                    result.Controls.Add(child);
+            }
         }
 
         return result;

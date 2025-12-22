@@ -851,8 +851,9 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
 
     public void SetBounceSound(AudioEvent bounceSound)
     {
-        // TODO(Port): Implement this.
-        throw new NotImplementedException();
+        // Quick no-op: audio subsystem integration to be implemented later.
+        // Keeping this method to preserve API surface; ignore for now.
+        return;
     }
 
     public void SetAngles(float yaw, float pitch, float roll)
@@ -869,14 +870,9 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
 
     private void DoBounceSound(in Vector3 prevPos)
     {
-        // TODO(Port): Implement this.
-        //if (_bounceSound == null)
-        //{
-        //    return;
-        //}
-
-        // TODO(Port): Implement this.
-        throw new NotImplementedException();
+        // Quick no-op implementation so falling/bounce logic doesn't crash.
+        // TODO(Port): Implement actual audio event playback using AudioEvent/_bounceSound.
+        return;
     }
 
     private UpdateSleepTime CalculateSleepTime()

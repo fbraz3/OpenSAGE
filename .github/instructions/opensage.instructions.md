@@ -2,6 +2,30 @@
 applyTo: '**'
 ---
 
+# Objectives
+
+OpenSAGE project intends to be an open source reimplementation of the SAGE engine used in several EA games, including Command & Conquer: Generals and its expansion, Zero Hour.
+
+It aims to provide a modern, cross-platform engine that can run these classic games on contemporary systems while preserving the original gameplay experience.
+
+## Multi-Platform Support
+
+The game must run on any supported platform (Windows, Linux, MacOS) with equivalent graphics quality and performance, so keep this in mind when modifying any file avoiding break other platforms execution or degrade graphics quality/performance.
+
+## Updtate Daily Blog before committing any changes
+
+Befor commiting changes, make sure to update the development diary located at `docs/DEV_BLOG/YYYY-MM-DIARY.md`, you can find the development diary guidelines in `.github\instructions\docs.instructions.md`.
+
+## Focus on these graphics APIs for each platform:
+
+Windows - Direct3D11 (DirectX 11)
+Linux - OpenGL (primary; use OpenGLES on Linux platforms where desktop OpenGL is unavailable or unsupported)
+MacOS - Metal
+
+Other graphics backends can be implemented in the future, but these are the primary targets for now.
+
+# Guidelines
+
 EA games released command & conquer generals source code which can be found at `https://github.com/electronicarts/CnC_Generals_Zero_Hour`
 
 You can use this source code as a reference for your own implementations. When doing so, please keep in mind the following guidelines:

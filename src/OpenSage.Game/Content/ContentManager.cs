@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 using OpenSage.Content.Translation;
 using OpenSage.Data.Ini;
@@ -117,7 +118,14 @@ public sealed class ContentManager : DisposableBase
 
     internal void LoadIniFile(string filePath)
     {
-        LoadIniFile(FileSystem.GetFile(filePath));
+        var entry = FileSystem.GetFile(filePath);
+        if (entry is null)
+        {
+            Console.WriteLine($"Warning: INI file not found: {filePath}");
+            return;
+        }
+
+        LoadIniFile(entry);
     }
 
     internal void LoadIniFile(FileSystemEntry entry)

@@ -25,6 +25,13 @@ internal abstract class WindowTransitionOperation
         }
         System.IO.File.AppendAllText(logPath, msg + "\n");
 
+        if (element == null)
+        {
+            // If the target control isn't present, return a no-op transition
+            // to avoid null-reference exceptions in specific transition types.
+            return new NullTransition(element, startTime);
+        }
+
         switch (transitionWindow.Style)
         {
             case WindowTransitionStyle.WinFade:
@@ -73,6 +80,27 @@ internal abstract class WindowTransitionOperation
         Duration = TimeSpan.FromSeconds(FrameDuration / 30.0);
 
         EndTime = startTime + Duration;
+    }
+
+    // Null/no-op transition used when the target control is missing.
+    private sealed class NullTransition : WindowTransitionOperation
+    {
+        protected override int FrameDuration => 1;
+
+        public NullTransition(Control element, TimeSpan startTime)
+            : base(element, startTime)
+        {
+        }
+
+        protected override void OnUpdate(float progress)
+        {
+            // no-op
+        }
+
+        protected override void OnFinish()
+        {
+            // no-op
+        }
     }
 
     public void Update(TimeSpan currentTime)

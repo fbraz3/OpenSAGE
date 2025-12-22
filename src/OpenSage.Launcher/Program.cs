@@ -66,6 +66,7 @@ public static class Program
 
     public static void Main(string[] args)
     {
+        System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
         Console.OutputEncoding = Encoding.UTF8;
 
         LogManager.Setup().SetupExtensions(b => b.RegisterTarget<Core.InternalLogger>("OpenSage"));
