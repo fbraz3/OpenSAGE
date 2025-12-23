@@ -14,13 +14,10 @@ internal sealed class TerrainShaderResources : ShaderSetBase
     public TerrainShaderResources(ShaderSetStore store)
         : base(store, "Terrain", TerrainVertex.VertexDescriptor)
     {
-        var depthState = DepthStencilStateDescription.DepthOnlyLessEqual;
-        depthState.DepthComparison = ComparisonKind.Always;
-
         Pipeline = AddDisposable(store.GraphicsDevice.ResourceFactory.CreateGraphicsPipeline(
             new GraphicsPipelineDescription(
                 BlendStateDescription.SingleDisabled,
-                depthState,
+                DepthStencilStateDescription.DepthOnlyLessEqual,
                 RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise,
                 PrimitiveTopology.TriangleList, // TODO: Use triangle strip
                 Description,

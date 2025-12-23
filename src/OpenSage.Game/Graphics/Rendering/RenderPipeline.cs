@@ -22,7 +22,7 @@ internal sealed class RenderPipeline : DisposableBase
 
     // Clear color used when no Scene3D is present (e.g., --noshellmap mode)
     // Using a dark gray as fallback background
-    private static readonly RgbaFloat ClearColor = RgbaFloat.Pink; // Changed to Pink for debugging
+    private static readonly RgbaFloat ClearColor = new RgbaFloat(0.1f, 0.1f, 0.15f, 1.0f);
 
     public static readonly OutputDescription GameOutputDescription = new OutputDescription(
         new OutputAttachmentDescription(PixelFormat.D32_Float_S8_UInt),
@@ -396,8 +396,10 @@ internal sealed class RenderPipeline : DisposableBase
 
             commandList.PushDebugGroup($"Render item: {renderItem.DebugName}");
 
+            // For shadow pass, use a dummy ResourceSet for slot 1 since the depth shader
+            // defines the layout but doesn't use the data. Metal requires all slots to be bound.
             var passResourceSet = (bucket.RenderItemName == "Shadow")
-                ? null
+                ? _loadContext.ShaderResources.MeshDepth.DummyPassResourceSet
                 : forwardPassResourceSet;
 
             var newMaterial = true;
@@ -431,6 +433,12 @@ internal sealed class RenderPipeline : DisposableBase
             // Metal backend requires all resource sets to be bound
             // All shaders now define a MATERIAL_CONSTANTS_RESOURCE_SET layout (slot 2)
             // If a shader doesn't use it, we still need to bind a valid ResourceSet
+            if (renderItem.Material.MaterialResourceSet == null)
+            {
+                Logger.Warn($"[RENDER] Skipping render - MaterialResourceSet null for: {renderItem.DebugName}");
+                commandList.PopDebugGroup();
+                continue;
+            }
             commandList.SetGraphicsResourceSet(2, renderItem.Material.MaterialResourceSet);
 
             if (renderItem.IndexBuffer == null)
@@ -449,6 +457,7 @@ internal sealed class RenderPipeline : DisposableBase
             }
 
             Logger.Debug($"[RENDER] About to draw: {renderItem.DebugName}, IndexCount={renderItem.IndexCount}");
+            
             commandList.SetIndexBuffer(renderItem.IndexBuffer, IndexFormat.UInt16);
             try
             {

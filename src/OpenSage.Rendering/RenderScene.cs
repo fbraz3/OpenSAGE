@@ -76,6 +76,7 @@ public sealed class RenderBucket
     {
         if (!Visible)
         {
+            NLog.LogManager.GetCurrentClassLogger().Info($"[RenderBucket:{Name}] Skipped - not visible");
             return;
         }
 
@@ -87,8 +88,22 @@ public sealed class RenderBucket
 
         renderList.Cull();
 
+        NLog.LogManager.GetCurrentClassLogger().Info($"[RenderBucket:{Name}] Rendering {renderList.CulledObjects.Count} objects");
+
+        var firstObject = true;
         foreach (var renderObject in renderList.CulledObjects)
         {
+            if (firstObject && Name == "Terrain")
+            {
+                var logger = NLog.LogManager.GetCurrentClassLogger();
+                logger.Info($"[RenderBucket:{Name}] First object: {renderObject.Item1.DebugName}");
+                logger.Info($"[RenderBucket:{Name}] Pipeline null? {renderObject.Item2.Pipeline == null}");
+                logger.Info($"[RenderBucket:{Name}] MaterialResourceSet null? {renderObject.Item2.MaterialResourceSet == null}");
+                logger.Info($"[RenderBucket:{Name}] globalResourceSet null? {globalResourceSet == null}");
+                logger.Info($"[RenderBucket:{Name}] passResourceSet null? {passResourceSet == null}");
+                firstObject = false;
+            }
+
             commandList.PushDebugGroup(renderObject.Item1.DebugName);
 
             commandList.SetPipeline(renderObject.Item2.Pipeline);

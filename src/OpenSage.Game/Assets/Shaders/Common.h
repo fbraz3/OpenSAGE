@@ -57,8 +57,10 @@ float CalculateClippingPlane(vec3 position, bool hasClippingPlane, vec4 plane)
     return 1;
 }
 
+// DISABLED: gl_ClipDistance may not work correctly on Metal backend
+// TODO: Investigate Metal-compatible clipping solution for water reflections
 #define DO_CLIPPING(position) \
-    gl_ClipDistance[0] = CalculateClippingPlane(position, _GlobalConstants.HasClippingPlane1, _GlobalConstants.ClippingPlane1); \
-    gl_ClipDistance[1] = CalculateClippingPlane(position, _GlobalConstants.HasClippingPlane2, _GlobalConstants.ClippingPlane2);
+    gl_ClipDistance[0] = 1.0; \
+    gl_ClipDistance[1] = 1.0;
 
 #endif

@@ -7,6 +7,7 @@ namespace OpenSage.Graphics.Shaders;
 internal sealed class MeshDepthShaderResources : ShaderSetBase
 {
     public readonly Material Material;
+    public readonly ResourceSet DummyPassResourceSet;
 
     public MeshDepthShaderResources(
         ShaderSetStore store)
@@ -32,12 +33,47 @@ internal sealed class MeshDepthShaderResources : ShaderSetBase
         // We need actual ResourceSet objects to satisfy the pipeline binding
         var dummyResourceSet = CreateDummyMaterialResourceSet();
 
+        // Create dummy pass resources for the depth shader (set 1)
+        // Metal requires all resource sets defined in the pipeline to be bound
+        DummyPassResourceSet = CreateDummyPassResourceSet();
+
         Material = AddDisposable(
             new Material(
                 this,
                 pipeline,
                 dummyResourceSet,
                 SurfaceType.Opaque));
+    }
+
+    private ResourceSet CreateDummyPassResourceSet()
+    {
+        // Create dummy resources matching the pass layout defined in MeshDepth.frag
+        // MeshDepth doesn't use these, but the pipeline requires all slots to be bound
+        var factory = GraphicsDevice.ResourceFactory;
+
+        var dummyBuffer0 = AddDisposable(
+            factory.CreateBuffer(
+                new BufferDescription(
+                    16, // Minimum for a uniform buffer (one vec4)
+                    BufferUsage.UniformBuffer)));
+
+        var dummyBuffer1 = AddDisposable(
+            factory.CreateBuffer(
+                new BufferDescription(
+                    16,
+                    BufferUsage.UniformBuffer)));
+
+        // Get the pass resource layout (slot 1)
+        var passLayout = ResourceLayouts[1];
+
+        var dummyResourceSet = AddDisposable(
+            factory.CreateResourceSet(
+                new ResourceSetDescription(
+                    passLayout,
+                    dummyBuffer0,
+                    dummyBuffer1)));
+
+        return dummyResourceSet;
     }
 
     private ResourceSet CreateDummyMaterialResourceSet()

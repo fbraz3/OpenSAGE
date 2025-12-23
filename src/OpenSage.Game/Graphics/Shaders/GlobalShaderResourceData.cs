@@ -58,7 +58,8 @@ internal sealed class GlobalShaderResourceData : DisposableBase
         ConstantBuffer<GlobalShaderResources.ShadowConstantsPS> shadowConstantsPSBuffer,
         Texture shadowMap)
     {
-        if (_cachedCloudTexture != cloudTexture || shadowMap != _cachedShadowMap)
+        // Always create the ResourceSet on first call, or when textures change
+        if (_forwardPassResourceSet == null || _cachedCloudTexture != cloudTexture || shadowMap != _cachedShadowMap)
         {
             _cachedCloudTexture = cloudTexture;
             _cachedShadowMap = shadowMap;

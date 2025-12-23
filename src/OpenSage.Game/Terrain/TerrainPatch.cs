@@ -10,6 +10,9 @@ namespace OpenSage.Terrain;
 
 public sealed class TerrainPatch : RenderObject
 {
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+    private static int _loggedPatches = 0;
+    
     private readonly DeviceBuffer _vertexBuffer;
     private readonly DeviceBuffer _indexBuffer;
     private readonly uint _numIndices;
@@ -31,9 +34,8 @@ public sealed class TerrainPatch : RenderObject
         TerrainPatchIndexBufferCache indexBufferCache,
         Material material)
     {
-        DebugName = $"Terrain_{Bounds}";
-
         Bounds = patchBounds;
+        DebugName = $"Terrain_{Bounds}";
 
         _indexBuffer = indexBufferCache.GetIndexBuffer(
             patchBounds.Width,
@@ -52,6 +54,12 @@ public sealed class TerrainPatch : RenderObject
 
         BoundingBox = boundingBox;
         Triangles = triangles;
+
+        if (_loggedPatches < 3)
+        {
+            Logger.Info($"[TERRAIN PATCH] Bounds: {Bounds}, BoundingBox: Min={BoundingBox.Min}, Max={BoundingBox.Max}, NumIndices={_numIndices}");
+            _loggedPatches++;
+        }
 
         MaterialPass = new MaterialPass(material, null);
     }

@@ -4,6 +4,19 @@
 #include "Common.h"
 #include "Mesh.h"
 
+// Dummy pass constants layout to satisfy Metal backend requirements
+// Metal requires all resource sets defined in the pipeline to be bound
+// The depth shader doesn't actually use any pass data
+layout(set = PASS_CONSTANTS_RESOURCE_SET, binding = 0) uniform DummyPassConstantsVS
+{
+    vec4 DummyPass0;
+};
+
+layout(set = PASS_CONSTANTS_RESOURCE_SET, binding = 1) uniform DummyPassConstantsPS
+{
+    vec4 DummyPass1;
+};
+
 // Dummy material constants layout to satisfy Metal backend requirements
 // Metal requires all resource sets defined in the pipeline to be bound
 // The depth shader doesn't actually use any material data
